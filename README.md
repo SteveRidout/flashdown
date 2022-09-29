@@ -24,3 +24,32 @@ Combines a bunch of challenges
   - Interesting UX challenge to work within the constraints of a CLI
 - Open source: an interesting challenge to start a project with the explicit goal of attracting contributors. I've open sourced stuff before but just tiny things which aren't particularly
 - SRS is a recurring topic on HN. A bunch of hacker types either build their own or think about it. I think that providing a really simple to understand foundation could be attractive to others who might want to customize it for their purposes
+
+# What commands could make sense?
+
+flashdown practice
+Options:
+
+- max cards
+- cards
+- topic
+
+flashdown topics list // show list of topics with stats
+
+flashdown intervals // show num cards within different interval ranges + new cards
+
+flashdown upcoming // show graph of upcoming cards schedule, num cards within ranges
+// (1 day / week / month / year)
+
+flashdown history // show streak and graph of previous usage
+
+# Start with `flashdown practice`
+
+Order of session:
+
+- Start page, show:
+  - Welcome to Flashdown!
+  - The flashcard app
+  - streak
+  - number of new cards / ready to review / scheduled for future
+  - Hit SPACE to start session

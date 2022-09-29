@@ -91,7 +91,7 @@ const parseDateTimeString = (rawDateTime: string) => {
 
 // XXX for now just one success value per line, but we could make this more compact and still just
 // as readable (if not more readable) by including multiple success values per line
-const practiceRecordRegexp = () => /^([^,:]+), (f|b): ([0-5])/;
+const practiceRecordRegexp = () => /^([^:]+), (f|b): ([0-5])/;
 
 export const getRecords = (
   baseName: string

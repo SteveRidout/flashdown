@@ -8,6 +8,8 @@ Epistemology: Study of knowledge acquisition
 Immanuel Kant: German philosopher and one of the foremost thinkers of the Enlightenment. Wrote "Critique of Pure Reason" in 1781
 
 # Celsius/Fahrenheit conversion
+> target: 2022-10-20
+> directions: f
 
 0C: 32F
 5C: 41F
@@ -19,10 +21,15 @@ Immanuel Kant: German philosopher and one of the foremost thinkers of the Enligh
 35C: 95F
 40C: 104F
 
+# Continue the phrase
+> delimiter: ...
+
+(Romeo & Juliet) A rose by any other name... would smell as sweet
+
 # Solar energy terminology
 
 What was the total electricity consumption of Spain in 2018?: 238 TWh
-LCOE (Levelized Cost of Energy or Electricity): [the lifetime cost of constructing and running an electricity plant, divided by the amount of electricity it's expected to generate over its lifetime.]
+LCOE (Levelized Cost of Energy or Electricity): the lifetime cost of constructing and running an electricity plant, divided by the amount of electricity it's expected to generate over its lifetime.
 
 # Spanish
 
@@ -35,3 +42,12 @@ grumetes: cabin boys
 surco: groove
 barandilla: railing
 proa: bow
+
+# Cognitive biases
+
+Anchoring: We rely heavily on the first piece of information introduced when making decisions. Example: “That's 50% off? It must be a great deal.”
+Authority Bias: We trust and are more often influenced by the opinions of authority figures. Example: “My teacher told me this was fine.”
+Automation Bias: We rely on automated systems, sometimes trusting too much in the automated correction of actually correct decisions. Example: “Your phone auto-corrects "its" to "it's", so you assume it is right.”
+Availability Cascade: Tied to our need for social acceptance, collective beliefs gain more plausibility through public repetition. Example: “A story about razor blades appearing in candy eventually led to many people no longer offering homemade treats on Halloween in America.”
+Availability Heuristic (or bias): We rely on immediate examples that come to mind while making judgments. Example: “When trying to decide on which store to visit, you choose the one you most recently saw an ad for.”
+Backfire Effect: Disproving evidence sometimes has the unwarranted effect of confirming our beliefs. Example: “The evidence that disproves your conspiracy theory was probably faked by the government.”

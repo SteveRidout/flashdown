@@ -3,15 +3,6 @@ export interface PracticeRecord {
   score: number; // from 0 (bad) to 3 (good)
 }
 
-// export interface NoteData {
-//   text: string;
-//   clozeTerms: {
-//     start: number;
-//     end: number;
-//   }[];
-//   practiceRecords: PracticeRecord[][];
-// }
-
 export interface Card {
   front: string;
   back: string;

@@ -6,6 +6,7 @@
 
 import * as fs from "fs";
 import * as _ from "lodash";
+import * as readline from "readline";
 
 import * as keyboard from "./keyboard";
 import * as practiceRecords from "./practiceRecords";
@@ -20,10 +21,22 @@ const sleep = (duration: number): Promise<void> =>
 // XXX Read this from command line args instead
 const baseName = "notes";
 
-// const readlineInterface = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-// });
+const readlineInterface = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+const askQuestion = (question: string): Promise<string> => {
+  return new Promise((resolve) => {
+    readlineInterface.question(question, (answer) => {
+      // readlineInterface.close();
+      resolve(answer);
+    });
+  });
+};
+
+/** If number of characters in answer is less than this, use typing mode. */
+const typingThreshold = 20;
 
 const rawFlashcardsFile = fs.readFileSync(`${baseName}.fd`).toString();
 const lines = rawFlashcardsFile.split("\n");
@@ -76,13 +89,9 @@ console.log(allScheduledCards);
 
 const sessionSize = 5;
 
-// const exit = true;
-// if (exit) {
-//   process.exit();
-// }
-
-const flashcardRegexp = () => /(.*): (.*)/;
-const sectionHeaderRegexp = () => /# (.*)/;
+const flashcardRegexp = () => /^(.*): (.*)/;
+const sectionHeaderRegexp = () => /^# (.*)/;
+const ignoreRegexp = () => /^>/;
 
 let currentSection: string | undefined;
 
@@ -90,6 +99,9 @@ const cards: Card[] = [];
 const allCardsMap: { [front: string]: { [direction: string]: Card } } = {};
 
 for (const line of lines) {
+  if (ignoreRegexp().test(line)) {
+    continue;
+  }
   const sectionHeaderMatch = sectionHeaderRegexp().exec(line);
   if (sectionHeaderMatch) {
     currentSection = sectionHeaderMatch[1].trim();
@@ -128,7 +140,7 @@ for (const line of lines) {
   }
 }
 
-console.log(sessionSize);
+console.log("Scheduled cards: ", cardsInSession);
 
 // Add new cards to make up session length
 let cardIndex = 0;
@@ -150,6 +162,11 @@ while (cardsInSession.length < sessionSize) {
 
 cardsInSession = _.shuffle(cardsInSession);
 
+// const exit = true;
+// if (exit) {
+//   process.exit();
+// }
+
 // const minutesSinceEpoch = () => Math.floor(new Date().getTime() / 1000 / 60);
 
 // let cardIndex = Math.floor(Math.random() * cards.length);
@@ -163,8 +180,10 @@ console.log("cards in session: ", cardsInSession.length);
 let completedCount = 0;
 
 type SessionState =
-  | { type: "first-side" }
-  | { type: "reveal" }
+  | { type: "first-side-reveal" }
+  | { type: "first-side-type" }
+  | { type: "second-side-revealed" }
+  | { type: "second-side-typed"; score: number }
   | { type: "finished"; score: number };
 
 const renderSession = (card: Card, state: SessionState, newCard: boolean) => {
@@ -177,27 +196,41 @@ const renderSession = (card: Card, state: SessionState, newCard: boolean) => {
     } cards in session`
   );
   console.log();
-  console.log(`Topic: ${card.sectionTitle}`);
-  console.log();
   if (newCard) {
     console.log("** NEW CARD **");
-    console.log();
   }
+  console.log();
+  console.log(`Topic: ${card.sectionTitle}`);
+  console.log();
   switch (state.type) {
-    case "first-side":
+    case "first-side-reveal":
+    case "first-side-type":
       if (card.direction === "front-to-back") {
         console.log(`    ${card.front}: ?`);
       } else {
         console.log(`    ?: ${card.back}`);
       }
-      console.log();
-      console.log(
-        `Hit space to reveal ${
-          card.direction === "front-to-back" ? "back" : "front"
-        } of card`
-      );
+      if (state.type === "first-side-reveal") {
+        console.log();
+        console.log(
+          `Hit space to reveal ${
+            card.direction === "front-to-back" ? "back" : "front"
+          } of card`
+        );
+      }
       break;
-    case "reveal":
+    case "second-side-typed":
+      console.log(`    ${card.front}: ${card.back}`);
+      console.log();
+      if (state.score > 3) {
+        console.log("Well done!");
+      } else {
+        console.log("Wrong");
+      }
+      console.log();
+      console.log("Hit space to continue");
+      break;
+    case "second-side-revealed":
     case "finished":
       const score = state.type === "finished" ? state.score : undefined;
       console.log(`    ${card.front}: ${card.back}`);
@@ -223,17 +256,46 @@ const processNextCard = async () => {
     console.log("End of session");
     process.exit();
   }
+  console.log("front: ", cardInfo.front);
+  console.log("dir: ", cardInfo.direction);
   const card = allCardsMap[cardInfo.front][cardInfo?.direction];
 
-  renderSession(card, { type: "first-side" }, cardInfo.new);
-  await keyboard.getKeypress(["space", "return"]);
+  const missingText =
+    card.direction === "front-to-back" ? card.back : card.front;
 
-  renderSession(card, { type: "reveal" }, cardInfo.new);
+  let score: number;
 
-  const key = await keyboard.getKeypress(["1", "2", "3", "4"]);
-  const score = parseInt(key, 10);
+  if (missingText.length <= typingThreshold) {
+    renderSession(card, { type: "first-side-type" }, cardInfo.new);
 
-  practiceRecords.writeRecord(baseName, card, "front-to-back", score);
+    console.log();
+    const answer = await askQuestion(
+      "Type the missing answer followed by Enter:\n"
+    );
+
+    console.log("got answer: ", answer);
+
+    score =
+      answer.toLowerCase().trim() === missingText.toLowerCase().trim() ? 4 : 1;
+
+    renderSession(card, { type: "second-side-typed", score }, cardInfo.new);
+
+    await keyboard.getKeypress(["space", "return"]);
+  } else {
+    renderSession(card, { type: "first-side-reveal" }, cardInfo.new);
+    await keyboard.getKeypress(["space", "return"]);
+
+    renderSession(card, { type: "second-side-revealed" }, cardInfo.new);
+
+    const key = await keyboard.getKeypress(["1", "2", "3", "4"]);
+    score = parseInt(key, 10);
+
+    renderSession(card, { type: "finished", score }, cardInfo.new);
+
+    await sleep(1000);
+  }
+
+  practiceRecords.writeRecord(baseName, card, cardInfo.direction, score);
 
   // Put card back in session if the user didn't remember it...
   if (score === 1) {
@@ -241,10 +303,6 @@ const processNextCard = async () => {
   } else {
     completedCount++;
   }
-
-  renderSession(card, { type: "finished", score }, cardInfo.new);
-
-  await sleep(1000);
 
   cardIndex++;
   processNextCard();
