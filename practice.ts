@@ -12,6 +12,7 @@ import * as cardDAL from "./dal/cardDAL";
 import * as practiceRecordDAL from "./dal/practiceRecordDAL";
 import * as spacedRepetition from "./spacedRepetition";
 import { Card, Direction } from "./types";
+import { isLineBreak } from "typescript";
 
 // XXX Read this from command line args instead
 const baseName = "notes";
@@ -21,19 +22,19 @@ const sleep = (duration: number): Promise<void> =>
     setTimeout(() => resolve(), duration);
   });
 
-const readlineInterface = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+// const readlineInterface = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+// });
 
-const askQuestion = (question: string): Promise<string> => {
-  return new Promise((resolve) => {
-    readlineInterface.question(question, (answer) => {
-      // readlineInterface.close();
-      resolve(answer);
-    });
-  });
-};
+// const askQuestion = (question: string): Promise<string> => {
+//   return new Promise((resolve) => {
+//     readlineInterface.question(question, (answer) => {
+//       // readlineInterface.close();
+//       resolve(answer);
+//     });
+//   });
+// };
 
 /** If number of characters in answer is less than this, use typing mode. */
 const typingThreshold = 20;
@@ -138,6 +139,24 @@ const blankText = (input: string) =>
     .map(() => "_")
     .join("");
 
+const question = async (questionText: string): Promise<string> => {
+  console.log(questionText);
+  const line = await keyboard.readLine(
+    (input: string, cursorPosition: number) => {
+      process.stdout.moveCursor(0, -1);
+      process.stdout.clearScreenDown();
+      process.stdout.write(`\n${input}`);
+
+      // XXX Don't hard code this 9!!!
+      readline.cursorTo(process.stdin, cursorPosition, 9);
+    }
+  );
+
+  console.log("got line: ", line);
+
+  return line;
+};
+
 const renderSession = (card: Card, state: SessionState, newCard: boolean) => {
   console.clear();
   const totalCards =
@@ -216,7 +235,7 @@ const processNextCard = async () => {
     console.clear();
     console.log("Card missing: ", cardInfo.front);
     console.log("Hit space to continue");
-    await keyboard.getKeypress(["space", "return"]);
+    await keyboard.readKeypress(["space", "return"]);
     cardIndex++;
     processNextCard();
     return;
@@ -231,7 +250,7 @@ const processNextCard = async () => {
     renderSession(card, { type: "first-side-type" }, cardInfo.new);
 
     console.log();
-    const answer = await askQuestion(
+    const answer = await question(
       "Type the missing answer followed by Enter:\n"
     );
 
@@ -242,14 +261,14 @@ const processNextCard = async () => {
 
     renderSession(card, { type: "second-side-typed", score }, cardInfo.new);
 
-    await keyboard.getKeypress(["space", "return"]);
+    await keyboard.readKeypress(["space", "return"]);
   } else {
     renderSession(card, { type: "first-side-reveal" }, cardInfo.new);
-    await keyboard.getKeypress(["space", "return"]);
+    await keyboard.readKeypress(["space", "return"]);
 
     renderSession(card, { type: "second-side-revealed" }, cardInfo.new);
 
-    const key = await keyboard.getKeypress(["1", "2", "3", "4"]);
+    const key = await keyboard.readKeypress(["1", "2", "3", "4"]);
     score = parseInt(key, 10);
 
     renderSession(card, { type: "finished", score }, cardInfo.new);

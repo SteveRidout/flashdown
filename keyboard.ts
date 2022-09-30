@@ -3,47 +3,100 @@ import readline from "readline";
 readline.emitKeypressEvents(process.stdin);
 
 process.stdin.setRawMode(true);
-process.stdin.on("keypress", (_str, key) => {
-  // XXX Ideally we wouldn't need to do this...
+process.stdin.on("keypress", (str, key) => {
+  // Allow user to exit with CTRL-C
   if (key.name === "c" && key.ctrl) {
     process.exit();
   }
 
-  for (const handlerId of Object.keys(handlers)) {
-    const { handled } = handlers[handlerId](key.name);
-    if (handled) {
-      delete handlers[handlerId];
+  switch (state.type) {
+    case "ignore":
+      return;
 
-      // Reading stdin only so that these characters don't appear after the text input cursor after
-      // we call readline.question() later.
-      // XXX Not 100% sure this is the correct place to call this. Is it guaranteed that stdin will
-      // contain the data generated from the current keypress at this point?
-      const latestInput = process.stdin.read()?.toString();
-      if (latestInput === undefined || latestInput.length === 0) {
-        // XXX This is very hacky
-        setTimeout(() => {
-          const latestInput = process.stdin.read()?.toString();
-        }, 100);
+    case "await-keypress":
+      if (state.permittedKeys.includes(key.name)) {
+        state.onKeyPress(key.name);
+        state = { type: "ignore" };
       }
+      return;
+
+    case "await-line": {
+      let { input, cursorPosition } = state;
+      if (key.name === "backspace") {
+        if (input.length > 0) {
+          input =
+            input.substring(0, cursorPosition - 1) +
+            input.substring(cursorPosition);
+          cursorPosition = Math.max(0, cursorPosition - 1);
+        }
+      } else if (key.name === "left") {
+        cursorPosition = Math.max(0, cursorPosition - 1);
+      } else if (key.name === "right") {
+        cursorPosition = Math.min(input.length, cursorPosition + 1);
+      } else if (key.name === "enter" || key.name === "return") {
+        console.log("DONE: ", input);
+        state.onLineSubmitted(input);
+        state = { type: "ignore" };
+        return;
+      } else if (str && str.length > 0) {
+        input =
+          input.substring(0, cursorPosition) +
+          str +
+          input.substring(cursorPosition);
+        cursorPosition += str.length;
+      }
+      state = { ...state, input, cursorPosition };
+      state.onChange(input, cursorPosition);
+      return;
     }
   }
 });
 
-/** This will be incremented for each new callback that we add */
-let nextHandlerId = 0;
-const handlers: { [id: string]: (key: string) => { handled: boolean } } = {};
+type State =
+  | {
+      type: "ignore";
+    }
+  | {
+      type: "await-keypress";
+      permittedKeys: string[];
+      onKeyPress: (keyName: string) => void;
+    }
+  | {
+      type: "await-line";
+      onChange: (input: string, cursorPosition: number) => void;
+      onLineSubmitted: (line: string) => void;
+      input: string;
+      cursorPosition: number;
+    };
 
-export const getKeypress = (permittedKeys: string[]): Promise<string> =>
+let state: State = { type: "ignore" };
+
+export const readKeypress = (permittedKeys: string[]): Promise<string> =>
   new Promise<string>(
     (resolve: (value: string) => void, reject: (reason: string) => void) => {
-      handlers[nextHandlerId] = (keyName: string) => {
-        if (permittedKeys.includes(keyName)) {
+      state = {
+        type: "await-keypress",
+        permittedKeys,
+        onKeyPress: (keyName: string) => {
           resolve(keyName);
-          return { handled: true };
-        } else {
-          return { handled: false };
-        }
+        },
       };
-      nextHandlerId++;
+    }
+  );
+
+export const readLine = (
+  onChange: (input: string, cursorPosition: number) => void
+): Promise<string> =>
+  new Promise<string>(
+    (resolve: (value: string) => void, reject: (reason: string) => void) => {
+      state = {
+        type: "await-line",
+        input: "",
+        cursorPosition: 0,
+        onChange,
+        onLineSubmitted: (line: string) => {
+          resolve(line);
+        },
+      };
     }
   );
