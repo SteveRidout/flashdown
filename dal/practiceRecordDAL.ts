@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { Direction, Card, PracticeRecord } from "./types";
+import { Direction, Card, PracticeRecord } from "../types";
 
 const parseDirection = (rawDirection: string): Direction => {
   switch (rawDirection) {
@@ -30,6 +30,10 @@ export const writeRecord = (
   success: number
 ) => {
   const fileName = `${baseName}.fdr`;
+
+  if (!fs.existsSync(fileName)) {
+    fs.writeFileSync(fileName, "");
+  }
 
   if (!writtenToLogFile) {
     let sessionHeader = "";
@@ -97,6 +101,10 @@ export const getRecords = (
   baseName: string
 ): { [front: string]: { [direction: string]: PracticeRecord[] } } => {
   const fileName = `${baseName}.fdr`;
+
+  if (!fs.existsSync(fileName)) {
+    return {};
+  }
 
   const lines = fs
     .readFileSync(fileName)

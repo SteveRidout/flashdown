@@ -53,3 +53,65 @@ Order of session:
   - streak
   - number of new cards / ready to review / scheduled for future
   - Hit SPACE to start session
+
+# Design of terminal app
+
+```
+Progress: [#########.........]
+
+          *** NEW CARD ***
+  ----------------------------------------------
+  |                                            |
+  |  Topic: Word definitions                   |
+  |                                            |
+  |  Epistomology: _____________               |
+  |                                            |
+  |                                            |
+  ----------------------------------------------
+
+Hit SPACE to reveal the missing text
+```
+
+```
+  [#########...................................] 56%
+
+                 *** NEW CARD ***
+  --------------------------------------------------
+  |                                                |
+  |  Topic: Word definitions                       |
+  |                                                |
+  |  Epistomology: The study of the acquisition    |
+  |  of knowledge                                  |
+  |                                                |
+  |                                                |
+  --------------------------------------------------
+
+How well did you remember?
+
+1) Not at all
+2) With difficulty
+3) OK
+4) Perfectly
+```
+
+```
+  [#########...................................] 56%
+
+                 *** NEW CARD ***
+  --------------------------------------------------
+  |                                                |
+  |  Topic: Word definitions                       |
+  |                                                |
+  |  Epistomology: The study of the acquisition    |
+  |  of knowledge                                  |
+  |                                                |
+  |                                                |
+  --------------------------------------------------
+
+How well did you remember?
+
+1) Not at all
+2) With difficulty
+3) OK
+4) Perfectly
+```
