@@ -3,13 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/lodash": "4.14.185",
+    "@types/lodash": "4.14.186",
+    "@types/mocha": "10.0.0",
     "ts-node": "10.9.1"
   },
   "dependencies": {

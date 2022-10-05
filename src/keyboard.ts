@@ -1,4 +1,6 @@
-import readline from "readline";
+import * as readline from "readline";
+
+import * as ansiEscapes from "./ansiEscapes";
 
 readline.emitKeypressEvents(process.stdin);
 
@@ -6,6 +8,8 @@ process.stdin.setRawMode(true);
 process.stdin.on("keypress", (str, key) => {
   // Allow user to exit with CTRL-C
   if (key.name === "c" && key.ctrl) {
+    process.stdout.write(ansiEscapes.showCursor);
+    process.stdout.write(ansiEscapes.disableAlternativeBuffer);
     process.exit();
   }
 

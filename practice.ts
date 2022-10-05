@@ -5,14 +5,23 @@
 // 5. Show summary at end
 
 import * as _ from "lodash";
-import * as readline from "readline";
 
-import * as keyboard from "./keyboard";
-import * as cardDAL from "./dal/cardDAL";
-import * as practiceRecordDAL from "./dal/practiceRecordDAL";
-import * as spacedRepetition from "./spacedRepetition";
-import { Card, Direction } from "./types";
-import * as session from "./session";
+import * as keyboard from "./src/keyboard";
+import * as cardDAL from "./src/dal/cardDAL";
+import * as practiceRecordDAL from "./src/dal/practiceRecordDAL";
+import * as spacedRepetition from "./src/spacedRepetition";
+import { Card, Direction } from "./src/types";
+import * as session from "./src/session";
+import * as debug from "./src/debug";
+import * as ansiEscapes from "./src/ansiEscapes";
+import * as homePageUtils from "./src/homePageUtils";
+import config from "./src/config";
+
+process.stdout.write(ansiEscapes.enableAlternativeBuffer);
+
+debug.log("--------------");
+debug.log("Start practice");
+debug.log("--------------");
 
 // XXX Read this from command line args instead
 const baseName = "notes";
@@ -21,9 +30,6 @@ const sleep = (duration: number): Promise<void> =>
   new Promise((resolve) => {
     setTimeout(() => resolve(), duration);
   });
-
-/** If number of characters in answer is less than this, use typing mode. */
-const typingThreshold = 20;
 
 // Read practice record file if it exists
 const recordsMap = practiceRecordDAL.getRecords(baseName);
@@ -47,6 +53,10 @@ let allScheduledCards: {
 // Get practice times and build list of cards due for review
 for (const front of Object.keys(recordsMap)) {
   for (const direction of Object.keys(recordsMap[front])) {
+    if (cardsInSession.length >= config.targetCardsPerSession) {
+      break;
+    }
+
     const records = recordsMap[front][direction];
     const nextPracticeTime = spacedRepetition.getNextPracticeTime(records);
 
@@ -71,8 +81,6 @@ allScheduledCards.sort((a, b) => a.date.getTime() - b.date.getTime());
 
 console.log(allScheduledCards);
 
-const sessionSize = 10;
-
 const cards = cardDAL.getCards(baseName);
 
 console.log("Scheduled cards: ", cardsInSession);
@@ -87,9 +95,11 @@ for (const card of cards) {
   };
 }
 
+debug.log(`cards in session before new: ` + cardsInSession.length);
+
 // Add new cards to make up session length
 let cardIndex = 0;
-while (cardsInSession.length < sessionSize) {
+while (cardsInSession.length < config.targetCardsPerSession) {
   if (cardIndex >= cards.length) {
     break;
   }
@@ -101,43 +111,10 @@ while (cardsInSession.length < sessionSize) {
     continue;
   }
 
-  console.log("adding card, before: ", cardsInSession.length);
   cardsInSession.push({ ...card, new: true });
 }
 
 cardsInSession = _.shuffle(cardsInSession);
-
-console.log("cards in session: ", cardsInSession);
-console.log("cards in session: ", cardsInSession.length);
-
-// type SessionState =
-//   | { type: "first-side-reveal" }
-//   | { type: "first-side-type" }
-//   | { type: "second-side-revealed" }
-//   | { type: "second-side-typed"; score: number }
-//   | { type: "finished"; score: number };
-
-// const blankText = (input: string) =>
-//   input
-//     .split("")
-//     .map(() => "_")
-//     .join("");
-
-const question = async (questionText: string): Promise<string> => {
-  console.log(questionText);
-  const line = await keyboard.readLine(
-    (input: string, cursorPosition: number) => {
-      process.stdout.moveCursor(0, -1);
-      process.stdout.clearScreenDown();
-      process.stdout.write(`\n${input}`);
-
-      // XXX Don't hard code this 9!!!
-      readline.cursorTo(process.stdin, cursorPosition, 9);
-    }
-  );
-
-  return line;
-};
 
 (() => {
   const upcomingCards: (Card & { new: boolean })[] = cardsInSession
@@ -154,6 +131,11 @@ const question = async (questionText: string): Promise<string> => {
     })
     .filter((card) => card !== undefined) as (Card & { new: boolean })[];
 
+  if (upcomingCards.length === 0) {
+    console.log("No cards available");
+    process.exit();
+  }
+
   session.setState({
     upcomingCards,
     completedCards: [],
@@ -165,17 +147,21 @@ const processNextCard = async () => {
   const card = session.state.upcomingCards[0];
 
   if (!card) {
-    console.clear();
-    console.log("You finished!");
+    // console.clear();
+    // console.log("You finished!");
+    console.log("Hit SPACE to continue");
+    await keyboard.readKeypress(["space", "return"]);
+    showHome();
     return;
   }
+  debug.log("Next card: " + JSON.stringify(card));
 
   const missingText =
     card.direction === "front-to-back" ? card.back : card.front;
 
   let score: number;
 
-  if (missingText.length <= typingThreshold) {
+  if (!card.new && missingText.length <= config.typingThreshold) {
     session.setState({
       ...session.state,
       stage: { type: "first-side-type", input: "", cursorPosition: 0 },
@@ -226,20 +212,76 @@ const processNextCard = async () => {
     // Put card back into session since the user didn't remember it
     session.setState({
       ...session.state,
-      upcomingCards: [...session.state.upcomingCards.slice(1), card],
+      upcomingCards: [
+        ...session.state.upcomingCards.slice(1),
+        {
+          ...card,
+          new: false,
+        },
+      ],
     });
   } else {
     // Move card to completedCards list
+
+    debug.log("moving card to completed: " + card.front);
     session.setState({
       ...session.state,
       upcomingCards: session.state.upcomingCards.slice(1),
-      completedCards: [...session.state.completedCards, card],
+      completedCards: [
+        ...session.state.completedCards,
+        {
+          ...card,
+          new: false,
+        },
+      ],
     });
+    debug.log("moved card to completed: " + card.front);
   }
 
-  // Put car
-
+  debug.log(
+    "process next card. upcoming: " + session.state.upcomingCards.length
+  );
   processNextCard();
 };
 
-processNextCard();
+// const pluralizeWord = (word: string, number: number) =>
+//   `${word}${number === 1 ? "" : "s"}`;
+
+const showHome = async () => {
+  const homePageData = homePageUtils.calcHomePageData(cards, recordsMap);
+
+  console.clear();
+  console.log("Welcome to Flashdown! (beta v0.1)");
+  console.log("---------------------");
+  console.log();
+  if (homePageData.streak > 0) {
+    console.log("practiced today: ", homePageData.practicedToday);
+    const callToAction = homePageData.practicedToday
+      ? ", return tomorrow to avoid losing it!"
+      : "";
+
+    console.log(`You have a ${homePageData.streak} day streak${callToAction}`);
+    console.log();
+  }
+  console.log("New cards: ", homePageData.allTopics.newCards.length);
+  console.log(
+    "Due for review: ",
+    homePageData.allTopics.learningCardsDue.length
+  );
+  console.log(
+    "Scheduled for the future: ",
+    homePageData.allTopics.learningCardsNotDue.length
+  );
+  console.log(
+    "Topics: ",
+    homePageData.topics.map((topic) => topic.name)
+  );
+
+  console.log("Hit SPACE to start learning");
+  await keyboard.readKeypress(["space", "return"]);
+
+  console.clear();
+  processNextCard();
+};
+
+showHome();

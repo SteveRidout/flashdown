@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import * as chalk from "chalk";
 
 // Testing interactive terminal app stuff, TTY (teletypewriter) stdin / stdout
 
@@ -80,35 +80,61 @@ const images = {
   ┃                                          ┃
   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
   `,
+  // frontTilted: `
+
+  //        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  //        ┃ Tpi: or dfiiton            ┃
+  //        ┃                            ┃
+  //        ┃                            ┃
+  //        ┃ ________:Th sud o kowede   ┃
+  //        ┃ aqusiio (hiosph)           ┃
+  //        ┃                            ┃
+  //        ┃                            ┃
+  //        ┃                            ┃
+  //        ┃                            ┃
+  //        ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  // `,
+  // backTilted: `
+
+  //          ┏━━━━━━━━━━━━━━━━━━━━━━━┓
+  //          ┃ Tpc oddfntos          ┃
+  //          ┃                       ┃
+  //          ┃                       ┃
+  //          ┃ Eitmlg:Tesuyo kolde   ┃
+  //          ┃ aqiiin(hlspy          ┃
+  //          ┃                       ┃
+  //          ┃                       ┃
+  //          ┃                       ┃
+  //          ┃                       ┃
+  //          ┗━━━━━━━━━━━━━━━━━━━━━━━┛
+  // `,
   frontTilted: `
-                       _/┃=
-                     _/  ┃=
-                   =┃#   ┃=
-                   =┃    ┃=
-                   =┃    ┃=
-                   =┃### ┃=
-                   =┃##  ┃=
-                   =┃    ┃=
-                   =┃    ┃=
-                   =┃    ┃=
-                   =┃_   ┃=
-                      \\_ ┃=
-                        \\┃=
+
+                   ┏━━━━┓
+                   ┃= ==┃
+                   ┃=   ┃
+                   ┃=   ┃
+                   ┃= __┃
+                   ┃= ==┃
+                   ┃=   ┃
+                   ┃=   ┃
+                   ┃=   ┃
+                   ┃=   ┃
+                   ┗━━━━┛
   `,
   backTilted: `
-                --==┃\\_
-                  -=┃# \\_
-                  -=┃    ┃===--
-                  -=┃    ┃=-
-                  -=┃    ┃=-
-                  -=┃### ┃=-
-                  -=┃##  ┃=-
-                  -=┃    ┃=-
-                  -=┃    ┃=-
-                  -=┃    ┃=-
-                  -=┃   _┃===--
-                  -=┃ _/
-                --==┃/ 
+
+                ┏━━━━━━━━━━━┓
+                ┃ = ====    ┃
+                ┃           ┃
+                ┃           ┃
+                ┃ ====== == ┃
+                ┃ ======    ┃
+                ┃           ┃
+                ┃           ┃
+                ┃           ┃
+                ┃           ┃
+                ┗━━━━━━━━━━━┛
   `,
   back: `
 
@@ -127,7 +153,7 @@ const images = {
 };
 
 /** Duration of each animation frame in ms */
-const transitionDuration = 1000 / 18;
+const transitionDuration = 1000 / 14;
 
 /** Duration of showing each card side in ms */
 const sideDuration = 3 * 1000;

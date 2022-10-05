@@ -1,3 +1,4 @@
 - Only use typing mode if previous attempt was successful after an interval of > 5 days
 - Better data structure to store all card and practice data after parsing, which can be used by any of the tools (practice, stats, etc...)
 - End of session stats
+-
