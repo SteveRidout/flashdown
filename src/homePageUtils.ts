@@ -2,6 +2,7 @@ import * as _ from "lodash";
 
 import {
   Card,
+  CardLearningDerivedMetrics,
   HomePageData,
   PracticeRecord,
   TopicData,
@@ -82,7 +83,7 @@ export const calcHomePageData = (
   const homePageData: HomePageData = {
     topics: [],
     allTopics: {
-      name: "All Cards",
+      name: "All Topics",
       newCards: [],
       learningCardsNotDue: [],
       learningCardsDue: [],
@@ -95,55 +96,48 @@ export const calcHomePageData = (
 
   const wholeDateSet: Set<string> = new Set();
 
-  for (const front of Object.keys(recordMap)) {
-    for (const direction of Object.keys(recordMap[front])) {
-      const card = cardMap[front][direction];
+  for (const card of cards) {
+    const learningMetrics: CardLearningDerivedMetrics | undefined = (() => {
+      const practiceRecords = recordMap[card.front]?.[card.direction];
 
-      if (card === undefined) {
-        throw Error(
-          `No card found corresponding to record: ${front}, ${direction}`
-        );
+      if (practiceRecords === undefined) {
+        return undefined;
       }
-
-      const practiceRecords = recordMap[front][direction];
 
       for (const practiceRecord of practiceRecords) {
         const recordWholeDate = wholeDate(practiceRecord.practiceTime);
         wholeDateSet.add(wholeDateToString(recordWholeDate));
-
-        console.log("comparing: ", recordWholeDate, currentWholeDate);
 
         if (wholeDatesAreEqual(recordWholeDate, currentWholeDate)) {
           homePageData.practicedToday = true;
         }
       }
 
-      const learningMetrics =
-        spacedRepetition.getSpacedRepetitionInfo(practiceRecords);
+      return spacedRepetition.getSpacedRepetitionInfo(practiceRecords);
+    })();
 
-      // Add card to home page data:
-      const topicName = card.sectionTitle;
-      topicMap[topicName] = topicMap[topicName] ?? emptyTopic(topicName);
+    // Add card to home page data:
+    const topicName = card.sectionTitle;
+    topicMap[topicName] = topicMap[topicName] ?? emptyTopic(topicName);
 
-      if (learningMetrics === undefined) {
-        homePageData.allTopics.newCards.push(card);
-        topicMap[topicName].newCards.push(card);
-      } else if (learningMetrics.nextPracticeTime < currentTime) {
-        homePageData.allTopics.learningCardsDue.push({ card, learningMetrics });
-        topicMap[topicName].learningCardsNotDue.push({
-          card,
-          learningMetrics,
-        });
-      } else {
-        homePageData.allTopics.learningCardsNotDue.push({
-          card,
-          learningMetrics,
-        });
-        topicMap[topicName].learningCardsNotDue.push({
-          card,
-          learningMetrics,
-        });
-      }
+    if (learningMetrics === undefined) {
+      homePageData.allTopics.newCards.push(card);
+      topicMap[topicName].newCards.push(card);
+    } else if (learningMetrics.nextPracticeTime < currentTime) {
+      homePageData.allTopics.learningCardsDue.push({ card, learningMetrics });
+      topicMap[topicName].learningCardsDue.push({
+        card,
+        learningMetrics,
+      });
+    } else {
+      homePageData.allTopics.learningCardsNotDue.push({
+        card,
+        learningMetrics,
+      });
+      topicMap[topicName].learningCardsNotDue.push({
+        card,
+        learningMetrics,
+      });
     }
   }
 
@@ -164,6 +158,5 @@ export const calcHomePageData = (
   }
   homePageData.streak = streak;
 
-  // process.exit();
   return homePageData;
 };

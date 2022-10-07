@@ -3,6 +3,8 @@ import * as readline from "readline";
 import { Card, TextWithCursor } from "./types";
 import * as ansiEscapes from "./ansiEscapes";
 
+const numberOfColumns = 50;
+
 type CardStage =
   | { type: "first-side-reveal" }
   | { type: "first-side-type"; input: string; cursorPosition: number }
@@ -47,14 +49,11 @@ const render = () => {
   const { upcomingCards, completedCards, stage } = state;
 
   if (upcomingCards.length === 0) {
-    console.log("WELL DONE! YOU FINISHED");
-    // XXX Add session end experience
-    process.stdout.clearScreenDown();
     return;
   }
 
   if (previousStageType !== stage.type) {
-    // console.clear();
+    console.clear();
     previousStageType = stage.type;
   }
   process.stdout.cursorTo(0, 0);
@@ -75,7 +74,7 @@ const render = () => {
     (stage.type === "second-side-typed" && stage.score > 1)
       ? 1
       : 0);
-  addLine(`Progress: ${renderProgressBar(numberCompleted, totalCards)}`);
+  addLine(renderProgressBar(numberCompleted, totalCards));
 
   const card = upcomingCards[0];
 
@@ -97,7 +96,7 @@ const render = () => {
       );
       addLine("");
       addLine(
-        `Hit space to reveal ${
+        `Hit SPACE to reveal ${
           card.direction === "front-to-back" ? "back" : "front"
         } of card`
       );
@@ -150,9 +149,9 @@ const render = () => {
       if (card.new) {
         addLine(
           `Did you already know this?\n` +
-            (!score || score === 1 ? "1) Not at all" : "") +
+            (!score || score === 1 ? "1) No" : "") +
             "\n" +
-            (!score || score === 2 ? "2) Kinda" : "") +
+            (!score || score === 2 ? "2) Yes, kinda" : "") +
             "\n" +
             (!score || score === 3 ? "3) Yes" : "") +
             "\n" +
@@ -161,9 +160,9 @@ const render = () => {
       } else {
         addLine(
           `How well did you remember?\n` +
-            (!score || score === 1 ? "1) Not at all" : "") +
+            (!score || score === 1 ? "1) No" : "") +
             "\n" +
-            (!score || score === 2 ? "2) Kinda" : "") +
+            (!score || score === 2 ? "2) With difficulty" : "") +
             "\n" +
             (!score || score === 3 ? "3) Good" : "") +
             "\n" +
@@ -200,7 +199,7 @@ export const createCard = (topic: string, body: TextWithCursor) => {
   lines.push(body);
   lines.push({ text: "" });
 
-  return addFrame(joinLines(lines), 60);
+  return addFrame(joinLines(lines), numberOfColumns);
 };
 
 /**
@@ -299,9 +298,8 @@ export const reflowText = (
         }
 
         if (reflowX === currentX) {
-          console.log("WARNING: Couldn't reflow without adding hyphen");
-          // Uh-oh, we couldn't reflow, should handle this, maybe by adding a hyphen character??
-          // line.text[currentX + columns]
+          // Uh-oh, we couldn't reflow since there was no space character, so split the word with a
+          // hyphen
           const hyphenAndNewline = "-\n";
           text =
             text.substring(0, currentX + columns) +
@@ -360,10 +358,8 @@ export const reflowText = (
   return joinLines(intermediateLines);
 };
 
-const repeat = (character: string, size: number): string => {
-  console.log("repeat: ", size);
-  return size === 0 ? "" : [...Array(size)].map(() => character).join("");
-};
+const repeat = (character: string, size: number): string =>
+  size === 0 ? "" : [...Array(size)].map(() => character).join("");
 
 export const addFrame = (
   textWithCursor: TextWithCursor,

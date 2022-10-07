@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
 import { Card, Direction } from "../types";
+import * as debug from "../debug";
 
 export const getCards = (baseName: string): Card[] => {
   const rawFlashcardsFile = fs.readFileSync(`${baseName}.fd`).toString();
@@ -10,7 +11,7 @@ export const getCards = (baseName: string): Card[] => {
   const sectionHeaderRegexp = () => /^# (.*)/;
   const ignoreRegexp = () => /^>/;
 
-  let currentSection: string | undefined;
+  let currentSection: string | undefined = "Untitled";
 
   const cards: Card[] = [];
 
@@ -29,9 +30,11 @@ export const getCards = (baseName: string): Card[] => {
       const front = flashcardMatch[1].trim();
       const back = flashcardMatch[2].trim();
 
-      if (!currentSection) {
-        throw Error("Flashcard specified before section header");
-      }
+      // if (!currentSection) {
+      //   throw Error("Flashcard specified before section header");
+      // }
+
+      debug.log("add card: " + front);
 
       const frontToBack = {
         front,

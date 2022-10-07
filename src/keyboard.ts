@@ -38,7 +38,6 @@ process.stdin.on("keypress", (str, key) => {
       } else if (key.name === "right") {
         cursorPosition = Math.min(input.length, cursorPosition + 1);
       } else if (key.name === "enter" || key.name === "return") {
-        console.log("DONE: ", input);
         state.onLineSubmitted(input);
         state = { type: "ignore" };
         return;
