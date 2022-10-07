@@ -22,6 +22,7 @@ import { repeat } from "lodash";
 import * as utils from "./src/utils";
 import * as sessionEnd from "./src/sessionEnd";
 import * as renderUtils from "./src/renderUtils";
+import * as alertModal from "./src/alertModal";
 
 program.option("--file <file>");
 program.parse(process.argv);
@@ -302,7 +303,7 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
     const nextTime =
       topic.learningCardsNotDue[0].learningMetrics.nextPracticeTime;
     const nextDateString = new Date(nextTime * 1000 * 60).toLocaleString();
-    await renderUtils.alert(
+    await alertModal.show(
       "No cards ready to study in this topic. This is because the spaced repetition " +
         "algorithm has scheduled all the cards to be studied some time in the future.\n\n" +
         `The next card in this topic is due on ${nextDateString}`

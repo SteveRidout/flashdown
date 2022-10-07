@@ -1,18 +1,4 @@
-import chalk from "chalk";
-
-import * as keyboard from "./keyboard";
 import { TextWithCursor } from "./types";
-import config from "./config";
-
-export const alert = async (message: string) => {
-  console.clear();
-  // XXX Consider indenting the whole of this instead of just the first line.
-  console.log(reflowText({ text: "  " + message }, config.maxColumnWidth).text);
-  console.log();
-  console.log();
-  console.log(chalk.blue("  Hit SPACE to go back"));
-  await keyboard.readKeypress(["space", "return"]);
-};
 
 /**
  * Joins the given lines inserting a newline between each one. This will throw an error if more
