@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import * as readline from "readline";
 
 import { Card, TextWithCursor } from "./types";
@@ -121,11 +122,11 @@ const render = () => {
       });
       lines.push(cardTextWithCursor);
       addLine("");
-      addLine("Type the missing answer and hit ENTER");
+      addLine(chalk.blue("Type the missing answer and hit ENTER"));
 
       if (card.new) {
         addLine("");
-        addLine("(Or if you don't know, just leave it blank)");
+        addLine(chalk.blue("(If you don't know, just hit ENTER directly)"));
       }
       break;
     }
@@ -142,7 +143,7 @@ const render = () => {
         addLine("Wrong");
       }
       addLine();
-      addLine("Hit SPACE to continue");
+      addLine(chalk.blue("Hit SPACE to continue"));
       break;
     case "second-side-revealed":
     case "finished":
@@ -155,9 +156,10 @@ const render = () => {
       lines.push(createCard(card.sectionTitle, { text }));
       addLine();
       if (card.new) {
+        addLine(chalk.blue("Did you already know this?"));
+        addLine();
         addLine(
-          `Did you already know this?\n` +
-            (!score || score === 1 ? "1) No" : "") +
+          (!score || score === 1 ? "1) No" : "") +
             "\n" +
             (!score || score === 2 ? "2) Yes, kinda" : "") +
             "\n" +
@@ -166,15 +168,16 @@ const render = () => {
             (!score || score === 4 ? "4) Yes, very well!" : "")
         );
       } else {
+        addLine(chalk.blue("Did you remember?"));
+        addLine();
         addLine(
-          `How well did you remember?\n` +
-            (!score || score === 1 ? "1) No" : "") +
+          (!score || score === 1 ? "1) No" : "") +
             "\n" +
-            (!score || score === 2 ? "2) With difficulty" : "") +
+            (!score || score === 2 ? "2) Yes, with difficulty" : "") +
             "\n" +
-            (!score || score === 3 ? "3) Good" : "") +
+            (!score || score === 3 ? "3) Yes" : "") +
             "\n" +
-            (!score || score === 4 ? "4) Easily!" : "")
+            (!score || score === 4 ? "4) Yes, easily!" : "")
         );
       }
       break;

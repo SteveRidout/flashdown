@@ -5,7 +5,7 @@
 // 5. Show summary at end
 
 import * as _ from "lodash";
-import * as chalk from "chalk";
+import chalk from "chalk";
 
 import * as keyboard from "./src/keyboard";
 import * as cardDAL from "./src/dal/cardDAL";
@@ -28,7 +28,7 @@ debug.log("Start practice");
 debug.log("--------------");
 
 // XXX Read this from command line args instead
-const baseName = "notes2";
+const baseName = "notes";
 
 type NextStep = "next-card" | "finished";
 
@@ -213,7 +213,9 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
   console.log();
   console.log();
   console.log(
-    "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
+    chalk.blue(
+      "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
+    )
   );
 
   // Hide cursor

@@ -1,4 +1,4 @@
-import * as chalk from "chalk";
+import chalk from "chalk";
 
 import * as keyboard from "./keyboard";
 import * as utils from "./utils";

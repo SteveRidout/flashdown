@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 import * as keyboard from "./keyboard";
 import { TextWithCursor } from "./types";
 import config from "./config";
@@ -8,7 +10,7 @@ export const alert = async (message: string) => {
   console.log(reflowText({ text: "  " + message }, config.maxColumnWidth).text);
   console.log();
   console.log();
-  console.log("  Hit SPACE to go back");
+  console.log(chalk.blue("  Hit SPACE to go back"));
   await keyboard.readKeypress(["space", "return"]);
 };
 
