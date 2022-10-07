@@ -2,14 +2,14 @@ import * as readline from "readline";
 
 import { Card, TextWithCursor } from "./types";
 import * as ansiEscapes from "./ansiEscapes";
-
-const numberOfColumns = 50;
+import * as renderUtils from "./renderUtils";
+import config from "./config";
 
 type CardStage =
   | { type: "first-side-reveal" }
   | { type: "first-side-type"; input: string; cursorPosition: number }
   | { type: "second-side-revealed" }
-  | { type: "second-side-typed"; score: number }
+  | { type: "second-side-typed"; input: string; score: number }
   | { type: "finished"; score: number };
 
 interface State {
@@ -40,10 +40,13 @@ const inputText = (input: string, target: string) => {
   return `${input}${underlines(target.length - input.length)} `;
 };
 
-let previousStageType;
+let previousStageType: CardStage["type"];
 
 const renderProgressBar = (position: number, total: number) =>
-  `[${repeat("#", position)}${repeat(".", total - position)}]`;
+  `[${renderUtils.repeat("#", position)}${renderUtils.repeat(
+    ".",
+    total - position
+  )}]`;
 
 const render = () => {
   const { upcomingCards, completedCards, stage } = state;
@@ -119,6 +122,11 @@ const render = () => {
       lines.push(cardTextWithCursor);
       addLine("");
       addLine("Type the missing answer and hit ENTER");
+
+      if (card.new) {
+        addLine("");
+        addLine("(Or if you don't know, just leave it blank)");
+      }
       break;
     }
     case "second-side-typed":
@@ -130,7 +138,7 @@ const render = () => {
       addLine("");
       if (stage.score > 1) {
         addLine("Well done!");
-      } else {
+      } else if (stage.input.trim() !== "") {
         addLine("Wrong");
       }
       addLine();
@@ -172,7 +180,7 @@ const render = () => {
       break;
   }
 
-  const { text, cursorPosition } = joinLines(lines);
+  const { text, cursorPosition } = renderUtils.joinLines(lines);
 
   console.log(text);
 
@@ -199,167 +207,8 @@ export const createCard = (topic: string, body: TextWithCursor) => {
   lines.push(body);
   lines.push({ text: "" });
 
-  return addFrame(joinLines(lines), numberOfColumns);
+  return addFrame(renderUtils.joinLines(lines), config.maxColumnWidth);
 };
-
-/**
- * Joins the given lines inserting a newline between each one. This will throw an error if more
- * than one line contains a cursor position.
- */
-const joinLines = (lines: TextWithCursor[]): TextWithCursor => {
-  let y = 0;
-  let cursorPosition: { x: number; y: number } | undefined = undefined;
-
-  for (const line of lines) {
-    if (line.cursorPosition) {
-      if (cursorPosition) {
-        throw Error("Two separate lines both contain cursor positions");
-      }
-
-      cursorPosition = {
-        x: line.cursorPosition.x,
-        y: y + line.cursorPosition.y,
-      };
-    }
-    y += line.text.split("\n").length;
-  }
-
-  return {
-    text: lines.map(({ text }) => text).join("\n"),
-    cursorPosition,
-  };
-};
-
-export const splitIntoLines = (
-  textWithCursor: TextWithCursor
-): TextWithCursor[] => {
-  let lines: TextWithCursor[] = textWithCursor.text
-    .split("\n")
-    .map((text) => ({ text }));
-
-  if (textWithCursor.cursorPosition) {
-    // Iterate through lines until we reach
-    const line = lines[textWithCursor.cursorPosition.y];
-
-    lines[textWithCursor.cursorPosition.y] = {
-      text: line.text,
-      cursorPosition: {
-        x: textWithCursor.cursorPosition.x,
-        y: 0,
-      },
-    };
-  }
-
-  return lines;
-};
-
-export const reflowText = (
-  textWithCursor: TextWithCursor,
-  columns: number
-): TextWithCursor => {
-  const lines = splitIntoLines(textWithCursor);
-
-  const intermediateLines: TextWithCursor[] = [];
-
-  for (const line of lines) {
-    let currentY = 0;
-    let currentX = 0;
-    let text = line.text;
-    let cursorPositionX: number | undefined = line.cursorPosition?.x;
-    let newLineCursorPosition: { x: number; y: number } | undefined;
-
-    while (text.length - currentX > columns) {
-      let reflowX = currentX + columns;
-
-      if (text[reflowX] === "_") {
-        // Just split underlines
-        const newLine = "\n";
-        text =
-          text.substring(0, currentX + columns) +
-          newLine +
-          text.substring(currentX + columns);
-
-        if (
-          cursorPositionX >= currentX &&
-          cursorPositionX < currentX + columns
-        ) {
-          newLineCursorPosition = {
-            y: currentY,
-            x: cursorPositionX - currentX,
-          };
-          cursorPositionX = undefined;
-        }
-
-        currentX += columns + newLine.length;
-        currentY += 1;
-      } else {
-        while (text[reflowX] !== " " && reflowX > currentX) {
-          reflowX -= 1;
-        }
-
-        if (reflowX === currentX) {
-          // Uh-oh, we couldn't reflow since there was no space character, so split the word with a
-          // hyphen
-          const hyphenAndNewline = "-\n";
-          text =
-            text.substring(0, currentX + columns) +
-            hyphenAndNewline +
-            text.substring(currentX + columns);
-
-          if (
-            cursorPositionX >= currentX &&
-            cursorPositionX < currentX + columns
-          ) {
-            newLineCursorPosition = {
-              y: currentY,
-              x: cursorPositionX - currentX,
-            };
-            cursorPositionX = undefined;
-          }
-
-          if (cursorPositionX && cursorPositionX > currentX + columns) {
-            cursorPositionX += hyphenAndNewline.length;
-          }
-
-          currentX += columns + hyphenAndNewline.length;
-          currentY += 1;
-        } else {
-          // Replace the space with a newline
-          text =
-            text.substring(0, reflowX) + "\n" + text.substring(reflowX + 1);
-
-          if (cursorPositionX >= currentX && cursorPositionX < reflowX) {
-            newLineCursorPosition = {
-              y: currentY,
-              x: cursorPositionX - currentX,
-            };
-            cursorPositionX = undefined;
-          }
-
-          currentX = reflowX + 1;
-          currentY += 1;
-        }
-      }
-    }
-
-    // In case the cursor is on the last line (commonly this is the only line)
-    if (cursorPositionX >= currentX && cursorPositionX < currentX + columns) {
-      newLineCursorPosition = {
-        y: currentY,
-        x: cursorPositionX - currentX,
-      };
-      cursorPositionX = undefined;
-    }
-
-    // XXX Add cursor position
-    intermediateLines.push({ text, cursorPosition: newLineCursorPosition });
-  }
-
-  return joinLines(intermediateLines);
-};
-
-const repeat = (character: string, size: number): string =>
-  size === 0 ? "" : [...Array(size)].map(() => character).join("");
 
 export const addFrame = (
   textWithCursor: TextWithCursor,
@@ -368,17 +217,19 @@ export const addFrame = (
   let lines: TextWithCursor[] = [];
 
   lines.push({
-    text: "┏" + repeat("━", width - 2) + "┓",
+    text: "┏" + renderUtils.repeat("━", width - 2) + "┓",
   });
 
-  let bodyLines = splitIntoLines(reflowText(textWithCursor, width - 4));
+  let bodyLines = renderUtils.splitIntoLines(
+    renderUtils.reflowText(textWithCursor, width - 4)
+  );
 
   for (const bodyLine of bodyLines) {
     lines.push({
       text:
         "┃ " +
         bodyLine.text +
-        repeat(" ", width - bodyLine.text.length - 4) +
+        renderUtils.repeat(" ", width - bodyLine.text.length - 4) +
         " ┃",
       cursorPosition: bodyLine.cursorPosition
         ? {
@@ -390,8 +241,8 @@ export const addFrame = (
   }
 
   lines.push({
-    text: "┗" + repeat("━", width - 2) + "┛",
+    text: "┗" + renderUtils.repeat("━", width - 2) + "┛",
   });
 
-  return joinLines(lines);
+  return renderUtils.joinLines(lines);
 };

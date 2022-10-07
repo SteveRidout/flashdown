@@ -82,16 +82,17 @@ export const calcHomePageData = (
   const topicMap: TopicMap = {};
   const homePageData: HomePageData = {
     topics: [],
-    allTopics: {
-      name: "All Topics",
-      newCards: [],
-      learningCardsNotDue: [],
-      learningCardsDue: [],
-      masteryScore: 0,
-    },
     practiceHistory: [],
     practicedToday: false,
     streak: 0,
+  };
+
+  const allTopics: TopicData = {
+    name: "All Topics",
+    newCards: [],
+    learningCardsNotDue: [],
+    learningCardsDue: [],
+    masteryScore: 0,
   };
 
   const wholeDateSet: Set<string> = new Set();
@@ -121,16 +122,16 @@ export const calcHomePageData = (
     topicMap[topicName] = topicMap[topicName] ?? emptyTopic(topicName);
 
     if (learningMetrics === undefined) {
-      homePageData.allTopics.newCards.push(card);
+      allTopics.newCards.push(card);
       topicMap[topicName].newCards.push(card);
     } else if (learningMetrics.nextPracticeTime < currentTime) {
-      homePageData.allTopics.learningCardsDue.push({ card, learningMetrics });
+      allTopics.learningCardsDue.push({ card, learningMetrics });
       topicMap[topicName].learningCardsDue.push({
         card,
         learningMetrics,
       });
     } else {
-      homePageData.allTopics.learningCardsNotDue.push({
+      allTopics.learningCardsNotDue.push({
         card,
         learningMetrics,
       });
@@ -142,6 +143,10 @@ export const calcHomePageData = (
   }
 
   homePageData.topics = Object.values(topicMap);
+
+  if (homePageData.topics.length > 1) {
+    homePageData.topics.push(allTopics);
+  }
 
   const rawDates: string[] = Array.from(wholeDateSet);
   rawDates.sort();

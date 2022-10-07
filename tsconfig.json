@@ -1,5 +1,15 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node"
+    "allowSyntheticDefaultImports": true,
+    // "baseUrl": ".", // This must be specified if "paths" is.
+    "lib": ["ES2021"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2021",
+    "esModuleInterop": true
   }
+  // "include": ["scripts/**/*", "src/**/*", "tests/**/*", "knexfile.ts"],
+  // "files": ["src/typeDeclarations/express.d.ts"]
 }

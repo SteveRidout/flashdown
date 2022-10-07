@@ -19,6 +19,7 @@ import config from "./src/config";
 import { repeat } from "lodash";
 import * as utils from "./src/utils";
 import * as sessionEnd from "./src/sessionEnd";
+import * as renderUtils from "./src/renderUtils";
 
 process.stdout.write(ansiEscapes.enableAlternativeBuffer);
 
@@ -62,7 +63,7 @@ const processNextCard = async (): Promise<NextStep> => {
 
     session.setState({
       ...session.state,
-      stage: { type: "second-side-typed", score },
+      stage: { type: "second-side-typed", input: answer, score },
     });
 
     await keyboard.readKeypress(["space", "return"]);
@@ -177,10 +178,6 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
   }
 
   console.log();
-  console.log(
-    "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
-  );
-  console.log();
 
   const columnWidths = [20, 15, 20];
 
@@ -191,7 +188,7 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
     "  " + tableRow(["-----", "-----------", "-----------------"], columnWidths)
   );
   let topicIndex = 0;
-  for (const topic of [...homePageData.topics, homePageData.allTopics]) {
+  for (const topic of homePageData.topics) {
     console.log(
       `${topicIndex === selectedTopicIndex ? ">" : " "} ${tableRow(
         [
@@ -204,11 +201,20 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
         columnWidths
       )}`
     );
-    if (topicIndex === homePageData.topics.length - 1) {
+    if (
+      homePageData.topics.length > 1 &&
+      topicIndex === homePageData.topics.length - 2
+    ) {
       console.log();
     }
     topicIndex++;
   }
+
+  console.log();
+  console.log();
+  console.log(
+    "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
+  );
 
   // Hide cursor
   process.stdin.write(ansiEscapes.hideCursor);
@@ -222,7 +228,7 @@ const showHome = async () => {
 
   debug.log("cards: " + JSON.stringify(cards));
 
-  await homePageLoop(homePageData, homePageData.topics.length);
+  await homePageLoop(homePageData, homePageData.topics.length - 1);
 };
 
 const homePageLoop = async (homePageData: HomePageData, topicIndex: number) => {
@@ -252,17 +258,14 @@ const homePageLoop = async (homePageData: HomePageData, topicIndex: number) => {
     case "j":
       homePageLoop(
         homePageData,
-        Math.min(homePageData.topics.length, topicIndex + 1)
+        Math.min(homePageData.topics.length - 1, topicIndex + 1)
       );
       break;
   }
 };
 
 const startSession = async (homePageData: HomePageData, topicIndex: number) => {
-  const topic =
-    topicIndex === 0
-      ? homePageData.allTopics
-      : homePageData.topics[topicIndex - 1];
+  const topic = homePageData.topics[topicIndex];
 
   let upcomingCards = topic.learningCardsDue
     .slice(0, config.targetCardsPerSession)
@@ -281,13 +284,11 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
   }
 
   if (upcomingCards.length === 0) {
-    console.clear();
-    console.log("No cards ready to study in this topic");
-    await keyboard.readKeypress(["space", "return"]);
-    homePageLoop(
-      homePageData,
-      Math.min(homePageData.topics.length, topicIndex + 1)
+    await renderUtils.alert(
+      "No cards ready to study in this topic. This is because the spaced repetition " +
+        "algorithm has scheduled all the cards to be studied some time in the future."
     );
+    homePageLoop(homePageData, topicIndex);
     return;
   }
 

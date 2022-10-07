@@ -5,3 +5,4 @@
 - Allow using command line options to override config, e.g. notes.fd file
 - Create a starter deck which teaches you how Flashdown works :-)
 - Figure out how to package to make it an NPM module
+- Strict tsconfig settings

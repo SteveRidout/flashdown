@@ -53,7 +53,6 @@ export interface TopicData {
 
 export interface HomePageData {
   topics: TopicData[];
-  allTopics: TopicData;
   practiceHistory: WholeDate[];
   streak: number;
   practicedToday: boolean;

@@ -85,7 +85,7 @@ export const getSpacedRepetitionInfo = (
   let previous:
     | {
         time: number;
-        previousInterval: number;
+        previousInterval?: number;
         nextInterval: number;
         score: number;
       }
@@ -125,7 +125,7 @@ export const getSpacedRepetitionInfo = (
         case 2:
         case 3:
         case 4:
-          if (previousInterval === undefined) {
+          if (previousInterval === undefined || previous === undefined) {
             return 60 * 6 * record.score;
           }
 
