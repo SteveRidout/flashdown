@@ -43,11 +43,16 @@ const inputText = (input: string, target: string) => {
 
 let previousStageType: CardStage["type"];
 
-const renderProgressBar = (position: number, total: number) =>
-  `[${renderUtils.repeat("#", position)}${renderUtils.repeat(
-    ".",
-    total - position
-  )}]`;
+const renderProgressBar = (position: number, total: number) => {
+  const suffix = ` (${position} / ${total})`;
+  const barWidth = config.maxColumnWidth - suffix.length;
+  const screenPosition = Math.round((barWidth * position) / total);
+
+  return `${renderUtils.repeat("█", screenPosition)}${renderUtils.repeat(
+    chalk.grey("░"),
+    barWidth - screenPosition
+  )}${suffix}`;
+};
 
 const render = () => {
   const { upcomingCards, completedCards, stage } = state;
@@ -74,8 +79,8 @@ const render = () => {
   const totalCards = upcomingCards.length + completedCards.length;
   const numberCompleted =
     completedCards.length +
-    (stage.type === "finished" ||
-    (stage.type === "second-side-typed" && stage.score > 1)
+    ((stage.type === "finished" || stage.type === "second-side-typed") &&
+    stage.score > 1
       ? 1
       : 0);
   addLine(renderProgressBar(numberCompleted, totalCards));
@@ -83,9 +88,10 @@ const render = () => {
   const card = upcomingCards[0];
 
   addLine();
+  addLine();
 
   if (card.new) {
-    addLine("** NEW CARD **");
+    addLine(chalk.yellowBright("** NEW CARD **"));
   }
   switch (stage.type) {
     case "first-side-reveal":
@@ -101,9 +107,11 @@ const render = () => {
       addLine();
       addLine();
       addLine(
-        `Hit SPACE to reveal ${
-          card.direction === "front-to-back" ? "back" : "front"
-        } of card`
+        chalk.greenBright(
+          `Hit SPACE to reveal ${
+            card.direction === "front-to-back" ? "back" : "front"
+          } of card`
+        )
       );
       break;
     case "first-side-type": {
@@ -124,12 +132,14 @@ const render = () => {
       lines.push(cardTextWithCursor);
       addLine();
       addLine();
-      addLine(chalk.blue("Type the missing answer and hit ENTER"));
+      addLine(chalk.greenBright("Type the missing answer and hit ENTER"));
 
       if (card.new) {
         addLine();
         addLine(
-          chalk.blue("(If you don't know, just leave it blank and hit ENTER)")
+          chalk.greenBright(
+            "(If you don't know, just leave it blank and hit ENTER)"
+          )
         );
       }
       break;
@@ -148,7 +158,7 @@ const render = () => {
       }
       addLine();
       addLine();
-      addLine(chalk.blue("Hit SPACE to continue"));
+      addLine(chalk.greenBright("Hit SPACE to continue"));
       break;
     case "second-side-revealed":
     case "finished":
@@ -162,28 +172,28 @@ const render = () => {
       addLine();
       addLine();
       if (card.new) {
-        addLine(chalk.blue("Did you already know this?"));
+        addLine(chalk.greenBright("Did you already know this?"));
         addLine();
+        addLine(chalk.redBright(!score || score === 1 ? "1) No" : ""));
         addLine(
-          (!score || score === 1 ? "1) No" : "") +
-            "\n" +
-            (!score || score === 2 ? "2) Yes, kinda" : "") +
-            "\n" +
-            (!score || score === 3 ? "3) Yes" : "") +
-            "\n" +
-            (!score || score === 4 ? "4) Yes, very well!" : "")
+          chalk.yellowBright(!score || score === 2 ? "2) Yes, kinda" : "")
+        );
+        addLine(chalk.greenBright(!score || score === 3 ? "3) Yes" : ""));
+        addLine(
+          chalk.greenBright(!score || score === 4 ? "4) Yes, very well!" : "")
         );
       } else {
-        addLine(chalk.blue("Did you remember?"));
+        addLine(chalk.greenBright("Did you remember?"));
         addLine();
+        addLine(chalk.redBright(!score || score === 1 ? "1) No" : ""));
         addLine(
-          (!score || score === 1 ? "1) No" : "") +
-            "\n" +
-            (!score || score === 2 ? "2) Yes, with difficulty" : "") +
-            "\n" +
-            (!score || score === 3 ? "3) Yes" : "") +
-            "\n" +
-            (!score || score === 4 ? "4) Yes, easily!" : "")
+          chalk.yellowBright(
+            !score || score === 2 ? "2) Yes, with difficulty" : ""
+          )
+        );
+        addLine(chalk.greenBright(!score || score === 3 ? "3) Yes" : ""));
+        addLine(
+          chalk.greenBright(!score || score === 4 ? "4) Yes, easily!" : "")
         );
       }
       break;

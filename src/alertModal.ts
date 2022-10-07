@@ -12,6 +12,6 @@ export const show = async (message: string) => {
   );
   console.log();
   console.log();
-  console.log(chalk.blue("  Hit SPACE to go back"));
+  console.log(chalk.greenBright("  Hit SPACE to go back"));
   await keyboard.readKeypress(["space", "return"]);
 };

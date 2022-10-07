@@ -53,8 +53,18 @@ if (!fs.existsSync(fileName)) {
 
 type NextStep = "next-card" | "finished";
 
+const normalizedCharacterMap: { [nonNormalizedCharacter: string]: string } = {
+  ï: "i",
+  "-": " ",
+};
+
 const normalizeAnswer = (answer: string) =>
-  answer.replace(/-/g, " ").trim().toLowerCase();
+  answer
+    .split("")
+    .map((character) => normalizedCharacterMap[character] ?? character)
+    .join("")
+    .trim()
+    .toLowerCase();
 
 const processNextCard = async (): Promise<NextStep> => {
   const card = session.state.upcomingCards[0];
@@ -229,7 +239,7 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
   console.log();
   console.log();
   console.log(
-    chalk.blue(
+    chalk.greenBright(
       "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
     )
   );

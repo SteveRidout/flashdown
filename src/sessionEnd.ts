@@ -31,6 +31,6 @@ export const run = async (previousStreak: number, currentStreak: number) => {
   }
 
   console.log();
-  console.log(chalk.blue("Hit SPACE to continue"));
+  console.log(chalk.greenBright("Hit SPACE to continue"));
   await keyboard.readKeypress(["space", "return"]);
 };
