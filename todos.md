@@ -4,3 +4,4 @@
 - Figure out how to package to make it an NPM module
 - Strict tsconfig settings
 - Allow edit distance of 1
+- Allow formatting within card - use bold text
