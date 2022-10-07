@@ -98,7 +98,8 @@ const render = () => {
           }`,
         })
       );
-      addLine("");
+      addLine();
+      addLine();
       addLine(
         `Hit SPACE to reveal ${
           card.direction === "front-to-back" ? "back" : "front"
@@ -121,12 +122,15 @@ const render = () => {
         cursorPosition: { x: cursorX, y: 0 },
       });
       lines.push(cardTextWithCursor);
-      addLine("");
+      addLine();
+      addLine();
       addLine(chalk.blue("Type the missing answer and hit ENTER"));
 
       if (card.new) {
-        addLine("");
-        addLine(chalk.blue("(If you don't know, just hit ENTER directly)"));
+        addLine();
+        addLine(
+          chalk.blue("(If you don't know, just leave it blank and hit ENTER)")
+        );
       }
       break;
     }
@@ -143,6 +147,7 @@ const render = () => {
         addLine("Wrong");
       }
       addLine();
+      addLine();
       addLine(chalk.blue("Hit SPACE to continue"));
       break;
     case "second-side-revealed":
@@ -154,6 +159,7 @@ const render = () => {
           : `${card.front} : ${card.back}`;
 
       lines.push(createCard(card.sectionTitle, { text }));
+      addLine();
       addLine();
       if (card.new) {
         addLine(chalk.blue("Did you already know this?"));

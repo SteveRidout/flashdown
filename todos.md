@@ -1,8 +1,6 @@
-- Only use typing mode if previous attempt was successful after an interval of > 5 days
-- Better data structure to store all card and practice data after parsing, which can be used by any of the tools (practice, stats, etc...)
-- End of session stats
 - Store notes.fd and notes.fdr files in a standard location, e.g. ~/.flashdown/notes.fd
 - Allow using command line options to override config, e.g. notes.fd file
 - Create a starter deck which teaches you how Flashdown works :-)
 - Figure out how to package to make it an NPM module
 - Strict tsconfig settings
+- Allow edit distance of 1

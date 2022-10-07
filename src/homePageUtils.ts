@@ -9,6 +9,7 @@ import {
   WholeDate,
 } from "./types";
 import * as spacedRepetition from "./spacedRepetition";
+import * as utils from "./utils";
 
 interface TopicMap {
   [name: string]: TopicData;
@@ -21,47 +22,6 @@ const emptyTopic = (name: string) => ({
   learningCardsDue: [],
   masteryScore: 0,
 });
-
-const wholeDate = (timeInMinutes: number): WholeDate => {
-  const date = new Date(timeInMinutes * 60 * 1000);
-  return {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate(),
-  };
-};
-
-const wholeDateToString = (wholeDate: WholeDate): string =>
-  `${wholeDate.year}-${_.padStart(
-    wholeDate.month.toString(),
-    2,
-    "0"
-  )}-${_.padStart(wholeDate.day.toString(), 2, "0")}`;
-
-const wholeDateFromString = (rawWholeDate: string): WholeDate => {
-  const [year, month, day] = rawWholeDate
-    .split("-")
-    .map((raw) => parseInt(raw, 10));
-
-  return {
-    year,
-    month,
-    day,
-  };
-};
-
-const wholeDatesAreEqual = (a: WholeDate, b: WholeDate): boolean =>
-  a.year === b.year && a.month === b.month && a.day === b.day;
-
-const wholeDateAddDays = (wholeDate: WholeDate, days: number): WholeDate => {
-  const { year, month, day } = wholeDate;
-  const date = new Date(Date.UTC(year, month - 1, day + days));
-  return {
-    year: date.getUTCFullYear(),
-    month: date.getUTCMonth() + 1,
-    day: date.getUTCDate(),
-  };
-};
 
 export const calcHomePageData = (
   cards: Card[],
@@ -77,7 +37,7 @@ export const calcHomePageData = (
   }
 
   const currentTime = Math.floor(new Date().getTime() / (60 * 1000));
-  const currentWholeDate = wholeDate(currentTime);
+  const currentWholeDate = utils.wholeDate(currentTime);
 
   const topicMap: TopicMap = {};
   const homePageData: HomePageData = {
@@ -106,10 +66,10 @@ export const calcHomePageData = (
       }
 
       for (const practiceRecord of practiceRecords) {
-        const recordWholeDate = wholeDate(practiceRecord.practiceTime);
-        wholeDateSet.add(wholeDateToString(recordWholeDate));
+        const recordWholeDate = utils.wholeDate(practiceRecord.practiceTime);
+        wholeDateSet.add(utils.wholeDateToString(recordWholeDate));
 
-        if (wholeDatesAreEqual(recordWholeDate, currentWholeDate)) {
+        if (utils.wholeDatesAreEqual(recordWholeDate, currentWholeDate)) {
           homePageData.practicedToday = true;
         }
       }
@@ -151,15 +111,15 @@ export const calcHomePageData = (
   const rawDates: string[] = Array.from(wholeDateSet);
   rawDates.sort();
   homePageData.practiceHistory = rawDates.map((rawDate) =>
-    wholeDateFromString(rawDate)
+    utils.wholeDateFromString(rawDate)
   );
 
   // Calculate streak
   let streak = homePageData.practicedToday ? 1 : 0;
-  let previousDay = wholeDateAddDays(currentWholeDate, -1);
-  while (wholeDateSet.has(wholeDateToString(previousDay))) {
+  let previousDay = utils.wholeDateAddDays(currentWholeDate, -1);
+  while (wholeDateSet.has(utils.wholeDateToString(previousDay))) {
     streak++;
-    previousDay = wholeDateAddDays(previousDay, -1);
+    previousDay = utils.wholeDateAddDays(previousDay, -1);
   }
   homePageData.streak = streak;
 

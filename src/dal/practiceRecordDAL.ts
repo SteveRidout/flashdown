@@ -24,12 +24,12 @@ const serializeDirection = (direction: Direction) => {
 
 let writtenToLogFile = false;
 export const writeRecord = (
-  baseName: string,
+  cardsFileName: string,
   card: Card,
   direction: Direction,
   success: number
 ) => {
-  const fileName = `${baseName}.fdr`;
+  const fileName = getPracticeRecordFilename(cardsFileName);
 
   if (!fs.existsSync(fileName)) {
     fs.writeFileSync(fileName, "");
@@ -97,10 +97,18 @@ const parseDateTimeString = (rawDateTime: string) => {
 // as readable (if not more readable) by including multiple success values per line
 const practiceRecordRegexp = () => /^([^:]+), (f|b): ([0-5])/;
 
+const getPracticeRecordFilename = (cardsFileName: string) => {
+  // Remove .fd suffix from the card file name to get the base name
+  const baseName = cardsFileName.endsWith(".fd")
+    ? cardsFileName.substring(0, cardsFileName.length - 3)
+    : cardsFileName;
+  return `${baseName}.fdr`;
+};
+
 export const getRecords = (
-  baseName: string
+  cardsFileName: string
 ): { [front: string]: { [direction: string]: PracticeRecord[] } } => {
-  const fileName = `${baseName}.fdr`;
+  const fileName = getPracticeRecordFilename(cardsFileName);
 
   if (!fs.existsSync(fileName)) {
     return {};

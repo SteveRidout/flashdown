@@ -3,8 +3,8 @@ import * as fs from "fs";
 import { Card, Direction } from "../types";
 import * as debug from "../debug";
 
-export const getCards = (baseName: string): Card[] => {
-  const rawFlashcardsFile = fs.readFileSync(`${baseName}.fd`).toString();
+export const getCards = (fileName: string): Card[] => {
+  const rawFlashcardsFile = fs.readFileSync(`${fileName}`).toString();
   const lines = rawFlashcardsFile.split("\n");
 
   const flashcardRegexp = () => /^([^:]*): (.*)/;
@@ -29,12 +29,6 @@ export const getCards = (baseName: string): Card[] => {
     if (flashcardMatch) {
       const front = flashcardMatch[1].trim();
       const back = flashcardMatch[2].trim();
-
-      // if (!currentSection) {
-      //   throw Error("Flashcard specified before section header");
-      // }
-
-      debug.log("add card: " + front);
 
       const frontToBack = {
         front,

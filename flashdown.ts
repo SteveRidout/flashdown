@@ -4,8 +4,10 @@
 // 4. Iterate through challenges and update the original text file based on the user's responses
 // 5. Show summary at end
 
+import * as fs from "fs";
 import * as _ from "lodash";
 import chalk from "chalk";
+import { program } from "commander";
 
 import * as keyboard from "./src/keyboard";
 import * as cardDAL from "./src/dal/cardDAL";
@@ -21,16 +23,37 @@ import * as utils from "./src/utils";
 import * as sessionEnd from "./src/sessionEnd";
 import * as renderUtils from "./src/renderUtils";
 
+program.option("--file <file>");
+program.parse(process.argv);
+const options: {
+  file?: string;
+} = program.opts();
+
 process.stdout.write(ansiEscapes.enableAlternativeBuffer);
 
 debug.log("--------------");
 debug.log("Start practice");
 debug.log("--------------");
 
+debug.log("options: " + JSON.stringify(program.opts()));
+
 // XXX Read this from command line args instead
-const baseName = "notes";
+let fileName = options.file ?? "notes.fd";
+
+if (!fs.existsSync(fileName) && !fileName.endsWith(".fd")) {
+  // Try adding .fd to see if that works
+  fileName += ".fd";
+}
+
+if (!fs.existsSync(fileName)) {
+  console.log(`The file "${fileName}" doesn't exist`);
+  process.exit();
+}
 
 type NextStep = "next-card" | "finished";
+
+const normalizeAnswer = (answer: string) =>
+  answer.replace(/-/g, " ").trim().toLowerCase();
 
 const processNextCard = async (): Promise<NextStep> => {
   const card = session.state.upcomingCards[0];
@@ -58,8 +81,7 @@ const processNextCard = async (): Promise<NextStep> => {
       });
     });
 
-    score =
-      answer.toLowerCase().trim() === missingText.toLowerCase().trim() ? 4 : 1;
+    score = normalizeAnswer(answer) === normalizeAnswer(missingText) ? 4 : 1;
 
     session.setState({
       ...session.state,
@@ -90,7 +112,7 @@ const processNextCard = async (): Promise<NextStep> => {
     await utils.sleep(800);
   }
 
-  practiceRecordDAL.writeRecord(baseName, card, card.direction, score);
+  practiceRecordDAL.writeRecord(fileName, card, card.direction, score);
 
   if (score === 1) {
     // Put card back into session since the user didn't remember it
@@ -106,8 +128,6 @@ const processNextCard = async (): Promise<NextStep> => {
     });
   } else {
     // Move card to completedCards list
-
-    debug.log("moving card to completed: " + card.front);
     session.setState({
       ...session.state,
       upcomingCards: session.state.upcomingCards.slice(1),
@@ -119,12 +139,7 @@ const processNextCard = async (): Promise<NextStep> => {
         },
       ],
     });
-    debug.log("moved card to completed: " + card.front);
   }
-
-  debug.log(
-    "process next card. upcoming: " + session.state.upcomingCards.length
-  );
 
   if (session.state.upcomingCards[0]) {
     return "next-card";
@@ -164,8 +179,8 @@ const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
 
 const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
   console.clear();
-  console.log("  Welcome to Flashdown! (beta v0.1)");
-  console.log("  ---------------------");
+  console.log("  Welcome to Flashdown by Steve Ridout (beta v0.1)");
+  console.log("  ------------------------------------");
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
       ? ", return tomorrow to avoid losing it!"
@@ -224,11 +239,9 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
 
 const showHome = async () => {
   // Get home page data
-  const cards = cardDAL.getCards(baseName);
-  const recordsMap = practiceRecordDAL.getRecords(baseName);
+  const cards = cardDAL.getCards(fileName);
+  const recordsMap = practiceRecordDAL.getRecords(fileName);
   const homePageData = homePageUtils.calcHomePageData(cards, recordsMap);
-
-  debug.log("cards: " + JSON.stringify(cards));
 
   await homePageLoop(homePageData, homePageData.topics.length - 1);
 };
@@ -286,16 +299,20 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
   }
 
   if (upcomingCards.length === 0) {
+    const nextTime =
+      topic.learningCardsNotDue[0].learningMetrics.nextPracticeTime;
+    const nextDateString = new Date(nextTime * 1000 * 60).toLocaleString();
     await renderUtils.alert(
       "No cards ready to study in this topic. This is because the spaced repetition " +
-        "algorithm has scheduled all the cards to be studied some time in the future."
+        "algorithm has scheduled all the cards to be studied some time in the future.\n\n" +
+        `The next card in this topic is due on ${nextDateString}`
     );
     homePageLoop(homePageData, topicIndex);
     return;
   }
 
   session.setState({
-    upcomingCards,
+    upcomingCards: _.shuffle(upcomingCards),
     completedCards: [],
     stage: { type: "first-side-reveal" }, // XXX This will get overwritten
   });
@@ -321,3 +338,10 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
 };
 
 showHome();
+
+// If user changes the .fd file and we are showing home, update it...
+// XXX Need better global app state to know whether we are on home or session
+// XXX Should move to cardDAL to avoid breaking abstraction layer
+fs.watch(`${fileName}`, () => {
+  showHome();
+});
