@@ -9,7 +9,7 @@ export const getCards = (baseName: string): Card[] => {
 
   const flashcardRegexp = () => /^([^:]*): (.*)/;
   const sectionHeaderRegexp = () => /^# (.*)/;
-  const ignoreRegexp = () => /^>/;
+  const ignoreRegexp = () => /^\|/;
 
   let currentSection: string | undefined = "Untitled";
 
