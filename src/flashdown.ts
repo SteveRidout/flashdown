@@ -157,9 +157,6 @@ const processNextCard = async (): Promise<NextStep> => {
   return "finished";
 };
 
-// const pluralizeWord = (word: string, number: number) =>
-//   `${word}${number === 1 ? "" : "s"}`;
-
 const elideText = (text: string, maxLength: number): string => {
   if (text.length < maxLength) {
     return text;
@@ -204,7 +201,7 @@ const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
 
   console.log();
 
-  const columnWidths = [20, 15, 20];
+  const columnWidths = [25, 15, 20];
 
   console.log(
     "  " + tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)
@@ -336,7 +333,7 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
 
   // Show session end
   let newStreak = homePageData.streak;
-  if (!homePageData.practiceHistory) {
+  if (!homePageData.practicedToday) {
     // The user *hadn't* practiced today before this session, now that they have completed the
     // session we can increase the streak by 1
     newStreak += 1;
