@@ -3,4 +3,3 @@ node_modules
 temp
 debugLog.txt
 coverage
-dist
