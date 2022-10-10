@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "lib": ["ES5"],
     "module": "CommonJS",
     "moduleResolution": "node",
+    "outDir": "dist",
+    "rootDir": "src",
     "sourceMap": true,
     "strict": true,
     "target": "ES5",
-    "esModuleInterop": true,
-    "rootDir": "src",
-    "outDir": "dist",
     "types": ["jest", "node"]
   },
   "include": ["src/**/*"]
