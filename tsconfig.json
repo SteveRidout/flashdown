@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "lib": ["ES2021"],
+    "lib": ["ES5"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
-    "target": "ES2021",
+    "target": "ES5",
     "esModuleInterop": true,
     "rootDir": "src",
     "outDir": "dist",
