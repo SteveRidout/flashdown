@@ -1,10 +1,9 @@
 {
-  "name": "flashdown",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC",
+  "name": "Flashdown",
+  "version": "0.1",
+  "description": "A command line flashcard app using plain text files.",
+  "author": "Steve Ridout",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "29.1.2",
     "@types/lodash": "4.14.186",
@@ -19,9 +18,9 @@
     "lodash": "4.17.21",
     "typescript": "4.8.3"
   },
-  "bin": "flashdown.ts",
+  "bin": "src/flashdown.ts",
   "scripts": {
-    "start": "ts-node src/flashdown",
+    "start": "ts-node src/flashdown --file exampleFlashcards/notes.fd",
     "build": "tsc",
     "test": "jest",
     "test:coverage": "jest --coverage",
