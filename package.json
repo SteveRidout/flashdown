@@ -1,6 +1,6 @@
 {
   "name": "Flashdown",
-  "version": "0.1",
+  "version": "0.0.1",
   "description": "A command line flashcard app using plain text files.",
   "author": "Steve Ridout",
   "license": "MIT",
