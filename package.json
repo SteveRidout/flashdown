@@ -19,8 +19,10 @@
     "lodash": "4.17.21",
     "typescript": "4.8.3"
   },
+  "bin": "flashdown.ts",
   "scripts": {
-    "start": "npx ts-node flashdown",
+    "start": "ts-node src/flashdown",
+    "build": "tsc",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"

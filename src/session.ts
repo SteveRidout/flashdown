@@ -172,7 +172,11 @@ const render = () => {
       addLine();
       addLine();
       if (card.new) {
-        addLine(chalk.greenBright("Did you already know this?"));
+        addLine(
+          chalk.greenBright(
+            "Did you already know this? Press the appropriate NUMBER KEY:"
+          )
+        );
         addLine();
         addLine(chalk.redBright(!score || score === 1 ? "1) No" : ""));
         addLine(
@@ -183,7 +187,11 @@ const render = () => {
           chalk.greenBright(!score || score === 4 ? "4) Yes, very well!" : "")
         );
       } else {
-        addLine(chalk.greenBright("Did you remember?"));
+        addLine(
+          chalk.greenBright(
+            "Did you remember? Press the appropriate NUMBER KEY:"
+          )
+        );
         addLine();
         addLine(chalk.redBright(!score || score === 1 ? "1) No" : ""));
         addLine(

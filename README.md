@@ -53,5 +53,3 @@ Order of session:
   - streak
   - number of new cards / ready to review / scheduled for future
   - Hit SPACE to start session
-
-# Design of terminal app

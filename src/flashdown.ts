@@ -9,20 +9,19 @@ import * as _ from "lodash";
 import chalk from "chalk";
 import { program } from "commander";
 
-import * as keyboard from "./src/keyboard";
-import * as cardDAL from "./src/dal/cardDAL";
-import * as practiceRecordDAL from "./src/dal/practiceRecordDAL";
-import { HomePageData } from "./src/types";
-import * as session from "./src/session";
-import * as debug from "./src/debug";
-import * as ansiEscapes from "./src/ansiEscapes";
-import * as homePageUtils from "./src/homePageUtils";
-import config from "./src/config";
+import * as keyboard from "./keyboard";
+import * as cardDAL from "./dal/cardDAL";
+import * as practiceRecordDAL from "./dal/practiceRecordDAL";
+import { HomePageData } from "./types";
+import * as session from "./session";
+import * as debug from "./debug";
+import * as ansiEscapes from "./ansiEscapes";
+import * as homePageUtils from "./homePageUtils";
+import config from "./config";
 import { repeat } from "lodash";
-import * as utils from "./src/utils";
-import * as sessionEnd from "./src/sessionEnd";
-import * as renderUtils from "./src/renderUtils";
-import * as alertModal from "./src/alertModal";
+import * as utils from "./utils";
+import * as sessionEnd from "./sessionEnd";
+import * as alertModal from "./alertModal";
 
 program.option("--file <file>");
 program.parse(process.argv);
@@ -355,4 +354,8 @@ showHome();
 // XXX Should move to cardDAL to avoid breaking abstraction layer
 fs.watch(`${fileName}`, () => {
   showHome();
+});
+
+process.stdout.on("resize", () => {
+  debug.log(process.stdout.columns + " " + process.stdout.rows);
 });
