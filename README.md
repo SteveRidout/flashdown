@@ -1,6 +1,6 @@
 **Still working on the V0.1 and not really ready to share yet. That said, if this project sounds interesting to you, feel free to star/watch the repo and check back in a couple of weeks.**
 
-## Flashdown: A markup language for spaced repetition flashcards
+## Flashdown: A command line spaced repetition app using a plain text markup language
 
 Advantages:
 
