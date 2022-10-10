@@ -4,8 +4,8 @@
 
 Advantages:
 
-- A readable plain text file containing all your notes
-- A companion plain text file containing your history of studying flashcards based on the notes
+- A readable plain text file containing all your notes (.flashdown or .fd)
+- A companion plain text file containing your history of studying flashcards based on the notes (.fdr)
 - The file format is SRS algorithm agnostic (the Flashdown app uses a SM2-ish algorithm)
 - The files are very transparent and easy to read, making it easy for others to manipulate them either manually or via their own scripts and apps
 
