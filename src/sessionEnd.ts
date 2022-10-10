@@ -18,7 +18,7 @@ export const run = async (previousStreak: number, currentStreak: number) => {
   innerRender(previousStreak.toString());
 
   if (previousStreak !== currentStreak) {
-    await utils.sleep(1000);
+    await utils.sleep(500);
 
     for (const frame of transitionFrames) {
       innerRender(frame);
