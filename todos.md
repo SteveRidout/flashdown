@@ -8,6 +8,7 @@
 - Strict tsconfig settings
 - Allow edit distance of 1
 - Allow formatting within card - use bold text
+- Reflow text in "file doesn't exist" error message
 
 # Brainstorm
 
