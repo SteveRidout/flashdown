@@ -6,11 +6,9 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "dist",
-    "rootDir": "src",
     "sourceMap": true,
     "strict": true,
     "target": "ES5",
     "types": ["jest", "node"]
-  },
-  "include": ["src/**/*"]
+  }
 }

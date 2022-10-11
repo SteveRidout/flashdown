@@ -23,7 +23,7 @@ import * as utils from "./utils";
 import * as sessionEnd from "./sessionEnd";
 import * as alertModal from "./alertModal";
 
-program.option("--file <file>");
+program.option("--file <filename>");
 program.parse(process.argv);
 const options: {
   file?: string;
@@ -46,7 +46,13 @@ if (!fs.existsSync(fileName) && !fileName.endsWith(".fd")) {
 }
 
 if (!fs.existsSync(fileName)) {
-  console.log(`The file "${fileName}" doesn't exist`);
+  console.error(`Error: The file "${fileName}" doesn't exist`);
+  console.error();
+  console.error(
+    "Tip: Run Flashdown from within a directory containing a notes.fd file or use the " +
+      "--file <filename> option to specify the location of your .fd file."
+  );
+  console.error();
   process.exit();
 }
 
@@ -78,7 +84,7 @@ const processNextCard = async (): Promise<NextStep> => {
 
   let score: number;
 
-  if (/*!card.new &&*/ missingText.length <= config.typingThreshold) {
+  if (missingText.length <= config.typingThreshold) {
     session.setState({
       ...session.state,
       stage: { type: "first-side-type", input: "", cursorPosition: 0 },
