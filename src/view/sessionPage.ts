@@ -1,26 +1,10 @@
 import chalk from "chalk";
 import * as readline from "readline";
 
-import { CardWithLearningMetrics, TextWithCursor } from "./types";
-import * as ansiEscapes from "./ansiEscapes";
+import * as ansiEscapes from "../ansiEscapes";
 import * as renderUtils from "./renderUtils";
-import config from "./config";
-
-type CardStage =
-  | { type: "first-side-reveal" }
-  | { type: "first-side-type"; input: string; cursorPosition: number }
-  | { type: "second-side-revealed"; selectedScore: number }
-  | { type: "second-side-typed"; input: string; score: number }
-  | { type: "finished"; score: number };
-
-interface State {
-  upcomingCards: CardWithLearningMetrics[];
-  completedCards: CardWithLearningMetrics[];
-  stage: CardStage;
-}
-
-/** Important: never set this directly, always set via the setState() function */
-export let state: State;
+import { CardStage, SessionPage, TextWithCursor } from "../types";
+import config from "../config";
 
 const blankText = (input: string) =>
   input
@@ -54,8 +38,8 @@ const renderProgressBar = (position: number, total: number) => {
   )}${suffix}`;
 };
 
-const render = () => {
-  const { upcomingCards, completedCards, stage } = state;
+export const render = (sessionPage: SessionPage) => {
+  const { upcomingCards, completedCards, stage } = sessionPage;
 
   if (upcomingCards.length === 0) {
     return;
@@ -268,11 +252,6 @@ const render = () => {
   } else {
     process.stdin.write(ansiEscapes.hideCursor);
   }
-};
-
-export const setState = (newState: State) => {
-  state = newState;
-  render();
 };
 
 export const createCard = (

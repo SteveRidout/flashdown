@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import * as ansiEscapes from "../src/ansiEscapes";
 
-import * as renderUtils from "../src/renderUtils";
+import * as renderUtils from "../src/view/renderUtils";
 import config from "../src/config";
 
 const renderProgressBar = (position: number, total: number) => {

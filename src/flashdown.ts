@@ -14,8 +14,7 @@ import { program } from "commander";
 import * as keyboard from "./keyboard";
 import * as cardDAL from "./dal/cardDAL";
 import * as practiceRecordDAL from "./dal/practiceRecordDAL";
-import { CardWithLearningMetrics, HomePageData } from "./types";
-import * as session from "./session";
+import { CardWithLearningMetrics, HomePageData, SessionPage } from "./types";
 import * as debug from "./debug";
 import * as ansiEscapes from "./ansiEscapes";
 import * as homePageUtils from "./homePageUtils";
@@ -24,6 +23,7 @@ import { repeat } from "lodash";
 import * as utils from "./utils";
 import * as sessionEnd from "./sessionEnd";
 import * as alertModal from "./alertModal";
+import * as appState from "./appState";
 
 program.option("--file <filename>");
 program.parse(process.argv);
@@ -79,8 +79,29 @@ const normalizeAnswer = (answer: string) =>
     .trim()
     .toLowerCase();
 
+const updateSessionPage = (updateSessionPage: Partial<SessionPage>) => {
+  const oldState = appState.get();
+  if (oldState.page.name !== "session") {
+    throw Error("Unexpected state");
+  }
+
+  appState.setState({
+    ...oldState,
+    page: {
+      ...oldState.page,
+      ...updateSessionPage,
+    },
+  });
+};
+
 const processNextCard = async (): Promise<NextStep> => {
-  const card = session.state.upcomingCards[0];
+  let sessionPage = appState.get().page;
+
+  if (sessionPage.name !== "session") {
+    throw Error("Unexpected state");
+  }
+
+  const card = sessionPage.upcomingCards[0];
 
   if (!card) {
     throw Error("No more upcoming cards");
@@ -99,36 +120,31 @@ const processNextCard = async (): Promise<NextStep> => {
   let score: number;
 
   if (missingText.length <= config.typingThreshold) {
-    session.setState({
-      ...session.state,
+    updateSessionPage({
       stage: { type: "first-side-type", input: "", cursorPosition: 0 },
     });
 
     const answer = await keyboard.readLine((input, cursorPosition) => {
-      session.setState({
-        ...session.state,
+      updateSessionPage({
         stage: { type: "first-side-type", input, cursorPosition },
       });
     });
 
     score = normalizeAnswer(answer) === normalizeAnswer(missingText) ? 4 : 1;
 
-    session.setState({
-      ...session.state,
+    updateSessionPage({
       stage: { type: "second-side-typed", input: answer, score },
     });
 
     await keyboard.readKeypress(["space", "return"]);
   } else {
-    session.setState({
-      ...session.state,
+    updateSessionPage({
       stage: { type: "first-side-reveal" },
     });
     await keyboard.readKeypress(["space", "return"]);
 
     let selectedScore = 2;
-    session.setState({
-      ...session.state,
+    updateSessionPage({
       stage: { type: "second-side-revealed", selectedScore },
     });
 
@@ -151,8 +167,7 @@ const processNextCard = async (): Promise<NextStep> => {
         case "up":
         case "k":
           selectedScore = Math.max(1, selectedScore - 1);
-          session.setState({
-            ...session.state,
+          updateSessionPage({
             stage: {
               type: "second-side-revealed",
               selectedScore,
@@ -163,8 +178,7 @@ const processNextCard = async (): Promise<NextStep> => {
         case "down":
         case "j":
           selectedScore = Math.min(4, selectedScore + 1);
-          session.setState({
-            ...session.state,
+          updateSessionPage({
             stage: {
               type: "second-side-revealed",
               selectedScore,
@@ -191,8 +205,7 @@ const processNextCard = async (): Promise<NextStep> => {
 
     score = finalScore;
 
-    session.setState({
-      ...session.state,
+    updateSessionPage({
       stage: { type: "finished", score },
     });
 
@@ -201,12 +214,16 @@ const processNextCard = async (): Promise<NextStep> => {
 
   practiceRecordDAL.writeRecord(fileName, card, card.direction, score);
 
+  sessionPage = appState.get().page;
+  if (sessionPage.name !== "session") {
+    throw Error("Unexpected state");
+  }
+
   if (score === 1) {
     // Put card back into session since the user didn't remember it
-    session.setState({
-      ...session.state,
+    updateSessionPage({
       upcomingCards: [
-        ...session.state.upcomingCards.slice(1),
+        ...sessionPage.upcomingCards.slice(1),
         {
           ...card,
           new: false,
@@ -215,11 +232,10 @@ const processNextCard = async (): Promise<NextStep> => {
     });
   } else {
     // Move card to completedCards list
-    session.setState({
-      ...session.state,
-      upcomingCards: session.state.upcomingCards.slice(1),
+    updateSessionPage({
+      upcomingCards: sessionPage.upcomingCards.slice(1),
       completedCards: [
-        ...session.state.completedCards,
+        ...sessionPage.completedCards,
         {
           ...card,
           new: false,
@@ -228,101 +244,16 @@ const processNextCard = async (): Promise<NextStep> => {
     });
   }
 
-  if (session.state.upcomingCards[0]) {
+  sessionPage = appState.get().page;
+  if (sessionPage.name !== "session") {
+    throw Error("Unexpected state");
+  }
+
+  if (sessionPage.upcomingCards[0]) {
     return "next-card";
   }
+
   return "finished";
-};
-
-const elideText = (text: string, maxLength: number): string => {
-  if (text.length < maxLength) {
-    return text;
-  }
-  return text.substring(0, maxLength - 3) + "...";
-};
-
-const addPadding = (text: string, length: number): string =>
-  text + repeat(" ", length - text.length);
-
-const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
-  const renderedItems: string[] = [];
-
-  if (items.length !== maxLengths.length) {
-    throw Error("Array of lengths doesn't match the array of items");
-  }
-
-  for (let i = 0; i < items.length; i++) {
-    renderedItems[i] = addPadding(
-      elideText(items[i].toString(), maxLengths[i]),
-      maxLengths[i]
-    );
-  }
-
-  return renderedItems.join("  ");
-};
-
-const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
-  console.clear();
-  console.log(
-    "  Welcome to Flashdown by Steve Ridout (beta v0.1)   ",
-    chalk.gray(fileName)
-  );
-  console.log("  ------------------------------------");
-
-  if (homePageData.streak > 0) {
-    const callToAction = homePageData.practicedToday
-      ? ", return tomorrow to avoid losing it!"
-      : "";
-
-    console.log();
-    console.log(
-      `  You have a ${homePageData.streak} day streak${callToAction}`
-    );
-  }
-
-  console.log();
-
-  const columnWidths = [25, 15, 20];
-
-  console.log(
-    "  " + tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)
-  );
-  console.log(
-    "  " + tableRow(["-----", "-----------", "-----------------"], columnWidths)
-  );
-  let topicIndex = 0;
-  for (const topic of homePageData.topics) {
-    console.log(
-      `${topicIndex === selectedTopicIndex ? ">" : " "} ${tableRow(
-        [
-          topic.name,
-          topic.newCards.length +
-            topic.learningCardsDue.length +
-            topic.learningCardsNotDue.length,
-          topic.newCards.length + topic.learningCardsDue.length,
-        ],
-        columnWidths
-      )}`
-    );
-    if (
-      homePageData.topics.length > 1 &&
-      topicIndex === homePageData.topics.length - 2
-    ) {
-      console.log();
-    }
-    topicIndex++;
-  }
-
-  console.log();
-  console.log();
-  console.log(
-    chalk.greenBright(
-      "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
-    )
-  );
-
-  // Hide cursor
-  process.stdin.write(ansiEscapes.hideCursor);
 };
 
 const showHome = async () => {
@@ -335,7 +266,14 @@ const showHome = async () => {
 };
 
 const homePageLoop = async (homePageData: HomePageData, topicIndex: number) => {
-  renderHome(homePageData, topicIndex);
+  appState.setState({
+    fileName,
+    homePageData,
+    page: {
+      name: "home",
+      selectedTopicIndex: topicIndex,
+    },
+  });
 
   const keypress = await keyboard.readKeypress([
     "space",
@@ -403,10 +341,14 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
     return;
   }
 
-  session.setState({
-    upcomingCards: _.shuffle(upcomingCards),
-    completedCards: [],
-    stage: { type: "first-side-reveal" }, // XXX This will get overwritten
+  appState.setState({
+    ...appState.get(),
+    page: {
+      name: "session",
+      upcomingCards: _.shuffle(upcomingCards),
+      completedCards: [],
+      stage: { type: "first-side-reveal" }, // XXX This will get overwritten
+    },
   });
 
   console.clear();

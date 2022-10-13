@@ -1,7 +1,7 @@
 // Designed to be run directly with ts-node for now since we don't have a proper unit testing
 // framework set up yet.
 
-import * as session from "./session";
+import * as sessionPage from "./sessionPage";
 
 const testTextWithCursor = {
   text: "Heading\n\nThis is some test text with a blank here _______ and this is the end.",
@@ -29,7 +29,7 @@ const testCardBodyWithCursor = {
 
 describe("addFrame", () => {
   test("card body text, width 20", () => {
-    expect(session.addFrame(testCardBody, 30)).toStrictEqual({
+    expect(sessionPage.addFrame(testCardBody, 30)).toStrictEqual({
       cursorPosition: undefined,
       text: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Topic: Spanish words       ┃
@@ -41,7 +41,7 @@ describe("addFrame", () => {
   });
 
   test("card body text, width 30", () => {
-    expect(session.addFrame(testCardBody, 30)).toStrictEqual({
+    expect(sessionPage.addFrame(testCardBody, 30)).toStrictEqual({
       cursorPosition: undefined,
       text: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Topic: Spanish words       ┃
@@ -53,7 +53,7 @@ describe("addFrame", () => {
   });
 
   test("card body text with cursor, width 30", () => {
-    expect(session.addFrame(testCardBodyWithCursor, 30)).toStrictEqual({
+    expect(sessionPage.addFrame(testCardBodyWithCursor, 30)).toStrictEqual({
       cursorPosition: {
         x: 17,
         y: 3,
@@ -71,7 +71,7 @@ describe("addFrame", () => {
 describe("createCard", () => {
   test("Big blank to reflow", () => {
     expect(
-      session.createCard("Spanish", {
+      sessionPage.createCard("Spanish", {
         text: "This is a test which includes a blank here: _____________________________",
         cursorPosition: { x: 44, y: 0 },
       })
@@ -92,7 +92,7 @@ describe("createCard", () => {
 
   test("Blank on front side", () => {
     expect(
-      session.createCard("Spanish", {
+      sessionPage.createCard("Spanish", {
         text: "_______________: This is a test which includes a blank on the first side <---",
         cursorPosition: { x: 0, y: 0 },
       })
@@ -113,7 +113,7 @@ describe("createCard", () => {
 
   test("With cursor 2", () => {
     expect(
-      session.createCard("Celsius/Fahrenheit conversion", {
+      sessionPage.createCard("Celsius/Fahrenheit conversion", {
         text: "176C : ____",
         cursorPosition: { x: 7, y: 0 },
       })
@@ -133,7 +133,7 @@ describe("createCard", () => {
 
   test("With cursor 3", () => {
     expect(
-      session.createCard("Solar energy", {
+      sessionPage.createCard("Solar energy", {
         text: "What was the total electricity consumption of Spain in 2018? : _______",
         cursorPosition: { x: 63, y: 0 },
       })

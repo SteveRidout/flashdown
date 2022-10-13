@@ -74,3 +74,33 @@ export type CardWithLearningMetrics = Card & { new: boolean } & (
     | {}
     | CardLearningDerivedMetrics
   );
+
+export type CardStage =
+  | { type: "first-side-reveal" }
+  | { type: "first-side-type"; input: string; cursorPosition: number }
+  | { type: "second-side-revealed"; selectedScore: number }
+  | { type: "second-side-typed"; input: string; score: number }
+  | { type: "finished"; score: number };
+
+export interface SessionPage {
+  name: "session";
+  upcomingCards: CardWithLearningMetrics[];
+  completedCards: CardWithLearningMetrics[];
+  stage: CardStage;
+}
+
+export interface HomePage {
+  name: "home";
+  selectedTopicIndex: number;
+}
+
+export interface SessionEndPage {
+  name: "session-end";
+}
+
+export interface AppState {
+  fileName: string;
+  homePageData: HomePageData;
+
+  page: SessionPage | HomePage | SessionEndPage;
+}

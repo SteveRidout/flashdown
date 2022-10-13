@@ -1,4 +1,4 @@
-import { TextWithCursor } from "./types";
+import { TextWithCursor } from "../types";
 
 /**
  * Joins the given lines inserting a newline between each one. This will throw an error if more

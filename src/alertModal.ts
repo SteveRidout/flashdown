@@ -2,7 +2,7 @@ import chalk from "chalk";
 
 import * as keyboard from "./keyboard";
 import config from "./config";
-import * as renderUtils from "./renderUtils";
+import * as renderUtils from "./view/renderUtils";
 
 export const show = async (message: string) => {
   console.clear();
