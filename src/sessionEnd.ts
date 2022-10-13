@@ -7,9 +7,9 @@ const frameDuration = 1000 / 12;
 
 const innerRender = (streakString: string) => {
   console.clear();
-  console.log("Well done!");
+  console.log("  Well done!");
   console.log();
-  console.log(`Streak: ${streakString}`);
+  console.log(`  Streak: ${streakString}`);
 };
 
 let transitionFrames = [".", "-", "'"];
@@ -31,6 +31,6 @@ export const run = async (previousStreak: number, currentStreak: number) => {
   }
 
   console.log();
-  console.log(chalk.greenBright("Hit SPACE to continue"));
+  console.log(chalk.greenBright("  Hit SPACE to continue"));
   await keyboard.readKeypress(["space", "return"]);
 };

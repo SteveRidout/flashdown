@@ -6,7 +6,6 @@ import {
   HomePageData,
   PracticeRecord,
   TopicData,
-  WholeDate,
 } from "./types";
 import * as spacedRepetition from "./spacedRepetition";
 import * as utils from "./utils";

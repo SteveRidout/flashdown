@@ -5,6 +5,8 @@
 // 5. Show summary at end
 
 import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as _ from "lodash";
 import chalk from "chalk";
 import { program } from "commander";
@@ -12,7 +14,7 @@ import { program } from "commander";
 import * as keyboard from "./keyboard";
 import * as cardDAL from "./dal/cardDAL";
 import * as practiceRecordDAL from "./dal/practiceRecordDAL";
-import { HomePageData } from "./types";
+import { CardWithLearningMetrics, HomePageData } from "./types";
 import * as session from "./session";
 import * as debug from "./debug";
 import * as ansiEscapes from "./ansiEscapes";
@@ -43,6 +45,12 @@ let fileName = options.file ?? "notes.fd";
 if (!fs.existsSync(fileName) && !fileName.endsWith(".fd")) {
   // Try adding .fd to see if that works
   fileName += ".fd";
+}
+
+if (!fs.existsSync(fileName)) {
+  // Look for file in standard location:
+  // ~/.flashdown/notes.fd
+  fileName = path.resolve(os.homedir(), ".flashdown/notes.fd");
 }
 
 if (!fs.existsSync(fileName)) {
@@ -78,6 +86,12 @@ const processNextCard = async (): Promise<NextStep> => {
     throw Error("No more upcoming cards");
   }
   debug.log("Next card: " + JSON.stringify(card));
+  if ("previousInterval" in card && card.previousInterval) {
+    debug.log(
+      "Previous interval (days): " + card.previousInterval / (24 * 60) + " days"
+    );
+    debug.log("Scheduled time: " + new Date(card.nextPracticeTime * 60 * 1000));
+  }
 
   const missingText =
     card.direction === "front-to-back" ? card.back : card.front;
@@ -112,13 +126,70 @@ const processNextCard = async (): Promise<NextStep> => {
     });
     await keyboard.readKeypress(["space", "return"]);
 
+    let selectedScore = 2;
     session.setState({
       ...session.state,
-      stage: { type: "second-side-revealed" },
+      stage: { type: "second-side-revealed", selectedScore },
     });
 
-    const key = await keyboard.readKeypress(["1", "2", "3", "4"]);
-    score = parseInt(key, 10);
+    let finalScore: number | undefined;
+
+    while (finalScore === undefined) {
+      const key = await keyboard.readKeypress([
+        "1",
+        "2",
+        "3",
+        "4",
+        "up",
+        "down",
+        "j",
+        "k",
+        "space",
+        "return",
+      ]);
+      switch (key) {
+        case "up":
+        case "k":
+          selectedScore = Math.max(1, selectedScore - 1);
+          session.setState({
+            ...session.state,
+            stage: {
+              type: "second-side-revealed",
+              selectedScore,
+            },
+          });
+          break;
+
+        case "down":
+        case "j":
+          selectedScore = Math.min(4, selectedScore + 1);
+          session.setState({
+            ...session.state,
+            stage: {
+              type: "second-side-revealed",
+              selectedScore,
+            },
+          });
+          break;
+
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+          finalScore = parseInt(key, 10);
+          break;
+
+        case "space":
+        case "return":
+          finalScore = selectedScore;
+          break;
+
+        default:
+          throw Error("Unexpected key stroke");
+      }
+    }
+
+    score = finalScore;
 
     session.setState({
       ...session.state,
@@ -192,8 +263,12 @@ const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
 
 const renderHome = (homePageData: HomePageData, selectedTopicIndex: number) => {
   console.clear();
-  console.log("  Welcome to Flashdown by Steve Ridout (beta v0.1)");
+  console.log(
+    "  Welcome to Flashdown by Steve Ridout (beta v0.1)   ",
+    chalk.gray(fileName)
+  );
   console.log("  ------------------------------------");
+
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
       ? ", return tomorrow to avoid losing it!"
@@ -295,9 +370,13 @@ const homePageLoop = async (homePageData: HomePageData, topicIndex: number) => {
 const startSession = async (homePageData: HomePageData, topicIndex: number) => {
   const topic = homePageData.topics[topicIndex];
 
-  let upcomingCards = topic.learningCardsDue
+  let upcomingCards: CardWithLearningMetrics[] = topic.learningCardsDue
     .slice(0, config.targetCardsPerSession)
-    .map((card) => ({ ...card.card, new: false }));
+    .map((card) => ({
+      ...card.card,
+      new: false,
+      ...card.learningMetrics,
+    }));
 
   if (upcomingCards.length < config.targetCardsPerSession) {
     upcomingCards = [
@@ -306,7 +385,7 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
         .slice(0, config.targetCardsPerSession - upcomingCards.length)
         .map((card) => ({
           ...card,
-          new: true,
+          new: true as true,
         })),
     ];
   }

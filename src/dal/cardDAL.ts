@@ -1,7 +1,6 @@
 import * as fs from "fs";
 
 import { Card, Direction } from "../types";
-import * as debug from "../debug";
 
 export const getCards = (fileName: string): Card[] => {
   const rawFlashcardsFile = fs.readFileSync(`${fileName}`).toString();
@@ -9,7 +8,7 @@ export const getCards = (fileName: string): Card[] => {
 
   const flashcardRegexp = () => /^([^:]*): (.*)/;
   const sectionHeaderRegexp = () => /^# (.*)/;
-  const ignoreRegexp = () => /^\|/;
+  const ignoreRegexp = () => /\^>/;
 
   let currentSection: string | undefined = "Untitled";
 

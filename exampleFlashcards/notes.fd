@@ -8,11 +8,9 @@ Epistemology: Study of knowledge acquisition
 Immanuel Kant: German philosopher and one of the foremost thinkers of the Enlightenment. Wrote "Critique of Pure Reason" in 1781
 
 # Celsius/Fahrenheit conversion
-| directions: f
-| note: The forumula is (C * 9 / 5) + 32 = F
 
 0C: 32F
-| The freezing point of water
+^ The freezing point of water
 5C: 41F
 10C: 50F
 15C: 59F
@@ -22,7 +20,7 @@ Immanuel Kant: German philosopher and one of the foremost thinkers of the Enligh
 35C: 95F
 40C: 104F
 100C: 212F
-| The boiling point of water at 1 atmosphere
+^ The boiling point of water at 1 atmosphere
 176C: 350F
 204C: 400F
 232C: 450F
@@ -45,7 +43,7 @@ barandilla: railing
 proa: bow
 
 # Cognitive biases
-From https://www.visualcapitalist.com/50-cognitive-biases-in-the-modern-world/
+^ From https://www.visualcapitalist.com/50-cognitive-biases-in-the-modern-world/
 
 Fundamental Attribution Error: We judge others on their personality or fundamental character, but we judge ourselves on the situation. Example: “Sally is late to class; she's lazy. You're late to class; it was a bad morning.”
 Self-Serving Bias: Our failures are situational but our successes are our responsibility. Example: “You won that award due to hard work rather than help or luck. Meanwhile, you failed a test because you hadn't gotten enough sleep.”

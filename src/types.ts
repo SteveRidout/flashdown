@@ -25,6 +25,12 @@ export interface CardLearningDerivedMetrics {
 
   /** The next scheduled time in minutes since epoch */
   nextPracticeTime: number;
+
+  /**
+   * This starts at a fixed value for each card and increases or decreases based on whether the
+   * user remembered the information how easily they remembered it
+   */
+  easinessFactor: number;
 }
 
 export type Direction = "front-to-back" | "back-to-front";
@@ -63,3 +69,8 @@ export interface WholeDate {
   month: number;
   day: number;
 }
+
+export type CardWithLearningMetrics = Card & { new: boolean } & (
+    | {}
+    | CardLearningDerivedMetrics
+  );

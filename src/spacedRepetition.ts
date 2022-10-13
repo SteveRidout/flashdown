@@ -9,79 +9,26 @@ import { CardLearningDerivedMetrics, PracticeRecord } from "./types";
 // - After failing a card, it is scheduled for immediate review and will be shown to the user within
 //   the current session (but with other cards in between if they exist)
 
-/** This assumes that the records are in chronological order */
-export const getNextPracticeTime = (
-  records: PracticeRecord[]
-): number | undefined => {
-  let easinessFactor = 2.5;
-  let previous:
-    | {
-        time: number;
-        interval: number;
-      }
-    | undefined;
-  let nextPracticeTime: number | undefined;
+interface SpacedRepetitionConfig {
+  initialEasinessFactor: number;
 
-  for (const record of records) {
-    if (previous !== undefined && record.practiceTime < previous.time) {
-      throw Error("Practice records not in chronological order");
-    }
+  /**
+   * Time in minutes that user will wait until next seeing a card after answering with a score of 3.
+   * A score of 2 results in a time half of this and a score of 4 results in double this.
+   */
+  firstInterval: number;
+}
 
-    const easinessDelta = (() => {
-      switch (record.score) {
-        case 1:
-          return -0.8;
-        case 2:
-          return -0.2;
-        case 3:
-          return 0;
-        case 4:
-          return 0.1;
-        default:
-          throw Error("Invalid score");
-      }
-    })();
-
-    easinessFactor = Math.max(1.3, easinessFactor + easinessDelta);
-
-    const nextInterval = (() => {
-      switch (record.score) {
-        case 1:
-          // Practice immediately
-          return 0;
-        case 2:
-        case 3:
-        case 4:
-          if (previous === undefined) {
-            return 60 * 6 * record.score;
-          }
-          const interval =
-            (record.practiceTime - previous.time) * easinessFactor;
-
-          // Since the user got this right, let's ensure that the next interval can't decrease
-          // compared to the previous one. This is only for the case where the user happened to
-          // practice before the scheduled time, e.g. perhaps they are cramming before an exam.
-          return Math.max(previous.interval, interval);
-        default:
-          throw Error("Invalid score");
-      }
-    })();
-
-    nextPracticeTime = record.practiceTime + nextInterval;
-
-    previous = {
-      time: record.practiceTime,
-      interval: nextInterval,
-    };
-  }
-
-  return nextPracticeTime;
+const defaultConfig: SpacedRepetitionConfig = {
+  initialEasinessFactor: 2.5,
+  firstInterval: 60 * 24,
 };
 
 export const getSpacedRepetitionInfo = (
-  records: PracticeRecord[]
+  records: PracticeRecord[],
+  config: SpacedRepetitionConfig = defaultConfig
 ): CardLearningDerivedMetrics | undefined => {
-  let easinessFactor = 2.5;
+  let easinessFactor = config.initialEasinessFactor;
   let previous:
     | {
         time: number;
@@ -120,13 +67,14 @@ export const getSpacedRepetitionInfo = (
     const nextInterval = (() => {
       switch (record.score) {
         case 1:
-          // Practice immediately
-          return 0;
+          // Schedule for 6 hours time
+          return 6 * 60;
         case 2:
         case 3:
         case 4:
           if (previousInterval === undefined || previous === undefined) {
-            return 60 * 6 * record.score;
+            // Schedule for the next day
+            return config.firstInterval * Math.pow(2, record.score - 3);
           }
 
           const interval = previousInterval * easinessFactor;
@@ -158,5 +106,6 @@ export const getSpacedRepetitionInfo = (
     previousInterval: previous.previousInterval,
     previousScore: previous.score,
     nextPracticeTime,
+    easinessFactor,
   };
 };
