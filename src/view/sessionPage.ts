@@ -53,7 +53,6 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     console.clear();
     previousStageType = stage.type;
   }
-  process.stdout.cursorTo(0, 0);
 
   const lines: TextWithCursor[] = [];
 
