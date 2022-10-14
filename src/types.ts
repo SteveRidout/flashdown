@@ -36,7 +36,8 @@ export interface CardLearningDerivedMetrics {
 export type Direction = "front-to-back" | "back-to-front";
 
 export interface TextWithCursor {
-  text: string;
+  /** Each element in this array should represent a single line. No newline characters allowed! */
+  lines: string[];
   cursorPosition?: {
     x: number;
     y: number;

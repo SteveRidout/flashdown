@@ -4,140 +4,158 @@ import { TextWithCursor } from "../types";
  * Joins the given lines inserting a newline between each one. This will throw an error if more
  * than one line contains a cursor position.
  */
-export const joinLines = (lines: TextWithCursor[]): TextWithCursor => {
+export const joinSections = (sections: TextWithCursor[]): TextWithCursor => {
   let y = 0;
   let cursorPosition: { x: number; y: number } | undefined = undefined;
 
-  for (const line of lines) {
-    if (line.cursorPosition) {
+  let allLines: string[] = [];
+
+  for (const section of sections) {
+    if (section.cursorPosition) {
       if (cursorPosition) {
         throw Error("Two separate lines both contain cursor positions");
       }
 
       cursorPosition = {
-        x: line.cursorPosition.x,
-        y: y + line.cursorPosition.y,
+        x: section.cursorPosition.x,
+        y: allLines.length + section.cursorPosition.y,
       };
     }
-    y += line.text.split("\n").length;
+
+    allLines = [...allLines, ...section.lines];
+    y += section.lines.length;
   }
 
   return {
-    text: lines.map(({ text }) => text).join("\n"),
+    lines: allLines,
     cursorPosition,
   };
 };
 
-export const splitIntoLines = (
-  textWithCursor: TextWithCursor
-): TextWithCursor[] => {
-  let lines: TextWithCursor[] = textWithCursor.text
-    .split("\n")
-    .map((text) => ({ text }));
+// export const splitIntoLines = (
+//   textWithCursor: TextWithCursor
+// ): TextWithCursor[] => {
+//   let lines: TextWithCursor[] = textWithCursor.lines
+//     .split("\n")
+//     .map((text) => ({ text }));
 
-  if (textWithCursor.cursorPosition) {
-    // Iterate through lines until we reach
-    const line = lines[textWithCursor.cursorPosition.y];
+//   if (textWithCursor.cursorPosition) {
+//     // Iterate through lines until we reach
+//     const line = lines[textWithCursor.cursorPosition.y];
 
-    lines[textWithCursor.cursorPosition.y] = {
-      text: line.text,
-      cursorPosition: {
-        x: textWithCursor.cursorPosition.x,
-        y: 0,
-      },
-    };
-  }
+//     lines[textWithCursor.cursorPosition.y] = {
+//       lines: line.lines,
+//       cursorPosition: {
+//         x: textWithCursor.cursorPosition.x,
+//         y: 0,
+//       },
+//     };
+//   }
 
-  return lines;
-};
+//   return lines;
+// };
 
 export const reflowText = (
   textWithCursor: TextWithCursor,
   columns: number
 ): TextWithCursor => {
-  const lines = splitIntoLines(textWithCursor);
+  // XXX Is it worth creating this intermediate list or better just to create the final one from the
+  // outset??
+  const intermediateSections: TextWithCursor[] = [];
 
-  const intermediateLines: TextWithCursor[] = [];
-
-  for (const line of lines) {
+  for (
+    let lineIndex = 0;
+    lineIndex < textWithCursor.lines.length;
+    lineIndex++
+  ) {
+    const line = textWithCursor.lines[lineIndex];
+    /** These are the reflowed lines corresponding only to the current line */
+    let reflowedLines: string[] = [line];
     let currentY = 0;
     let currentX = 0;
-    let text = line.text;
-    let cursorPositionX: number | undefined = line.cursorPosition?.x;
+    let cursorPositionX: number | undefined =
+      lineIndex === textWithCursor.cursorPosition?.y
+        ? textWithCursor.cursorPosition?.x
+        : undefined;
     let newLineCursorPosition: { x: number; y: number } | undefined;
 
-    while (text.length - currentX > columns) {
-      let reflowX = currentX + columns;
+    while (reflowedLines[reflowedLines.length - 1].length > columns) {
+      if (reflowedLines[reflowedLines.length - 1][columns] === "_") {
+        // Just split underlines wherever they are
+        reflowedLines = [
+          ...reflowedLines.slice(0, reflowedLines.length - 1),
+          reflowedLines[reflowedLines.length - 1].substring(0, columns),
+          reflowedLines[reflowedLines.length - 1].substring(columns),
+        ];
 
-      if (text[reflowX] === "_") {
-        // Just split underlines
-        const newLine = "\n";
-        text =
-          text.substring(0, currentX + columns) +
-          newLine +
-          text.substring(currentX + columns);
-
-        if (
-          cursorPositionX !== undefined &&
-          cursorPositionX >= currentX &&
-          cursorPositionX < currentX + columns
-        ) {
-          newLineCursorPosition = {
-            y: currentY,
-            x: cursorPositionX - currentX,
-          };
-          cursorPositionX = undefined;
+        if (cursorPositionX !== undefined) {
+          if (cursorPositionX < columns) {
+            newLineCursorPosition = {
+              y: currentY,
+              x: cursorPositionX,
+            };
+            cursorPositionX = undefined;
+          } else {
+            cursorPositionX -= columns;
+          }
         }
 
-        currentX += columns + newLine.length;
         currentY += 1;
       } else {
-        while (text[reflowX] !== " " && reflowX > currentX) {
+        let reflowX = columns;
+        while (
+          reflowedLines[reflowedLines.length - 1][reflowX] !== " " &&
+          reflowX > 0
+        ) {
           reflowX -= 1;
         }
 
-        if (reflowX === currentX) {
+        if (reflowX === 0) {
+          reflowX = columns - 1;
+
           // Uh-oh, we couldn't reflow since there was no space character, so split the word with a
           // hyphen
-          const hyphenAndNewline = "-\n";
-          text =
-            text.substring(0, currentX + columns) +
-            hyphenAndNewline +
-            text.substring(currentX + columns);
+          // XXX surely we can de-dup this and the above chunk of code
+          reflowedLines = [
+            ...reflowedLines.slice(0, reflowedLines.length - 1),
+            reflowedLines[reflowedLines.length - 1].substring(0, reflowX) + "-",
+            reflowedLines[reflowedLines.length - 1].substring(reflowX),
+          ];
 
-          if (
-            cursorPositionX !== undefined &&
-            cursorPositionX >= currentX &&
-            cursorPositionX < currentX + columns
-          ) {
-            newLineCursorPosition = {
-              y: currentY,
-              x: cursorPositionX - currentX,
-            };
-            cursorPositionX = undefined;
+          if (cursorPositionX !== undefined) {
+            if (cursorPositionX < reflowX) {
+              newLineCursorPosition = {
+                y: currentY,
+                x: cursorPositionX,
+              };
+              cursorPositionX = undefined;
+            } else {
+              cursorPositionX -= reflowX;
+            }
           }
 
-          if (cursorPositionX && cursorPositionX > currentX + columns) {
-            cursorPositionX += hyphenAndNewline.length;
-          }
-
-          currentX += columns + hyphenAndNewline.length;
           currentY += 1;
         } else {
-          // Replace the space with a newline
-          text =
-            text.substring(0, reflowX) + "\n" + text.substring(reflowX + 1);
+          // Replace the space with a new line
+          // XXX Again - could look at consolidating this with above 2 similar blocks of code
+          reflowedLines = [
+            ...reflowedLines.slice(0, reflowedLines.length - 1),
+            reflowedLines[reflowedLines.length - 1].substring(0, reflowX),
+            reflowedLines[reflowedLines.length - 1].substring(reflowX + 1),
+          ];
 
-          if (
-            cursorPositionX !== undefined &&
-            cursorPositionX >= currentX &&
-            cursorPositionX < reflowX
-          ) {
-            newLineCursorPosition = {
-              y: currentY,
-              x: cursorPositionX - currentX,
-            };
-            cursorPositionX = undefined;
+          // XXX EDGE CASE not handled (I think!): what if the cursor is on the space character we
+          // removed??
+          if (cursorPositionX !== undefined) {
+            if (cursorPositionX < reflowX) {
+              newLineCursorPosition = {
+                y: currentY,
+                x: cursorPositionX,
+              };
+              cursorPositionX = undefined;
+            } else {
+              cursorPositionX -= reflowX + 1;
+            }
           }
 
           currentX = reflowX + 1;
@@ -147,23 +165,20 @@ export const reflowText = (
     }
 
     // In case the cursor is on the last line (commonly this is the only line)
-    if (
-      cursorPositionX !== undefined &&
-      cursorPositionX >= currentX &&
-      cursorPositionX < currentX + columns
-    ) {
+    if (cursorPositionX !== undefined) {
       newLineCursorPosition = {
         y: currentY,
-        x: cursorPositionX - currentX,
+        x: cursorPositionX,
       };
-      cursorPositionX = undefined;
     }
 
-    // XXX Add cursor position
-    intermediateLines.push({ text, cursorPosition: newLineCursorPosition });
+    intermediateSections.push({
+      lines: reflowedLines,
+      cursorPosition: newLineCursorPosition,
+    });
   }
 
-  return joinLines(intermediateLines);
+  return joinSections(intermediateSections);
 };
 
 export const repeat = (character: string, size: number): string =>

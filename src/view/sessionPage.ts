@@ -40,7 +40,7 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
   const { upcomingCards, completedCards, stage } = sessionPage;
 
   if (upcomingCards.length === 0) {
-    return { text: "No cards left" };
+    return { lines: ["No cards left"] };
   }
 
   if (previousStageType !== stage.type) {
@@ -55,7 +55,7 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
     text: string = "",
     cursorPosition?: { x: number; y: number }
   ) => {
-    lines.push({ text, cursorPosition });
+    lines.push({ lines: [text], cursorPosition });
   };
 
   const totalCards = upcomingCards.length + completedCards.length;
@@ -81,11 +81,13 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
         createCard(
           card.sectionTitle,
           {
-            text: `${
-              card.direction === "front-to-back"
-                ? `${card.front} : ${blankText(card.back)}`
-                : `${blankText(card.front)} : ${card.back}`
-            }`,
+            lines: [
+              `${
+                card.direction === "front-to-back"
+                  ? `${card.front} : ${blankText(card.back)}`
+                  : `${blankText(card.front)} : ${card.back}`
+              }`,
+            ],
           },
           2
         )
@@ -114,7 +116,7 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
       const cardTextWithCursor = createCard(
         card.sectionTitle,
         {
-          text: cardContent,
+          lines: [cardContent],
           cursorPosition: { x: cursorX, y: 0 },
         },
         2
@@ -139,7 +141,7 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
         createCard(
           card.sectionTitle,
           {
-            text: `${card.front} : ${card.back}`,
+            lines: [`${card.front} : ${card.back}`],
           },
           2
         )
@@ -162,7 +164,7 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
           ? `${card.front} : ${card.back}`
           : `${card.front} : ${card.back}`;
 
-      lines.push(createCard(card.sectionTitle, { text }, 2));
+      lines.push(createCard(card.sectionTitle, { lines: [text] }, 2));
       addLine();
       addLine();
       if (card.new) {
@@ -245,7 +247,7 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
       break;
   }
 
-  return renderUtils.joinLines(lines);
+  return renderUtils.joinSections(lines);
 };
 
 export const createCard = (
@@ -255,13 +257,13 @@ export const createCard = (
 ) => {
   const lines: TextWithCursor[] = [];
 
-  lines.push({ text: `Topic: ${topic}` });
-  lines.push({ text: "" });
+  lines.push({ lines: [`Topic: ${topic}`] });
+  lines.push({ lines: [""] });
   lines.push(body);
-  lines.push({ text: "" });
+  lines.push({ lines: [""] });
 
   return addFrame(
-    renderUtils.joinLines(lines),
+    renderUtils.joinSections(lines),
     config.maxColumnWidth,
     leftMargin
   );
@@ -275,41 +277,44 @@ export const addFrame = (
   let lines: TextWithCursor[] = [];
 
   lines.push({
-    text:
+    lines: [
       renderUtils.repeat(" ", leftMargin) +
-      "┏" +
-      renderUtils.repeat("━", width - 2) +
-      "┓",
+        "┏" +
+        renderUtils.repeat("━", width - 2) +
+        "┓",
+    ],
   });
 
-  let bodyLines = renderUtils.splitIntoLines(
-    renderUtils.reflowText(textWithCursor, width - 4)
-  );
+  let bodyLines = renderUtils.reflowText(textWithCursor, width - 4);
 
-  for (const bodyLine of bodyLines) {
+  for (let lineIndex = 0; lineIndex < bodyLines.lines.length; lineIndex++) {
+    const line = bodyLines.lines[lineIndex];
     lines.push({
-      text:
+      lines: [
         renderUtils.repeat(" ", leftMargin) +
-        "┃ " +
-        bodyLine.text +
-        renderUtils.repeat(" ", width - bodyLine.text.length - 4) +
-        " ┃",
-      cursorPosition: bodyLine.cursorPosition
-        ? {
-            x: bodyLine.cursorPosition.x + 2 + leftMargin,
-            y: bodyLine.cursorPosition.y,
-          }
-        : undefined,
+          "┃ " +
+          line +
+          renderUtils.repeat(" ", width - line.length - 4) +
+          " ┃",
+      ],
+      cursorPosition:
+        bodyLines.cursorPosition?.y === lineIndex
+          ? {
+              x: bodyLines.cursorPosition.x + 2 + leftMargin,
+              y: 0,
+            }
+          : undefined,
     });
   }
 
   lines.push({
-    text:
+    lines: [
       renderUtils.repeat(" ", leftMargin) +
-      "┗" +
-      renderUtils.repeat("━", width - 2) +
-      "┛",
+        "┗" +
+        renderUtils.repeat("━", width - 2) +
+        "┛",
+    ],
   });
 
-  return renderUtils.joinLines(lines);
+  return renderUtils.joinSections(lines);
 };

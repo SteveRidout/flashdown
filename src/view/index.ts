@@ -27,10 +27,10 @@ export const updateView = (appState: AppState) => {
     }
   })();
 
-  const { text, cursorPosition } = terminalViewModel;
+  const { lines, cursorPosition } = terminalViewModel;
 
   console.clear();
-  console.log(text);
+  console.log(lines.join("\n");
 
   process.stdout.clearScreenDown();
 
