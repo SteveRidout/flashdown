@@ -104,4 +104,6 @@ export interface AppState {
   homePageData: HomePageData;
 
   page: SessionPage | HomePage | SessionEndPage;
+
+  modalMessage?: string[];
 }

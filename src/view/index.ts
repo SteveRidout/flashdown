@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import * as readline from "readline";
 
 import { AppState, TextWithCursor } from "../types";
+import * as alertModal from "./alertModal";
 import * as homePage from "./homePage";
 import * as sessionPage from "./sessionPage";
 import * as ansiEscapes from "../ansiEscapes";
@@ -11,6 +12,10 @@ import * as ansiEscapes from "../ansiEscapes";
 
 export const updateView = (appState: AppState) => {
   const terminalViewModel: TextWithCursor = (() => {
+    if (appState.modalMessage) {
+      return alertModal.render(appState.modalMessage);
+    }
+
     switch (appState.page.name) {
       case "home":
         return homePage.render(
@@ -30,7 +35,7 @@ export const updateView = (appState: AppState) => {
   const { lines, cursorPosition } = terminalViewModel;
 
   console.clear();
-  console.log(lines.join("\n");
+  console.log(lines.join("\n"));
 
   process.stdout.clearScreenDown();
 

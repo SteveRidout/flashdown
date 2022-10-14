@@ -19,10 +19,9 @@ import * as debug from "./debug";
 import * as ansiEscapes from "./ansiEscapes";
 import * as homePageUtils from "./homePageUtils";
 import config from "./config";
-import { repeat } from "lodash";
 import * as utils from "./utils";
 import * as sessionEnd from "./sessionEnd";
-import * as alertModal from "./alertModal";
+import * as alertModal from "./view/alertModal";
 import * as appState from "./appState";
 
 program.option("--file <filename>");
@@ -310,6 +309,15 @@ const homePageLoop = async (homePageData: HomePageData, topicIndex: number) => {
   }
 };
 
+const showModal = async (message: string[]) => {
+  appState.setState({
+    ...appState.get(),
+    modalMessage: message,
+  });
+
+  await keyboard.readKeypress(["space", "return"]);
+};
+
 const startSession = async (homePageData: HomePageData, topicIndex: number) => {
   const topic = homePageData.topics[topicIndex];
 
@@ -337,11 +345,12 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
     const nextTime =
       topic.learningCardsNotDue[0].learningMetrics.nextPracticeTime;
     const nextDateString = new Date(nextTime * 1000 * 60).toLocaleString();
-    await alertModal.show(
+    await showModal([
       "No cards ready to study in this topic. This is because the spaced repetition " +
-        "algorithm has scheduled all the cards to be studied some time in the future.\n\n" +
-        `The next card in this topic is due on ${nextDateString}`
-    );
+        "algorithm has scheduled all the cards to be studied some time in the future.",
+      "",
+      `The next card in this topic is due on ${nextDateString}`,
+    ]);
     homePageLoop(homePageData, topicIndex);
     return;
   }
