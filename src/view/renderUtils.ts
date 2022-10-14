@@ -157,9 +157,6 @@ export const reflowText = (
   return joinSections(intermediateSections);
 };
 
-// export const repeat = (character: string, size: number): string =>
-//   size === 0 ? "" : [...Array(size)].map(() => character).join("");
-
 export const indent = (
   { lines, cursorPosition }: TextWithCursor,
   indentAmount: number

@@ -8,7 +8,6 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as _ from "lodash";
-import chalk from "chalk";
 import { program } from "commander";
 
 import * as keyboard from "./keyboard";
@@ -20,8 +19,6 @@ import * as ansiEscapes from "./ansiEscapes";
 import * as homePageUtils from "./homePageUtils";
 import config from "./config";
 import * as utils from "./utils";
-import * as sessionEnd from "./sessionEnd";
-import * as alertModal from "./view/alertModal";
 import * as appState from "./appState";
 
 program.option("--file <filename>");
@@ -72,6 +69,9 @@ type NextStep =
 
 const normalizedCharacterMap: { [nonNormalizedCharacter: string]: string } = {
   ï: "i",
+  á: "a",
+  é: "e",
+  í: "i",
   "-": " ",
 };
 
@@ -80,6 +80,10 @@ const normalizeAnswer = (answer: string) =>
     .split("")
     .map((character) => normalizedCharacterMap[character] ?? character)
     .join("")
+    // Strip out all characters which aren't word or space characters
+    .replace(/[^\w\s]/g, "")
+    // Replace consecutive whitespace with single space
+    .replace(/[\s]+/g, " ")
     .trim()
     .toLowerCase();
 
@@ -380,7 +384,16 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
     newStreak += 1;
   }
 
-  await sessionEnd.run(homePageData.streak, newStreak);
+  appState.setState({
+    ...appState.get(),
+    page: {
+      name: "session-end",
+      previousStreak: homePageData.streak,
+      currentStreak: newStreak,
+    },
+  });
+
+  await keyboard.readKeypress(["space", "return"]);
 
   showHome();
 };

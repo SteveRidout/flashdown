@@ -5,5 +5,6 @@ export default {
   /** If number of characters in answer is less than this, use typing mode */
   typingThreshold: 20,
 
+  /** The maximum number of columns to use when rendering the UI */
   maxColumnWidth: 60,
 };

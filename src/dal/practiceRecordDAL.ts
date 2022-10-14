@@ -132,7 +132,6 @@ export const getRecords = (
   for (const line of lines) {
     if (line.startsWith("# ")) {
       currentDate = parseDateTimeString(line.substring(2));
-      console.log("found date: ", currentDate);
       continue;
     }
 

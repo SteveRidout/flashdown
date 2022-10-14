@@ -97,6 +97,8 @@ export interface HomePage {
 
 export interface SessionEndPage {
   name: "session-end";
+  previousStreak: number;
+  currentStreak: number;
 }
 
 export interface AppState {
@@ -114,6 +116,7 @@ export interface Animation {
     y: number;
   };
   frames: string[];
+  initialDelay: number;
   frameDuration: number;
 }
 
