@@ -28,7 +28,7 @@ export interface CardLearningDerivedMetrics {
 
   /**
    * This starts at a fixed value for each card and increases or decreases based on whether the
-   * user remembered the information how easily they remembered it
+   * user remembered the information and how easily they remembered it
    */
   easinessFactor: number;
 }
