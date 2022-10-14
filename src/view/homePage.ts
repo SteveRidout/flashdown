@@ -1,7 +1,6 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import * as ansiEscapes from "../ansiEscapes";
 import { HomePage, HomePageData } from "../types";
 
 const elideText = (text: string, maxLength: number): string => {
@@ -38,37 +37,36 @@ export const render = (
 ) => {
   const selectedTopicIndex = homePage.selectedTopicIndex;
 
-  console.clear();
-  console.log(
-    "  Welcome to Flashdown by Steve Ridout (beta v0.1)   ",
-    chalk.gray(fileName)
+  const lines: string[] = [];
+
+  lines.push(
+    "  Welcome to Flashdown by Steve Ridout (beta v0.1)   " +
+      chalk.gray(fileName)
   );
-  console.log("  ------------------------------------");
+  lines.push("  ------------------------------------");
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
       ? ", return tomorrow to avoid losing it!"
       : "";
 
-    console.log();
-    console.log(
-      `  You have a ${homePageData.streak} day streak${callToAction}`
-    );
+    lines.push("");
+    lines.push(`  You have a ${homePageData.streak} day streak${callToAction}`);
   }
 
-  console.log();
+  lines.push("");
 
   const columnWidths = [25, 15, 20];
 
-  console.log(
+  lines.push(
     "  " + tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)
   );
-  console.log(
+  lines.push(
     "  " + tableRow(["-----", "-----------", "-----------------"], columnWidths)
   );
   let topicIndex = 0;
   for (const topic of homePageData.topics) {
-    console.log(
+    lines.push(
       `${topicIndex === selectedTopicIndex ? ">" : " "} ${tableRow(
         [
           topic.name,
@@ -84,19 +82,20 @@ export const render = (
       homePageData.topics.length > 1 &&
       topicIndex === homePageData.topics.length - 2
     ) {
-      console.log();
+      lines.push("");
     }
     topicIndex++;
   }
 
-  console.log();
-  console.log();
-  console.log(
+  lines.push("");
+  lines.push("");
+  lines.push(
     chalk.greenBright(
       "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
     )
   );
 
-  // Hide cursor
-  process.stdin.write(ansiEscapes.hideCursor);
+  return {
+    text: lines.join("\n"),
+  };
 };

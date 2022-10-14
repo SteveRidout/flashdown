@@ -1,7 +1,5 @@
 import chalk from "chalk";
-import * as readline from "readline";
 
-import * as ansiEscapes from "../ansiEscapes";
 import * as renderUtils from "./renderUtils";
 import { CardStage, SessionPage, TextWithCursor } from "../types";
 import config from "../config";
@@ -38,11 +36,11 @@ const renderProgressBar = (position: number, total: number) => {
   )}${suffix}`;
 };
 
-export const render = (sessionPage: SessionPage) => {
+export const render = (sessionPage: SessionPage): TextWithCursor => {
   const { upcomingCards, completedCards, stage } = sessionPage;
 
   if (upcomingCards.length === 0) {
-    return;
+    return { text: "No cards left" };
   }
 
   if (previousStageType !== stage.type) {
@@ -75,7 +73,7 @@ export const render = (sessionPage: SessionPage) => {
   addLine();
 
   if (card.new) {
-    addLine(chalk.yellowBright("** NEW CARD **"));
+    addLine(chalk.yellowBright("  ** NEW CARD **"));
   }
   switch (stage.type) {
     case "first-side-reveal":
@@ -175,25 +173,32 @@ export const render = (sessionPage: SessionPage) => {
         );
         addLine();
         addLine(
-          (stage.type === "second-side-revealed" && stage.selectedScore === 1
-            ? ">"
-            : " ") + chalk.redBright(!score || score === 1 ? " 1) No" : "")
+          chalk.redBright(
+            stage.type === "second-side-revealed" && stage.selectedScore === 1
+              ? ">"
+              : " "
+          ) + chalk.redBright(!score || score === 1 ? " 1) No" : "")
         );
         addLine(
-          (stage.type === "second-side-revealed" && stage.selectedScore === 2
-            ? ">"
-            : " ") +
-            chalk.yellowBright(!score || score === 2 ? " 2) Yes, kinda" : "")
+          chalk.yellowBright(
+            stage.type === "second-side-revealed" && stage.selectedScore === 2
+              ? ">"
+              : " "
+          ) + chalk.yellowBright(!score || score === 2 ? " 2) Yes, kinda" : "")
         );
         addLine(
-          (stage.type === "second-side-revealed" && stage.selectedScore === 3
-            ? ">"
-            : " ") + chalk.greenBright(!score || score === 3 ? " 3) Yes" : "")
+          chalk.greenBright(
+            stage.type === "second-side-revealed" && stage.selectedScore === 3
+              ? ">"
+              : " "
+          ) + chalk.greenBright(!score || score === 3 ? " 3) Yes" : "")
         );
         addLine(
-          (stage.type === "second-side-revealed" && stage.selectedScore === 4
-            ? ">"
-            : " ") +
+          chalk.greenBright(
+            stage.type === "second-side-revealed" && stage.selectedScore === 4
+              ? ">"
+              : " "
+          ) +
             chalk.greenBright(
               !score || score === 4 ? " 4) Yes, very well!" : ""
             )
@@ -240,18 +245,7 @@ export const render = (sessionPage: SessionPage) => {
       break;
   }
 
-  const { text, cursorPosition } = renderUtils.joinLines(lines);
-
-  console.log(text);
-
-  process.stdout.clearScreenDown();
-
-  if (cursorPosition) {
-    readline.cursorTo(process.stdout, cursorPosition.x, cursorPosition.y);
-    process.stdin.write(ansiEscapes.showCursor);
-  } else {
-    process.stdin.write(ansiEscapes.hideCursor);
-  }
+  return renderUtils.joinLines(lines);
 };
 
 export const createCard = (
