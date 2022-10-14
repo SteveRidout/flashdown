@@ -32,7 +32,11 @@ export const updateView = (appState: AppState) => {
     }
   })();
 
-  const { lines, cursorPosition } = terminalViewModel;
+  renderToTerminal(terminalViewModel);
+};
+
+const renderToTerminal = (model: TextWithCursor) => {
+  const { lines, cursorPosition } = model;
 
   console.clear();
   console.log(lines.join("\n"));

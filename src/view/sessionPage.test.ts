@@ -1,16 +1,5 @@
-// Designed to be run directly with ts-node for now since we don't have a proper unit testing
-// framework set up yet.
-
 import { TextWithCursor } from "../types";
 import * as sessionPage from "./sessionPage";
-
-// const testTextWithCursor = {
-//   text: "Heading\n\nThis is some test text with a blank here _______ and this is the end.",
-//   cursorPosition: {
-//     x: 40,
-//     y: 2,
-//   },
-// };
 
 const testCardBody: TextWithCursor = {
   lines: [
@@ -36,24 +25,28 @@ describe("addFrame", () => {
   test("card body text, width 20", () => {
     expect(sessionPage.addFrame(testCardBody, 30)).toStrictEqual({
       cursorPosition: undefined,
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Spanish words       ┃
-┃                            ┃
-┃ La puta madre: The whore   ┃
-┃ mother (that's awesome!)   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Spanish words       ┃",
+        "┃                            ┃",
+        "┃ La puta madre: The whore   ┃",
+        "┃ mother (that's awesome!)   ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 
   test("card body text, width 30", () => {
     expect(sessionPage.addFrame(testCardBody, 30)).toStrictEqual({
       cursorPosition: undefined,
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Spanish words       ┃
-┃                            ┃
-┃ La puta madre: The whore   ┃
-┃ mother (that's awesome!)   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Spanish words       ┃",
+        "┃                            ┃",
+        "┃ La puta madre: The whore   ┃",
+        "┃ mother (that's awesome!)   ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 
@@ -63,12 +56,14 @@ describe("addFrame", () => {
         x: 17,
         y: 3,
       },
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Spanish words       ┃
-┃                            ┃
-┃ La puta madre: ___________ ┃
-┃ _______________________    ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Spanish words       ┃",
+        "┃                            ┃",
+        "┃ La puta madre: ___________ ┃",
+        "┃ _______________________    ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 });
@@ -87,23 +82,24 @@ describe("createCard", () => {
         x: 46,
         y: 3,
       },
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Spanish                                           ┃
-┃                                                          ┃
-┃ This is a test which includes a blank here: ____________ ┃
-┃ _________________                                        ┃
-┃                                                          ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Spanish                                           ┃",
+        "┃                                                          ┃",
+        "┃ This is a test which includes a blank here: ____________ ┃",
+        "┃ _________________                                        ┃",
+        "┃                                                          ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 
   test("Blank on front side", () => {
     expect(
       sessionPage.createCard("Spanish", {
-        lines:
-          "_______________: This is a test which includes a blank on the first side <---".split(
-            "\n"
-          ),
+        lines: [
+          "_______________: This is a test which includes a blank on the first side <---",
+        ],
         cursorPosition: { x: 0, y: 0 },
       })
     ).toStrictEqual({
@@ -111,13 +107,15 @@ describe("createCard", () => {
         x: 2,
         y: 3,
       },
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Spanish                                           ┃
-┃                                                          ┃
-┃ _______________: This is a test which includes a blank   ┃
-┃ on the first side <---                                   ┃
-┃                                                          ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Spanish                                           ┃",
+        "┃                                                          ┃",
+        "┃ _______________: This is a test which includes a blank   ┃",
+        "┃ on the first side <---                                   ┃",
+        "┃                                                          ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 
@@ -132,12 +130,14 @@ describe("createCard", () => {
         x: 9,
         y: 3,
       },
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Celsius/Fahrenheit conversion                     ┃
-┃                                                          ┃
-┃ 176C : ____                                              ┃
-┃                                                          ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Celsius/Fahrenheit conversion                     ┃",
+        "┃                                                          ┃",
+        "┃ 176C : ____                                              ┃",
+        "┃                                                          ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 
@@ -154,13 +154,15 @@ describe("createCard", () => {
         x: 10,
         y: 4,
       },
-      lines: `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Topic: Solar energy                                      ┃
-┃                                                          ┃
-┃ What was the total electricity consumption of Spain in   ┃
-┃ 2018? : _______                                          ┃
-┃                                                          ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`.split("\n"),
+      lines: [
+        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Solar energy                                      ┃",
+        "┃                                                          ┃",
+        "┃ What was the total electricity consumption of Spain in   ┃",
+        "┃ 2018? : _______                                          ┃",
+        "┃                                                          ┃",
+        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+      ],
     });
   });
 });
