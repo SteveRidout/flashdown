@@ -55,7 +55,7 @@ if (!fs.existsSync(fileName)) {
 
 if (!fs.existsSync(fileName)) {
   console.error(`Error: The file "${fileName}" doesn't exist`);
-  console.error();
+  console.error;
   console.error(
     "Tip: Run Flashdown from within a directory containing a notes.fd file or use the " +
       "--file <filename> option to specify the location of your .fd file."
@@ -64,7 +64,12 @@ if (!fs.existsSync(fileName)) {
   process.exit();
 }
 
-type NextStep = "next-card" | "finished";
+type NextStep =
+  | {
+      type: "next-card";
+      previousScore?: number;
+    }
+  | { type: "finished" };
 
 const normalizedCharacterMap: { [nonNormalizedCharacter: string]: string } = {
   ï: "i",
@@ -94,11 +99,36 @@ const updateSessionPage = (updateSessionPage: Partial<SessionPage>) => {
   });
 };
 
-const processNextCard = async (): Promise<NextStep> => {
+const processNextCard = async (previousScore?: number): Promise<NextStep> => {
   let sessionPage = appState.get().page;
 
   if (sessionPage.name !== "session") {
     throw Error("Unexpected state");
+  }
+
+  let { upcomingCards, completedCards } = sessionPage;
+
+  if (previousScore !== undefined) {
+    if (previousScore === 1) {
+      // Put card back into session since the user didn't remember it
+      upcomingCards = [
+        ...upcomingCards.slice(1),
+        {
+          ...upcomingCards[0],
+          new: false,
+        },
+      ];
+    } else {
+      // Move card to completedCards list
+      upcomingCards = upcomingCards.slice(1);
+      completedCards = [
+        ...completedCards,
+        {
+          ...upcomingCards[0],
+          new: false,
+        },
+      ];
+    }
   }
 
   const card = sessionPage.upcomingCards[0];
@@ -121,6 +151,8 @@ const processNextCard = async (): Promise<NextStep> => {
 
   if (missingText.length <= config.typingThreshold) {
     updateSessionPage({
+      upcomingCards,
+      completedCards,
       stage: { type: "first-side-type", input: "", cursorPosition: 0 },
     });
 
@@ -139,6 +171,8 @@ const processNextCard = async (): Promise<NextStep> => {
     await keyboard.readKeypress(["space", "return"]);
   } else {
     updateSessionPage({
+      upcomingCards,
+      completedCards,
       stage: { type: "first-side-reveal" },
     });
     await keyboard.readKeypress(["space", "return"]);
@@ -219,41 +253,16 @@ const processNextCard = async (): Promise<NextStep> => {
     throw Error("Unexpected state");
   }
 
-  if (score === 1) {
-    // Put card back into session since the user didn't remember it
-    updateSessionPage({
-      upcomingCards: [
-        ...sessionPage.upcomingCards.slice(1),
-        {
-          ...card,
-          new: false,
-        },
-      ],
-    });
-  } else {
-    // Move card to completedCards list
-    updateSessionPage({
-      upcomingCards: sessionPage.upcomingCards.slice(1),
-      completedCards: [
-        ...sessionPage.completedCards,
-        {
-          ...card,
-          new: false,
-        },
-      ],
-    });
-  }
-
   sessionPage = appState.get().page;
   if (sessionPage.name !== "session") {
     throw Error("Unexpected state");
   }
 
   if (sessionPage.upcomingCards[0]) {
-    return "next-card";
+    return { type: "next-card", previousScore: score };
   }
 
-  return "finished";
+  return { type: "finished" };
 };
 
 const showHome = async () => {
@@ -353,9 +362,9 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
 
   console.clear();
 
-  let nextStep: NextStep = "next-card";
-  while (nextStep === "next-card") {
-    nextStep = await processNextCard();
+  let nextStep: NextStep = { type: "next-card" };
+  while (nextStep.type === "next-card") {
+    nextStep = await processNextCard(nextStep.previousScore);
   }
 
   // Show session end
