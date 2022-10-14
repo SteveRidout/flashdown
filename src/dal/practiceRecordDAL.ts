@@ -1,3 +1,6 @@
+/**
+ * This module is responsible for reading and writing to Flashdown Practice Record (.fdr) files
+ */
 import * as fs from "fs";
 
 import { Direction, Card, PracticeRecord } from "../types";
