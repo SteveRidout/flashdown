@@ -131,10 +131,10 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
     }
   }
 
-  const card = sessionPage.upcomingCards[0];
+  const card = upcomingCards[0];
 
   if (!card) {
-    throw Error("No more upcoming cards");
+    return { type: "finished" };
   }
   debug.log("Next card: " + JSON.stringify(card));
   if ("previousInterval" in card && card.previousInterval) {
@@ -258,11 +258,7 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
     throw Error("Unexpected state");
   }
 
-  if (sessionPage.upcomingCards[0]) {
-    return { type: "next-card", previousScore: score };
-  }
-
-  return { type: "finished" };
+  return { type: "next-card", previousScore: score };
 };
 
 const showHome = async () => {
