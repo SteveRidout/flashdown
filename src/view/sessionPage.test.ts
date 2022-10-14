@@ -11,10 +11,6 @@ const testTextWithCursor = {
   },
 };
 
-const testTextWithoutCursor = {
-  text: "Heading\n\nThis is some test text without a blank and a cursor.",
-};
-
 const testCardBody = {
   text: "Topic: Spanish words\n\nLa puta madre: The whore mother (that's awesome!)",
 };

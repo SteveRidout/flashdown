@@ -10,7 +10,7 @@ import * as ansiEscapes from "../ansiEscapes";
 // React does, but for now it simply re-renders everything.
 
 export const updateView = (appState: AppState) => {
-  const textWithCursor: TextWithCursor = (() => {
+  const terminalViewModel: TextWithCursor = (() => {
     switch (appState.page.name) {
       case "home":
         return homePage.render(
@@ -27,7 +27,7 @@ export const updateView = (appState: AppState) => {
     }
   })();
 
-  const { text, cursorPosition } = textWithCursor;
+  const { text, cursorPosition } = terminalViewModel;
 
   console.clear();
   console.log(text);
