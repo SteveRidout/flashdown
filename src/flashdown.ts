@@ -1,8 +1,4 @@
-// 1. Read and parse the fd and fdr files
-// 2. Prepare session
-// 3. Save backup file
-// 4. Iterate through challenges and update the original text file based on the user's responses
-// 5. Show summary at end
+/** This module is the main entry point for the Flashdown app */
 
 import * as fs from "fs";
 import * as os from "os";
