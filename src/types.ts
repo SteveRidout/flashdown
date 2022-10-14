@@ -107,3 +107,17 @@ export interface AppState {
 
   modalMessage?: string[];
 }
+
+export interface Animation {
+  position: {
+    x: number;
+    y: number;
+  };
+  frames: string[];
+  frameDuration: number;
+}
+
+export interface TerminalViewModel {
+  textWithCursor: TextWithCursor;
+  animations: Animation[];
+}

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as readline from "readline";
 
-import { AppState, TextWithCursor } from "../types";
+import { AppState, TerminalViewModel } from "../types";
 import * as alertModal from "./alertModal";
 import * as homePage from "./homePage";
 import * as sessionPage from "./sessionPage";
@@ -11,7 +11,7 @@ import * as ansiEscapes from "../ansiEscapes";
 // React does, but for now it simply re-renders everything.
 
 export const updateView = (appState: AppState) => {
-  const terminalViewModel: TextWithCursor = (() => {
+  const terminalViewModel: TerminalViewModel = (() => {
     if (appState.modalMessage) {
       return alertModal.render(appState.modalMessage);
     }
@@ -35,8 +35,8 @@ export const updateView = (appState: AppState) => {
   renderToTerminal(terminalViewModel);
 };
 
-const renderToTerminal = (model: TextWithCursor) => {
-  const { lines, cursorPosition } = model;
+const renderToTerminal = (model: TerminalViewModel) => {
+  const { lines, cursorPosition } = model.textWithCursor;
 
   console.clear();
   console.log(lines.join("\n"));
@@ -48,5 +48,9 @@ const renderToTerminal = (model: TextWithCursor) => {
     process.stdin.write(ansiEscapes.showCursor);
   } else {
     process.stdin.write(ansiEscapes.hideCursor);
+  }
+
+  for (const animation of model.animations) {
+    // Run animation
   }
 };

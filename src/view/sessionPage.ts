@@ -1,7 +1,13 @@
+import * as _ from "lodash";
 import chalk from "chalk";
 
 import * as renderUtils from "./renderUtils";
-import { CardStage, SessionPage, TextWithCursor } from "../types";
+import {
+  CardStage,
+  SessionPage,
+  TextWithCursor,
+  TerminalViewModel,
+} from "../types";
 import config from "../config";
 
 const blankText = (input: string) =>
@@ -30,17 +36,17 @@ const renderProgressBar = (position: number, total: number) => {
   const barWidth = config.maxColumnWidth - suffix.length;
   const screenPosition = Math.round((barWidth * position) / total);
 
-  return `${renderUtils.repeat("█", screenPosition)}${renderUtils.repeat(
+  return `${_.repeat("█", screenPosition)}${_.repeat(
     chalk.grey("░"),
     barWidth - screenPosition
   )}${suffix}`;
 };
 
-export const render = (sessionPage: SessionPage): TextWithCursor => {
+export const render = (sessionPage: SessionPage): TerminalViewModel => {
   const { upcomingCards, completedCards, stage } = sessionPage;
 
   if (upcomingCards.length === 0) {
-    return { lines: ["No cards left"] };
+    return { textWithCursor: { lines: ["No cards left"] }, animations: [] };
   }
 
   if (previousStageType !== stage.type) {
@@ -247,7 +253,10 @@ export const render = (sessionPage: SessionPage): TextWithCursor => {
       break;
   }
 
-  return renderUtils.joinSections(lines);
+  return {
+    textWithCursor: renderUtils.joinSections(lines),
+    animations: [],
+  };
 };
 
 export const createCard = (
@@ -277,12 +286,7 @@ export const addFrame = (
   let lines: TextWithCursor[] = [];
 
   lines.push({
-    lines: [
-      renderUtils.repeat(" ", leftMargin) +
-        "┏" +
-        renderUtils.repeat("━", width - 2) +
-        "┓",
-    ],
+    lines: [_.repeat(" ", leftMargin) + "┏" + _.repeat("━", width - 2) + "┓"],
   });
 
   let bodyLines = renderUtils.reflowText(textWithCursor, width - 4);
@@ -291,10 +295,10 @@ export const addFrame = (
     const line = bodyLines.lines[lineIndex];
     lines.push({
       lines: [
-        renderUtils.repeat(" ", leftMargin) +
+        _.repeat(" ", leftMargin) +
           "┃ " +
           line +
-          renderUtils.repeat(" ", width - line.length - 4) +
+          _.repeat(" ", width - line.length - 4) +
           " ┃",
       ],
       cursorPosition:
@@ -308,12 +312,7 @@ export const addFrame = (
   }
 
   lines.push({
-    lines: [
-      renderUtils.repeat(" ", leftMargin) +
-        "┗" +
-        renderUtils.repeat("━", width - 2) +
-        "┛",
-    ],
+    lines: [_.repeat(" ", leftMargin) + "┗" + _.repeat("━", width - 2) + "┛"],
   });
 
   return renderUtils.joinSections(lines);

@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { TextWithCursor } from "../types";
 
 /**
@@ -32,29 +33,6 @@ export const joinSections = (sections: TextWithCursor[]): TextWithCursor => {
   };
 };
 
-// export const splitIntoLines = (
-//   textWithCursor: TextWithCursor
-// ): TextWithCursor[] => {
-//   let lines: TextWithCursor[] = textWithCursor.lines
-//     .split("\n")
-//     .map((text) => ({ text }));
-
-//   if (textWithCursor.cursorPosition) {
-//     // Iterate through lines until we reach
-//     const line = lines[textWithCursor.cursorPosition.y];
-
-//     lines[textWithCursor.cursorPosition.y] = {
-//       lines: line.lines,
-//       cursorPosition: {
-//         x: textWithCursor.cursorPosition.x,
-//         y: 0,
-//       },
-//     };
-//   }
-
-//   return lines;
-// };
-
 export const reflowText = (
   textWithCursor: TextWithCursor,
   columns: number
@@ -72,7 +50,6 @@ export const reflowText = (
     /** These are the reflowed lines corresponding only to the current line */
     let reflowedLines: string[] = [line];
     let currentY = 0;
-    let currentX = 0;
     let cursorPositionX: number | undefined =
       lineIndex === textWithCursor.cursorPosition?.y
         ? textWithCursor.cursorPosition?.x
@@ -158,7 +135,6 @@ export const reflowText = (
             }
           }
 
-          currentX = reflowX + 1;
           currentY += 1;
         }
       }
@@ -181,5 +157,17 @@ export const reflowText = (
   return joinSections(intermediateSections);
 };
 
-export const repeat = (character: string, size: number): string =>
-  size === 0 ? "" : [...Array(size)].map(() => character).join("");
+// export const repeat = (character: string, size: number): string =>
+//   size === 0 ? "" : [...Array(size)].map(() => character).join("");
+
+export const indent = (
+  { lines, cursorPosition }: TextWithCursor,
+  indentAmount: number
+): TextWithCursor => {
+  return {
+    lines: lines.map((line) => _.repeat(" ", indentAmount) + line),
+    cursorPosition: cursorPosition
+      ? { x: cursorPosition.x + indentAmount, y: cursorPosition.y }
+      : undefined,
+  };
+};

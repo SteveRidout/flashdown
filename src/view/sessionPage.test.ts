@@ -3,35 +3,37 @@ import * as sessionPage from "./sessionPage";
 
 const testCardBody: TextWithCursor = {
   lines: [
-    "Topic: Spanish words",
+    "Topic: Spanish phrases",
     "",
-    "La puta madre: The whore mother (that's awesome!)",
+    "Es la leche: It's the milk (it's awesome!)",
   ],
 };
 
 const testCardBodyWithCursor = {
   lines: [
-    "Topic: Spanish words",
+    "Topic: Spanish phrases",
     "",
-    "La puta madre: __________________________________",
+    "Es la leche: _____________________________",
   ],
   cursorPosition: {
-    x: 15,
+    x: 13,
     y: 2,
   },
 };
 
 describe("addFrame", () => {
   test("card body text, width 20", () => {
-    expect(sessionPage.addFrame(testCardBody, 30)).toStrictEqual({
+    expect(sessionPage.addFrame(testCardBody, 20)).toStrictEqual({
       cursorPosition: undefined,
       lines: [
-        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
-        "┃ Topic: Spanish words       ┃",
-        "┃                            ┃",
-        "┃ La puta madre: The whore   ┃",
-        "┃ mother (that's awesome!)   ┃",
-        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
+        "┏━━━━━━━━━━━━━━━━━━┓",
+        "┃ Topic: Spanish   ┃",
+        "┃ phrases          ┃",
+        "┃                  ┃",
+        "┃ Es la leche:     ┃",
+        "┃ It's the milk    ┃",
+        "┃ (it's awesome!)  ┃",
+        "┗━━━━━━━━━━━━━━━━━━┛",
       ],
     });
   });
@@ -41,10 +43,10 @@ describe("addFrame", () => {
       cursorPosition: undefined,
       lines: [
         "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
-        "┃ Topic: Spanish words       ┃",
+        "┃ Topic: Spanish phrases     ┃",
         "┃                            ┃",
-        "┃ La puta madre: The whore   ┃",
-        "┃ mother (that's awesome!)   ┃",
+        "┃ Es la leche: It's the milk ┃",
+        "┃ (it's awesome!)            ┃",
         "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
       ],
     });
@@ -53,15 +55,15 @@ describe("addFrame", () => {
   test("card body text with cursor, width 30", () => {
     expect(sessionPage.addFrame(testCardBodyWithCursor, 30)).toStrictEqual({
       cursorPosition: {
-        x: 17,
+        x: 15,
         y: 3,
       },
       lines: [
         "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
-        "┃ Topic: Spanish words       ┃",
+        "┃ Topic: Spanish phrases     ┃",
         "┃                            ┃",
-        "┃ La puta madre: ___________ ┃",
-        "┃ _______________________    ┃",
+        "┃ Es la leche: _____________ ┃",
+        "┃ ________________           ┃",
         "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
       ],
     });

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import { HomePage, HomePageData, TextWithCursor } from "../types";
+import { HomePage, HomePageData, TerminalViewModel } from "../types";
 
 const elideText = (text: string, maxLength: number): string => {
   if (text.length < maxLength) {
@@ -34,7 +34,7 @@ export const render = (
   homePageData: HomePageData,
   fileName: string,
   homePage: HomePage
-): TextWithCursor => {
+): TerminalViewModel => {
   const selectedTopicIndex = homePage.selectedTopicIndex;
 
   const lines: string[] = [];
@@ -95,5 +95,8 @@ export const render = (
     )
   );
 
-  return { lines };
+  return {
+    textWithCursor: { lines },
+    animations: [],
+  };
 };

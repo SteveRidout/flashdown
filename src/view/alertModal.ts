@@ -1,17 +1,28 @@
+import * as _ from "lodash";
 import chalk from "chalk";
 
 import config from "../config";
 import * as renderUtils from "./renderUtils";
-import { TextWithCursor } from "../types";
+import { TerminalViewModel } from "../types";
 
-export const render = (message: string[]): TextWithCursor => {
+export const render = (message: string[]): TerminalViewModel => {
+  const indent = 2;
+
   return {
-    lines: [
-      ...renderUtils.reflowText({ lines: message }, config.maxColumnWidth)
-        .lines,
-      "",
-      "",
-      chalk.greenBright("  Hit SPACE to go back"),
-    ],
+    textWithCursor: {
+      lines: [
+        ...renderUtils.indent(
+          renderUtils.reflowText(
+            { lines: message },
+            config.maxColumnWidth - indent
+          ),
+          indent
+        ).lines,
+        "",
+        "",
+        chalk.greenBright(`${_.repeat(" ", indent)}Hit SPACE to go back`),
+      ],
+    },
+    animations: [],
   };
 };
