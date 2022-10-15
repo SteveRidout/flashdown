@@ -7,6 +7,7 @@ import {
   SessionPage,
   TextWithCursor,
   TerminalViewModel,
+  Animation,
 } from "../types";
 import config from "../config";
 
@@ -32,15 +33,17 @@ const inputText = (input: string, target: string) => {
 let previousStageType: CardStage["type"];
 
 const renderProgressBar = (position: number, total: number) => {
-  const suffix = ` (${position} / ${total})`;
+  const suffix = ` (${Math.floor(position)} / ${total})`;
   const barWidth = config.maxColumnWidth - suffix.length;
   const screenPosition = Math.round((barWidth * position) / total);
 
-  return `${_.repeat("█", screenPosition)}${_.repeat(
+  return `${_.repeat(chalk.bgWhite("█"), screenPosition)}${_.repeat(
     chalk.grey("░"),
     barWidth - screenPosition
   )}${suffix}`;
 };
+
+let previousCompletedCards = 0;
 
 export const render = (sessionPage: SessionPage): TerminalViewModel => {
   const { upcomingCards, completedCards, stage } = sessionPage;
@@ -70,7 +73,36 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     stage.score > 1
       ? 1
       : 0);
-  addLine("  " + renderProgressBar(numberCompleted, totalCards));
+  const animations: Animation[] = [];
+  if (numberCompleted > previousCompletedCards) {
+    addLine(
+      "  " +
+        renderProgressBar(
+          previousCompletedCards * 0.75 + numberCompleted * 0.25,
+          totalCards
+        )
+    );
+    // Add animation
+    animations.push({
+      position: { y: 0, x: 2 },
+      frames: [
+        renderProgressBar(
+          previousCompletedCards * 0.5 + numberCompleted * 0.5,
+          totalCards
+        ),
+        renderProgressBar(
+          previousCompletedCards * 0.25 + numberCompleted * 0.75,
+          totalCards
+        ),
+        renderProgressBar(numberCompleted, totalCards),
+      ],
+      initialDelay: 20,
+      frameDuration: 20,
+    });
+    previousCompletedCards = numberCompleted;
+  } else {
+    addLine("  " + renderProgressBar(numberCompleted, totalCards));
+  }
 
   const card = upcomingCards[0];
 
@@ -254,7 +286,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
   return {
     textWithCursor: renderUtils.joinSections(lines),
-    animations: [],
+    animations,
   };
 };
 
