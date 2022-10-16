@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import * as readline from "readline";
+import chalk from "chalk";
 
 import { Animation, AppState, TerminalViewModel } from "../types";
 import * as alertModal from "./alertModal";
@@ -8,6 +9,8 @@ import * as sessionPage from "./sessionPage";
 import * as sessionEndPage from "./sessionEndPage";
 import * as ansiEscapes from "../ansiEscapes";
 import * as debug from "../debug";
+import { sleep } from "../utils";
+import config from "../config";
 
 // Would be nice to do clever diffing here so that we only need to update what actually changed like
 // React does, but for now it simply re-renders everything.
@@ -46,11 +49,33 @@ export const updateView = (appState: AppState) => {
 /** Counts the number of renders we've done so far */
 let renderCount = 0;
 
-const renderToTerminal = (model: TerminalViewModel) => {
+const renderToTerminal = async (model: TerminalViewModel) => {
   const { lines, cursorPosition } = model.textWithCursor;
 
   console.clear();
-  console.log(lines.join("\n"));
+
+  if (renderCount === 0) {
+    process.stdin.write(ansiEscapes.hideCursor);
+    // The first time, present the lines one by one:
+    for (const line of lines) {
+      process.stdout.write(
+        // _.repeat(chalk.bgBlackBright("━"), config.maxColumnWidth)
+        line
+          .split("")
+          .map(
+            (character) => (character === " " ? " " : chalk.bgBlackBright("#")),
+            config.maxColumnWidth
+          )
+          .join("")
+      );
+      await sleep(50);
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      console.log(line);
+    }
+  } else {
+    console.log(lines.join("\n"));
+  }
 
   process.stdout.clearScreenDown();
 

@@ -6,5 +6,5 @@ export default {
   typingThreshold: 20,
 
   /** The maximum number of columns to use when rendering the UI */
-  maxColumnWidth: 60,
+  maxColumnWidth: 80,
 };

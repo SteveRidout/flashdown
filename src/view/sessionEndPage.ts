@@ -16,7 +16,7 @@ export const render = (
         "",
         `${streakPrefix}${previousStreak}`,
         "",
-        chalk.greenBright("  Hit SPACE to continue"),
+        chalk.cyanBright("  Hit SPACE to continue"),
       ],
     },
     animations:

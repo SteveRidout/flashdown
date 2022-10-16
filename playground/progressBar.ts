@@ -6,7 +6,7 @@ const columns = 30;
 
 const render = (progress: number) => {
   process.stdout.write(
-    _.repeat(chalk.bgWhite(chalk.white("█")), progress) +
+    _.repeat(chalk.bgYellow(chalk.yellow("█")), progress) +
       _.repeat(chalk.gray("."), columns - progress)
   );
 };

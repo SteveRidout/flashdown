@@ -37,10 +37,10 @@ const renderProgressBar = (position: number, total: number) => {
   const barWidth = config.maxColumnWidth - suffix.length;
   const screenPosition = Math.round((barWidth * position) / total);
 
-  return `${_.repeat(chalk.bgWhite("█"), screenPosition)}${_.repeat(
-    chalk.grey("░"),
-    barWidth - screenPosition
-  )}${suffix}`;
+  return `${_.repeat(
+    chalk.bgYellowBright(chalk.yellowBright("█")),
+    screenPosition
+  )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
 };
 
 let previousCompletedCards = 0;
@@ -132,7 +132,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       addLine();
       addLine();
       addLine(
-        chalk.greenBright(
+        chalk.cyanBright(
           `  Hit SPACE to reveal ${
             card.direction === "front-to-back" ? "back" : "front"
           } of card`
@@ -161,12 +161,12 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       lines.push(cardTextWithCursor);
       addLine();
       addLine();
-      addLine(chalk.greenBright("  Type the missing answer and hit ENTER"));
+      addLine(chalk.cyanBright("  Type the missing answer and hit ENTER"));
 
       if (card.new) {
         addLine();
         addLine(
-          chalk.greenBright(
+          chalk.cyanBright(
             "  (If you don't know, just leave it blank and hit ENTER)"
           )
         );
@@ -191,7 +191,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       }
       addLine();
       addLine();
-      addLine(chalk.greenBright("  Hit SPACE to continue"));
+      addLine(chalk.cyanBright("  Hit SPACE to continue"));
       break;
     case "second-side-revealed":
     case "finished":
@@ -206,7 +206,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       addLine();
       if (card.new) {
         addLine(
-          chalk.greenBright(
+          chalk.cyanBright(
             "  Did you already know this? Press the appropriate NUMBER KEY:"
           )
         );
@@ -244,7 +244,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         );
       } else {
         addLine(
-          chalk.greenBright(
+          chalk.cyanBright(
             "  Did you remember? Press the appropriate NUMBER KEY:"
           )
         );

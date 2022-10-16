@@ -39,11 +39,27 @@ export const render = (
 
   const lines: string[] = [];
 
-  lines.push(
-    "  Welcome to Flashdown by Steve Ridout (beta v0.1)   " +
-      chalk.gray(fileName)
-  );
-  lines.push("  ------------------------------------");
+  /**
+   * Font comes from this repo which uses the MIT license
+   * https://github.com/patorjk/figlet.js/blob/master/fonts/ANSI%20Regular.flf
+   */
+  const titleLines: string[] = `
+███████ ██       █████  ███████ ██   ██ ██████   ██████  ██     ██ ███    ██ 
+██      ██      ██   ██ ██      ██   ██ ██   ██ ██    ██ ██     ██ ████   ██ 
+█████   ██      ███████ ███████ ███████ ██   ██ ██    ██ ██  █  ██ ██ ██  ██ 
+██      ██      ██   ██      ██ ██   ██ ██   ██ ██    ██ ██ ███ ██ ██  ██ ██ 
+██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████ 
+`.split("\n");
+
+  for (const line of titleLines) {
+    lines.push(chalk.yellow("  " + line));
+  }
+
+  // lines.push(
+  //   "  Welcome to Flashdown by Steve Ridout (beta v0.1)   " +
+  //     chalk.gray(fileName)
+  // );
+  // lines.push("  ------------------------------------");
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
@@ -90,7 +106,7 @@ export const render = (
   lines.push("");
   lines.push("");
   lines.push(
-    chalk.greenBright(
+    chalk.cyanBright(
       "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
     )
   );

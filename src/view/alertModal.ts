@@ -20,7 +20,7 @@ export const render = (message: string[]): TerminalViewModel => {
         ).lines,
         "",
         "",
-        chalk.greenBright(`${_.repeat(" ", indent)}Hit SPACE to go back`),
+        chalk.cyanBright(`${_.repeat(" ", indent)}Hit SPACE to go back`),
       ],
     },
     animations: [],
