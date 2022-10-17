@@ -18,9 +18,11 @@ import * as utils from "./utils";
 import * as appState from "./appState";
 
 program.option("--file <filename>");
+program.option("--test", "Don't write practice records");
 program.parse(process.argv);
 const options: {
   file?: string;
+  test?: boolean;
 } = program.opts();
 
 process.stdout.write(ansiEscapes.enableAlternativeBuffer);
@@ -245,7 +247,9 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
     await utils.sleep(800);
   }
 
-  practiceRecordDAL.writeRecord(fileName, card, card.direction, score);
+  if (!options.test) {
+    practiceRecordDAL.writeRecord(fileName, card, card.direction, score);
+  }
 
   sessionPage = appState.get().page;
   if (sessionPage.name !== "session") {
