@@ -1,7 +1,6 @@
 import chalk from "chalk";
 
 import { TerminalViewModel } from "../types";
-import * as debug from "../debug";
 
 export const render = (
   previousStreak: number,
@@ -24,6 +23,7 @@ export const render = (
         ? []
         : [
             {
+              type: "frames",
               position: {
                 x: streakPrefix.length,
                 y: 2,

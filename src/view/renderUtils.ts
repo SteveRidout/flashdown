@@ -1,5 +1,7 @@
 import _ from "lodash";
+
 import { TextWithCursor } from "../types";
+import config from "../config";
 
 /**
  * Joins the given lines inserting a newline between each one. This will throw an error if more
@@ -165,6 +167,34 @@ export const indent = (
     lines: lines.map((line) => _.repeat(" ", indentAmount) + line),
     cursorPosition: cursorPosition
       ? { x: cursorPosition.x + indentAmount, y: cursorPosition.y }
+      : undefined,
+  };
+};
+
+export const shiftLeft = (
+  { lines, cursorPosition }: TextWithCursor,
+  amount: number
+): TextWithCursor => {
+  return {
+    lines: lines.map((line) => line.substring(amount) + _.repeat(" ", amount)),
+    cursorPosition: cursorPosition
+      ? { x: cursorPosition.x - amount, y: cursorPosition.y }
+      : undefined,
+  };
+};
+
+export const shiftRight = (
+  { lines, cursorPosition }: TextWithCursor,
+  amount: number
+): TextWithCursor => {
+  return {
+    lines: lines.map(
+      (line) =>
+        _.repeat(" ", amount) +
+        line.substring(0, config.maxColumnWidth - amount)
+    ),
+    cursorPosition: cursorPosition
+      ? { x: cursorPosition.x + amount, y: cursorPosition.y }
       : undefined,
   };
 };

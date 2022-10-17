@@ -110,15 +110,24 @@ export interface AppState {
   modalMessage?: string[];
 }
 
-export interface Animation {
-  position: {
-    x: number;
-    y: number;
-  };
-  frames: string[];
-  initialDelay: number;
-  frameDuration: number;
-}
+export type Animation =
+  | {
+      type: "frames";
+      position: {
+        x: number;
+        y: number;
+      };
+      frames: string[];
+      initialDelay: number;
+      frameDuration: number;
+    }
+  | {
+      type: "horizontal-pan";
+      yRange: {
+        start: number;
+        end: number;
+      };
+    };
 
 export interface TerminalViewModel {
   textWithCursor: TextWithCursor;

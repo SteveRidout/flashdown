@@ -10,6 +10,7 @@ import {
   Animation,
 } from "../types";
 import config from "../config";
+import * as debug from "../debug";
 
 const blankText = (input: string) =>
   input
@@ -32,18 +33,20 @@ const inputText = (input: string, target: string) => {
 
 let previousStageType: CardStage["type"];
 
-const renderProgressBar = (position: number, total: number) => {
+const renderProgressBar = (position: number, total: number, width: number) => {
   const suffix = ` (${Math.floor(position)} / ${total})`;
-  const barWidth = config.maxColumnWidth - suffix.length;
+  const barWidth = width - suffix.length;
   const screenPosition = Math.round((barWidth * position) / total);
 
   return `${_.repeat(
-    chalk.bgYellowBright(chalk.yellowBright("█")),
+    chalk.bgWhite(chalk.white("█")),
     screenPosition
   )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
 };
 
 let previousCompletedCards = 0;
+
+let previousSessionPage: SessionPage | undefined;
 
 export const render = (sessionPage: SessionPage): TerminalViewModel => {
   const { upcomingCards, completedCards, stage } = sessionPage;
@@ -79,29 +82,44 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       "  " +
         renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
-          totalCards
+          totalCards,
+          config.maxColumnWidth - 2
         )
     );
     // Add animation
     animations.push({
+      type: "frames",
       position: { y: 0, x: 2 },
       frames: [
         renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
-          totalCards
+          totalCards,
+          config.maxColumnWidth - 2
         ),
         renderProgressBar(
           previousCompletedCards * 0.25 + numberCompleted * 0.75,
-          totalCards
+          totalCards,
+          config.maxColumnWidth - 2
         ),
-        renderProgressBar(numberCompleted, totalCards),
+        renderProgressBar(
+          numberCompleted,
+          totalCards,
+          config.maxColumnWidth - 2
+        ),
       ],
       initialDelay: 20,
       frameDuration: 20,
     });
     previousCompletedCards = numberCompleted;
   } else {
-    addLine("  " + renderProgressBar(numberCompleted, totalCards));
+    addLine(
+      "  " +
+        renderProgressBar(
+          numberCompleted,
+          totalCards,
+          config.maxColumnWidth - 2
+        )
+    );
   }
 
   const card = upcomingCards[0];
@@ -112,19 +130,19 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   if (card.new) {
     addLine(chalk.yellowBright("  ** NEW CARD **"));
   }
+
+  debug.log("stage.type: " + stage.type);
   switch (stage.type) {
-    case "first-side-reveal":
+    case "first-side-reveal": {
+      const cardBodyText =
+        card.direction === "front-to-back"
+          ? `${card.front} : ${blankText(card.back)}`
+          : `${blankText(card.front)} : ${card.back}`;
       lines.push(
         createCard(
           card.sectionTitle,
           {
-            lines: [
-              `${
-                card.direction === "front-to-back"
-                  ? `${card.front} : ${blankText(card.back)}`
-                  : `${blankText(card.front)} : ${card.back}`
-              }`,
-            ],
+            lines: [`${cardBodyText}`],
           },
           2
         )
@@ -138,7 +156,20 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           } of card`
         )
       );
+      if (previousSessionPage?.stage.type !== sessionPage.stage.type) {
+        animations.push({
+          type: "horizontal-pan",
+          yRange: {
+            start: 2,
+            end: lines.reduce(
+              (memo, section) => memo + section.lines.length,
+              0
+            ),
+          },
+        });
+      }
       break;
+    }
     case "first-side-type": {
       let cardContent = "";
       let cursorX: number;
@@ -171,6 +202,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           )
         );
       }
+      if (previousSessionPage?.stage.type !== sessionPage.stage.type) {
+        animations.push({
+          type: "horizontal-pan",
+          yRange: {
+            start: 2,
+            end: lines.reduce(
+              (memo, section) => memo + section.lines.length,
+              0
+            ),
+          },
+        });
+      }
       break;
     }
     case "second-side-typed":
@@ -202,6 +245,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           : `${card.front} : ${card.back}`;
 
       lines.push(createCard(card.sectionTitle, { lines: [text] }, 2));
+
       addLine();
       addLine();
       if (card.new) {
@@ -284,6 +328,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       break;
   }
 
+  previousSessionPage = sessionPage;
+
   return {
     textWithCursor: renderUtils.joinSections(lines),
     animations,
@@ -314,22 +360,30 @@ export const addFrame = (
   width: number,
   leftMargin: number = 0
 ): TextWithCursor => {
-  let lines: TextWithCursor[] = [];
+  let sections: TextWithCursor[] = [];
 
-  lines.push({
-    lines: [_.repeat(" ", leftMargin) + "┏" + _.repeat("━", width - 2) + "┓"],
+  sections.push({
+    lines: [
+      _.repeat(" ", leftMargin) +
+        "┏" +
+        _.repeat("━", width - 2 - leftMargin) +
+        "┓",
+    ],
   });
 
-  let bodyLines = renderUtils.reflowText(textWithCursor, width - 4);
+  let bodyLines = renderUtils.reflowText(
+    textWithCursor,
+    width - 4 - leftMargin
+  );
 
   for (let lineIndex = 0; lineIndex < bodyLines.lines.length; lineIndex++) {
     const line = bodyLines.lines[lineIndex];
-    lines.push({
+    sections.push({
       lines: [
         _.repeat(" ", leftMargin) +
           "┃ " +
           line +
-          _.repeat(" ", width - line.length - 4) +
+          _.repeat(" ", width - line.length - 4 - leftMargin) +
           " ┃",
       ],
       cursorPosition:
@@ -342,9 +396,23 @@ export const addFrame = (
     });
   }
 
-  lines.push({
-    lines: [_.repeat(" ", leftMargin) + "┗" + _.repeat("━", width - 2) + "┛"],
+  sections.push({
+    lines: [
+      _.repeat(" ", leftMargin) +
+        "┗" +
+        _.repeat("━", width - 2 - leftMargin) +
+        "┛",
+    ],
   });
 
-  return renderUtils.joinSections(lines);
+  // return applyCardColor(renderUtils.joinSections(sections));
+  return renderUtils.joinSections(sections);
+};
+
+const applyCardColor = (card: TextWithCursor): TextWithCursor => {
+  return {
+    lines: card.lines.map((line) => chalk.yellowBright(line)),
+    // XXX This will probably get messed up
+    cursorPosition: card.cursorPosition,
+  };
 };
