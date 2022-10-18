@@ -1,0 +1,26 @@
+# Hacker terminology
+
+Goodhart's law: When a measure becomes a target, it ceases to be a good measure
+Hofstadter's law: It always takes longer than you expect, even when you take into account Hofstadter's law
+Godwin's law: As an online discussion grows longer, the probablility of a comparison to Nazis/Hitler approaches 100%
+Brook's law: Adding manpower to a late project makes it later (from The Mythical Man Month)
+Conway's law: Organizations design systems that mirror their own communication structure
+Linus's law: Given enough eyeballs, all bugs are shallow
+Gall's law: All complex systems that work evolved from simpler systems that worked
+Cunningham's law: The best way to get the right answer on the internet is not to ask a question, but to post the wrong answer
+Humphrey's law: The user will never know what they want until after the system is in production (maybe not even then)
+Parkinson's law: Work expands so as to fill the time available for its completion
+Moore's law: The number of transistors in an integrated circuit doubles about every two years
+Murphy's law: Anything that can go wrong will go wrong (also called Sod's law)
+Zawinski's law: Every program attempts to expand until it can read mail. Those programs which cannot expand are replaced by ones which can
+Postel's law: (Also called Robustness Principle) Be conservative in what you send, liberal in what you accept (not necessarily a good idea, see Hyrum's law)
+Hyrum's law: With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody
+Peter principle: People in a hierarchy tend to rise to thier level of incompetence
+Pareto principle: 80% of the results come from 20% of the effort
+Streisand effect: Any attempt to hide, remove or censor a piece of information has the unintended consequence of publicizing the information more widely
+Eagleson's law: Any code of your own that you haven't looked at for six or more months might as well have been written by someone else
+Hanlon's razor: Never attribute to malice what can be adequately explained by stupidity
+Dilbert principle: Incompetent workers will be promoted above competent workers to managerial positions, thus removing them from the actual work and minimizing the damage they can do
+The 90-90 rule: The first 90% of code accounts for the first 90% of development time, the remaining 10% of the code accounts for the other 90% of development time
+Law of triviality: Disproportionate time is spent on trivial issues (Also called bikeshedding)
+Sayre's law: In any dispute the intensity of feeling is inversely proportional to the value of the issues at stake

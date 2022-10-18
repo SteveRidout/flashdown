@@ -9,6 +9,7 @@ export interface Card {
   direction: Direction;
   sectionTitle: string;
   note?: string;
+  fileName: string;
 }
 
 /** These are metrics derived from the list of practice records. */
@@ -60,7 +61,10 @@ export interface TopicData {
 }
 
 export interface HomePageData {
-  topics: TopicData[];
+  topics: {
+    fileName: string;
+    data: TopicData[];
+  }[];
   practiceHistory: WholeDate[];
   streak: number;
   practicedToday: boolean;
@@ -93,6 +97,7 @@ export interface SessionPage {
 
 export interface HomePage {
   name: "home";
+  selectedFileNameIndex: number;
   selectedTopicIndex: number;
 }
 
@@ -103,7 +108,7 @@ export interface SessionEndPage {
 }
 
 export interface AppState {
-  fileName: string;
+  // fileName: string;
   homePageData: HomePageData;
 
   page: SessionPage | HomePage | SessionEndPage;

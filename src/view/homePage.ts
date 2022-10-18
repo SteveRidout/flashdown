@@ -35,7 +35,6 @@ const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
 
 export const render = (
   homePageData: HomePageData,
-  fileName: string,
   homePage: HomePage
 ): TerminalViewModel => {
   const selectedTopicIndex = homePage.selectedTopicIndex;
@@ -82,32 +81,49 @@ export const render = (
   lines.push(
     "  " + tableRow(["-----", "-----------", "-----------------"], columnWidths)
   );
-  let topicIndex = 0;
-  for (const topic of homePageData.topics) {
-    let lineText = `${topicIndex === selectedTopicIndex ? ">" : " "} ${tableRow(
-      [
-        topic.name,
-        topic.newCards.length +
-          topic.learningCardsDue.length +
-          topic.learningCardsNotDue.length,
-        topic.newCards.length + topic.learningCardsDue.length,
-      ],
-      columnWidths
-    )}`;
-    if (topicIndex === selectedTopicIndex) {
-      lineText = chalk.bold(lineText);
+
+  for (let fileIndex = 0; fileIndex < homePageData.topics.length; fileIndex++) {
+    const file = homePageData.topics[fileIndex];
+    if (file.fileName) {
+      lines.push(
+        chalk.gray(
+          tableRow(
+            ["  " + _.last(file.fileName.split("/")), "", ""],
+            columnWidths
+          )
+        )
+      );
     }
-    lines.push(lineText);
-    if (
-      homePageData.topics.length > 1 &&
-      topicIndex === homePageData.topics.length - 2
-    ) {
-      lines.push("");
+
+    let topicIndex = 0;
+    for (const topic of file.data) {
+      let lineText = `${
+        fileIndex === homePage.selectedFileNameIndex &&
+        topicIndex === selectedTopicIndex
+          ? ">"
+          : " "
+      } ${tableRow(
+        [
+          "" + topic.name,
+          topic.newCards.length +
+            topic.learningCardsDue.length +
+            topic.learningCardsNotDue.length,
+          topic.newCards.length + topic.learningCardsDue.length,
+        ],
+        columnWidths
+      )}`;
+      if (
+        topicIndex === selectedTopicIndex &&
+        fileIndex === homePage.selectedFileNameIndex
+      ) {
+        lineText = chalk.bold(lineText);
+      }
+      lines.push(lineText);
+      topicIndex++;
     }
-    topicIndex++;
+    lines.push("");
   }
 
-  lines.push("");
   lines.push("");
   lines.push(
     chalk.cyanBright(

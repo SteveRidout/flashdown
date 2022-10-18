@@ -31,7 +31,7 @@ export const updateView = (appState: AppState) => {
       case "home":
         return homePage.render(
           appState.homePageData,
-          appState.fileName,
+          // appState.fileName,
           appState.page
         );
 
