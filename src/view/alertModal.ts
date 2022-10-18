@@ -11,6 +11,7 @@ export const render = (message: string[]): TerminalViewModel => {
   return {
     textWithCursor: {
       lines: [
+        "",
         ...renderUtils.indent(
           renderUtils.reflowText(
             { lines: message },

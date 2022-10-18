@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
+import config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 
 const elideText = (text: string, maxLength: number): string => {
@@ -21,10 +22,12 @@ const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
   }
 
   for (let i = 0; i < items.length; i++) {
-    renderedItems[i] = addPadding(
-      elideText(items[i].toString(), maxLengths[i]),
-      maxLengths[i]
-    );
+    const rendered = elideText(items[i].toString(), maxLengths[i]);
+
+    renderedItems[i] =
+      i === 0
+        ? _.padEnd(rendered, maxLengths[i], " ")
+        : _.padStart(rendered, maxLengths[i], " ");
   }
 
   return renderedItems.join("  ");
@@ -44,22 +47,16 @@ export const render = (
    * https://github.com/patorjk/figlet.js/blob/master/fonts/ANSI%20Regular.flf
    */
   const titleLines: string[] = `
-███████ ██       █████  ███████ ██   ██ ██████   ██████  ██     ██ ███    ██ 
-██      ██      ██   ██ ██      ██   ██ ██   ██ ██    ██ ██     ██ ████   ██ 
-█████   ██      ███████ ███████ ███████ ██   ██ ██    ██ ██  █  ██ ██ ██  ██ 
-██      ██      ██   ██      ██ ██   ██ ██   ██ ██    ██ ██ ███ ██ ██  ██ ██ 
-██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████ 
+███████ ██       █████  ███████ ██   ██ ██████   ██████  ██     ██ ███    ██
+██      ██      ██   ██ ██      ██   ██ ██   ██ ██    ██ ██     ██ ████   ██
+█████   ██      ███████ ███████ ███████ ██   ██ ██    ██ ██  █  ██ ██ ██  ██
+██      ██      ██   ██      ██ ██   ██ ██   ██ ██    ██ ██ ███ ██ ██  ██ ██
+██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████
 `.split("\n");
 
   for (const line of titleLines) {
     lines.push(chalk.yellow("  " + line));
   }
-
-  // lines.push(
-  //   "  Welcome to Flashdown by Steve Ridout (beta v0.1)   " +
-  //     chalk.gray(fileName)
-  // );
-  // lines.push("  ------------------------------------");
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
@@ -72,7 +69,11 @@ export const render = (
 
   lines.push("");
 
-  const columnWidths = [25, 15, 20];
+  const columnWidths = [
+    Math.min(config.maxColumnWidth - 35 - 2 - 4, titleLines[1].length - 35 - 4),
+    15,
+    20,
+  ];
 
   lines.push(
     "  " + tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)

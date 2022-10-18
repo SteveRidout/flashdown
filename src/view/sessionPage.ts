@@ -10,7 +10,6 @@ import {
   Animation,
 } from "../types";
 import config from "../config";
-import * as debug from "../debug";
 
 const blankText = (input: string) =>
   input
@@ -77,6 +76,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       ? 1
       : 0);
   const animations: Animation[] = [];
+  addLine();
   if (numberCompleted > previousCompletedCards) {
     addLine(
       "  " +
@@ -89,7 +89,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     // Add animation
     animations.push({
       type: "frames",
-      position: { y: 0, x: 2 },
+      position: { y: 1, x: 2 },
       frames: [
         renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
@@ -131,7 +131,6 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     addLine(chalk.yellowBright("  ** NEW CARD **"));
   }
 
-  debug.log("stage.type: " + stage.type);
   switch (stage.type) {
     case "first-side-reveal": {
       const cardBodyText =
@@ -226,9 +225,12 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           2
         )
       );
+
       addLine("");
-      if (stage.score > 1) {
+      if (stage.score > 2) {
         addLine("  Well done!");
+      } else if (stage.score === 2) {
+        addLine("  Close enough!");
       } else if (stage.input.trim() !== "") {
         addLine("  Wrong");
       }

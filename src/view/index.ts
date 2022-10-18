@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import * as readline from "readline";
 import chalk from "chalk";
+import ansiRegex from "ansi-regex";
 
 import {
   Animation,
@@ -52,25 +53,37 @@ export const updateView = (appState: AppState) => {
 };
 
 /** Counts the number of renders we've done so far */
-let renderCount = 0;
+let renderCount = -1;
 
 /** Animations running */
 let animationsRunning = 0;
 let previousCursorPosition: { x: number; y: number } | undefined;
 let previousTextWithCursor: TextWithCursor = { lines: [] };
 
+const normalizeLine = (line: string) => {
+  const onScreenLength = line.replace(ansiRegex(), "").length;
+
+  // XXX Would be good to also restrict the length of each line so that it can't exceed
+  // config.maxColumnWidth
+  return line + _.repeat(" ", config.maxColumnWidth - onScreenLength);
+};
+
 const renderToTerminal = async (model: TerminalViewModel) => {
+  renderCount++;
+
   const { lines, cursorPosition } = model.textWithCursor;
 
-  console.clear();
+  process.stdin.write(ansiEscapes.hideCursor);
+  // console.clear();
+  process.stdout.cursorTo(0, 0);
 
   if (renderCount === 0) {
     process.stdin.write(ansiEscapes.hideCursor);
     // The first time, present the lines one by one:
     for (const line of lines) {
       process.stdout.write(
-        // _.repeat(chalk.bgBlackBright("━"), config.maxColumnWidth)
         line
+          .replace(ansiRegex(), "")
           .split("")
           .map(
             (character) => (character === " " ? " " : chalk.bgBlackBright("#")),
@@ -79,12 +92,19 @@ const renderToTerminal = async (model: TerminalViewModel) => {
           .join("")
       );
       await sleep(50);
+
+      if (renderCount > 0) {
+        // Abort animating if we are on the next render
+        debug.log("abort animation");
+        return;
+      }
+
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      console.log(line);
+      console.log(normalizeLine(line));
     }
   } else {
-    console.log(lines.join("\n"));
+    console.log(lines.map(normalizeLine).join("\n"));
   }
 
   process.stdout.clearScreenDown();
@@ -96,7 +116,6 @@ const renderToTerminal = async (model: TerminalViewModel) => {
     process.stdin.write(ansiEscapes.hideCursor);
   }
 
-  renderCount++;
   animationsRunning = model.animations.length;
   previousCursorPosition = cursorPosition;
 

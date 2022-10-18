@@ -8,6 +8,7 @@ export interface Card {
   back: string;
   direction: Direction;
   sectionTitle: string;
+  note?: string;
 }
 
 /** These are metrics derived from the list of practice records. */

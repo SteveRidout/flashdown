@@ -16,6 +16,7 @@ import * as homePageUtils from "./homePageUtils";
 import config from "./config";
 import * as utils from "./utils";
 import * as appState from "./appState";
+import * as gradingUtils from "./gradingUtils";
 
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
@@ -64,26 +65,6 @@ type NextStep =
       previousScore?: number;
     }
   | { type: "finished" };
-
-const normalizedCharacterMap: { [nonNormalizedCharacter: string]: string } = {
-  ï: "i",
-  á: "a",
-  é: "e",
-  í: "i",
-  "-": " ",
-};
-
-const normalizeAnswer = (answer: string) =>
-  answer
-    .split("")
-    .map((character) => normalizedCharacterMap[character] ?? character)
-    .join("")
-    // Strip out all characters which aren't word or space characters
-    .replace(/[^\w\s]/g, "")
-    // Replace consecutive whitespace with single space
-    .replace(/[\s]+/g, " ")
-    .trim()
-    .toLowerCase();
 
 const updateSessionPage = (updateSessionPage: Partial<SessionPage>) => {
   const oldState = appState.get();
@@ -163,7 +144,12 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
       });
     });
 
-    score = normalizeAnswer(answer) === normalizeAnswer(missingText) ? 4 : 1;
+    const match = gradingUtils.editDistance(
+      gradingUtils.normalizeAnswer(answer),
+      gradingUtils.normalizeAnswer(missingText)
+    );
+
+    score = match === "exact" ? 4 : match === "almost" ? 2 : 1;
 
     updateSessionPage({
       stage: { type: "second-side-typed", input: answer, score },
@@ -246,6 +232,8 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
 
     await utils.sleep(800);
   }
+
+  debug.log("score: " + score);
 
   if (!options.test) {
     practiceRecordDAL.writeRecord(fileName, card, card.direction, score);
@@ -404,7 +392,9 @@ showHome();
 // XXX Need better global app state to know whether we are on home or session
 // XXX Should move to cardDAL to avoid breaking abstraction layer
 fs.watch(`${fileName}`, () => {
-  showHome();
+  if (appState.get().page.name === "home") {
+    showHome();
+  }
 });
 
 process.stdout.on("resize", () => {

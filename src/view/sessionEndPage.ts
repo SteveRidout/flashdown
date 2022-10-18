@@ -2,6 +2,9 @@ import chalk from "chalk";
 
 import { TerminalViewModel } from "../types";
 
+const pluralize = (word: string, amount: number) =>
+  `${word}${amount === 1 ? "" : "s"}`;
+
 export const render = (
   previousStreak: number,
   currentStreak: number
@@ -13,7 +16,11 @@ export const render = (
       lines: [
         "  Well done!",
         "",
-        `${streakPrefix}${previousStreak}`,
+        `${streakPrefix}${previousStreak}${
+          currentStreak === previousStreak
+            ? ` ${pluralize("day", currentStreak)}`
+            : ""
+        }`,
         "",
         chalk.cyanBright("  Hit SPACE to continue"),
       ],
