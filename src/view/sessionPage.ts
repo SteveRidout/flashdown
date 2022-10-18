@@ -47,19 +47,27 @@ let previousCompletedCards = 0;
 
 let previousSessionPage: SessionPage | undefined;
 
-// addLine(
-//   chalk.redBright(
-//     stage.type === "second-side-revealed" && stage.selectedScore === 1
-//       ? ">"
-//       : " "
-//   ) + chalk.redBright(!score || score === 1 ? " 1) No" : "")
-// );
 const multipleChoiceLine = (
   score: number,
-  description: string,
+  newCard: boolean,
   selectedScore?: number,
   finalScore?: number
 ) => {
+  const description: string = (() => {
+    switch (score) {
+      case 1:
+        return "No";
+      case 2:
+        return newCard ? "Yes, kinda" : "Yes, with difficulty";
+      case 3:
+        return "Yes";
+      case 4:
+        return newCard ? "Yes, easily!" : "Yes, very well";
+      default:
+        throw Error("Unexpected score");
+    }
+  })();
+
   let text = `  ${score}) ${description}`;
   if (score === finalScore || score === selectedScore) {
     text = ">" + text.substring(1);
@@ -303,46 +311,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           )
         );
         addLine();
-        addLine(
-          multipleChoiceLine(
-            1,
-            "No",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
-        addLine(
-          multipleChoiceLine(
-            2,
-            "Yes, kinda",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
-        addLine(
-          multipleChoiceLine(
-            3,
-            "Yes",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
-        addLine(
-          multipleChoiceLine(
-            4,
-            "Yes, very well!",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
+        for (const lineScore of [1, 2, 3, 4]) {
+          addLine(
+            multipleChoiceLine(
+              lineScore,
+              true,
+              stage.type === "second-side-revealed"
+                ? stage.selectedScore
+                : undefined,
+              score
+            )
+          );
+        }
       } else {
         addLine(
           chalk.cyanBright(
@@ -350,46 +330,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           )
         );
         addLine();
-        addLine(
-          multipleChoiceLine(
-            1,
-            "No",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
-        addLine(
-          multipleChoiceLine(
-            2,
-            "Yes, with difficulty",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
-        addLine(
-          multipleChoiceLine(
-            3,
-            "Yes",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
-        addLine(
-          multipleChoiceLine(
-            4,
-            "Yes, easily!",
-            stage.type === "second-side-revealed"
-              ? stage.selectedScore
-              : undefined,
-            score
-          )
-        );
+        for (const lineScore of [1, 2, 3, 4]) {
+          addLine(
+            multipleChoiceLine(
+              lineScore,
+              false,
+              stage.type === "second-side-revealed"
+                ? stage.selectedScore
+                : undefined,
+              score
+            )
+          );
+        }
       }
       break;
   }
