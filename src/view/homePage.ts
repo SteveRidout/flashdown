@@ -60,7 +60,7 @@ export const render = (
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
-      ? ", return tomorrow to avoid losing it!"
+      ? ", come back tomorrow to avoid losing it!"
       : "";
 
     lines.push("");
