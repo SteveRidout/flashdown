@@ -14,4 +14,4 @@
 - Animation flare:
   - slide cards to reveal
 - Show SRS stats somewhere
-- Allow notes associated with each flashcard which shows after presenting the flashcard
+- Allow quitting session with ESCAPE key

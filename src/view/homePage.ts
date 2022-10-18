@@ -46,17 +46,17 @@ export const render = (
    * Font comes from this repo which uses the MIT license
    * https://github.com/patorjk/figlet.js/blob/master/fonts/ANSI%20Regular.flf
    */
-  const titleLines: string[] = `
+  const title = `
 ███████ ██       █████  ███████ ██   ██ ██████   ██████  ██     ██ ███    ██
 ██      ██      ██   ██ ██      ██   ██ ██   ██ ██    ██ ██     ██ ████   ██
 █████   ██      ███████ ███████ ███████ ██   ██ ██    ██ ██  █  ██ ██ ██  ██
 ██      ██      ██   ██      ██ ██   ██ ██   ██ ██    ██ ██ ███ ██ ██  ██ ██
-██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████
-`.split("\n");
+██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████`;
 
-  for (const line of titleLines) {
+  for (const line of title.split("\n")) {
     lines.push(chalk.yellow("  " + line));
   }
+  lines.push(chalk.yellow(_.padStart("v0.1 alpha", config.maxColumnWidth)));
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
@@ -64,37 +64,40 @@ export const render = (
       : "";
 
     lines.push("");
-    lines.push(`  You have a ${homePageData.streak} day streak${callToAction}`);
+    lines.push(
+      `  You're on a ${homePageData.streak} day streak${callToAction}`
+    );
   }
 
   lines.push("");
 
-  const columnWidths = [
-    Math.min(config.maxColumnWidth - 35 - 2 - 4, titleLines[1].length - 35 - 4),
-    15,
-    20,
-  ];
+  const columnWidths = [config.maxColumnWidth - 35 - 2 - 4, 15, 20];
 
   lines.push(
-    "  " + tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)
+    chalk.bold(
+      "  " +
+        tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)
+    )
   );
   lines.push(
     "  " + tableRow(["-----", "-----------", "-----------------"], columnWidths)
   );
   let topicIndex = 0;
   for (const topic of homePageData.topics) {
-    lines.push(
-      `${topicIndex === selectedTopicIndex ? ">" : " "} ${tableRow(
-        [
-          topic.name,
-          topic.newCards.length +
-            topic.learningCardsDue.length +
-            topic.learningCardsNotDue.length,
-          topic.newCards.length + topic.learningCardsDue.length,
-        ],
-        columnWidths
-      )}`
-    );
+    let lineText = `${topicIndex === selectedTopicIndex ? ">" : " "} ${tableRow(
+      [
+        topic.name,
+        topic.newCards.length +
+          topic.learningCardsDue.length +
+          topic.learningCardsNotDue.length,
+        topic.newCards.length + topic.learningCardsDue.length,
+      ],
+      columnWidths
+    )}`;
+    if (topicIndex === selectedTopicIndex) {
+      lineText = chalk.bold(lineText);
+    }
+    lines.push(lineText);
     if (
       homePageData.topics.length > 1 &&
       topicIndex === homePageData.topics.length - 2
@@ -108,7 +111,7 @@ export const render = (
   lines.push("");
   lines.push(
     chalk.cyanBright(
-      "  Use the UP and DOWN cursor keys to select the topic and hit ENTER to start"
+      "  Use the UP and DOWN keys to select the topic and hit ENTER to start"
     )
   );
 

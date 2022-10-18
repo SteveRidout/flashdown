@@ -111,10 +111,6 @@ const getPracticeRecordFilename = (cardsFileName: string) => {
 export const getRecords = (
   cardsFileName: string
 ): { [front: string]: { [direction: string]: PracticeRecord[] } } => {
-  const skip = true;
-  if (skip) {
-    return {};
-  }
   const fileName = getPracticeRecordFilename(cardsFileName);
 
   if (!fs.existsSync(fileName)) {

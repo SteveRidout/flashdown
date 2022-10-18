@@ -47,6 +47,49 @@ let previousCompletedCards = 0;
 
 let previousSessionPage: SessionPage | undefined;
 
+// addLine(
+//   chalk.redBright(
+//     stage.type === "second-side-revealed" && stage.selectedScore === 1
+//       ? ">"
+//       : " "
+//   ) + chalk.redBright(!score || score === 1 ? " 1) No" : "")
+// );
+const multipleChoiceLine = (
+  score: number,
+  description: string,
+  selectedScore?: number,
+  finalScore?: number
+) => {
+  let text = `  ${score}) ${description}`;
+  if (score === finalScore || score === selectedScore) {
+    text = ">" + text.substring(1);
+  }
+
+  let rendered: string = (() => {
+    switch (score) {
+      case 1:
+        return chalk.redBright(text);
+      case 2:
+        return chalk.yellowBright(text);
+      case 3:
+        return chalk.greenBright(text);
+      case 4:
+        return chalk.greenBright(text);
+
+      default:
+        throw Error("Unexpected score");
+    }
+  })();
+
+  if (score === finalScore || score === selectedScore) {
+    rendered = chalk.bold(rendered);
+  } else if (finalScore !== undefined) {
+    rendered = chalk.dim(rendered);
+  }
+
+  return rendered;
+};
+
 export const render = (sessionPage: SessionPage): TerminalViewModel => {
   const { upcomingCards, completedCards, stage } = sessionPage;
 
@@ -222,7 +265,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           {
             lines: [`${card.front} : ${card.back}`],
           },
-          2
+          2,
+          card.note
         )
       );
 
@@ -246,7 +290,9 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           ? `${card.front} : ${card.back}`
           : `${card.front} : ${card.back}`;
 
-      lines.push(createCard(card.sectionTitle, { lines: [text] }, 2));
+      lines.push(
+        createCard(card.sectionTitle, { lines: [text] }, 2, card.note)
+      );
 
       addLine();
       addLine();
@@ -258,35 +304,44 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         );
         addLine();
         addLine(
-          chalk.redBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 1
-              ? ">"
-              : " "
-          ) + chalk.redBright(!score || score === 1 ? " 1) No" : "")
+          multipleChoiceLine(
+            1,
+            "No",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
         addLine(
-          chalk.yellowBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 2
-              ? ">"
-              : " "
-          ) + chalk.yellowBright(!score || score === 2 ? " 2) Yes, kinda" : "")
+          multipleChoiceLine(
+            2,
+            "Yes, kinda",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
         addLine(
-          chalk.greenBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 3
-              ? ">"
-              : " "
-          ) + chalk.greenBright(!score || score === 3 ? " 3) Yes" : "")
+          multipleChoiceLine(
+            3,
+            "Yes",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
         addLine(
-          chalk.greenBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 4
-              ? ">"
-              : " "
-          ) +
-            chalk.greenBright(
-              !score || score === 4 ? " 4) Yes, very well!" : ""
-            )
+          multipleChoiceLine(
+            4,
+            "Yes, very well!",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
       } else {
         addLine(
@@ -296,35 +351,44 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         );
         addLine();
         addLine(
-          chalk.redBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 1
-              ? ">"
-              : " "
-          ) + chalk.redBright(!score || score === 1 ? " 1) No" : "")
+          multipleChoiceLine(
+            1,
+            "No",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
         addLine(
-          chalk.yellowBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 2
-              ? ">"
-              : " "
-          ) +
-            chalk.yellowBright(
-              !score || score === 2 ? " 2) Yes, with difficulty" : ""
-            )
+          multipleChoiceLine(
+            2,
+            "Yes, with difficulty",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
         addLine(
-          chalk.greenBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 3
-              ? ">"
-              : " "
-          ) + chalk.greenBright(!score || score === 3 ? " 3) Yes" : "")
+          multipleChoiceLine(
+            3,
+            "Yes",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
         addLine(
-          chalk.greenBright(
-            stage.type === "second-side-revealed" && stage.selectedScore === 4
-              ? ">"
-              : " "
-          ) + chalk.greenBright(!score || score === 4 ? " 4) Yes, easily!" : "")
+          multipleChoiceLine(
+            4,
+            "Yes, easily!",
+            stage.type === "second-side-revealed"
+              ? stage.selectedScore
+              : undefined,
+            score
+          )
         );
       }
       break;
@@ -341,7 +405,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 export const createCard = (
   topic: string,
   body: TextWithCursor,
-  leftMargin: number = 0
+  leftMargin: number = 0,
+  note?: string
 ) => {
   const lines: TextWithCursor[] = [];
 
@@ -350,11 +415,25 @@ export const createCard = (
   lines.push(body);
   lines.push({ lines: [""] });
 
-  return addFrame(
+  const cardWithoutNote = addFrame(
     renderUtils.joinSections(lines),
     config.maxColumnWidth,
     leftMargin
   );
+
+  if (!note) {
+    return cardWithoutNote;
+  }
+
+  const renderedNote = addFrame(
+    { lines: [`NOTE: ${note}`] },
+    config.maxColumnWidth - 2 - leftMargin
+  );
+
+  return renderUtils.overlay(cardWithoutNote, renderedNote.lines, {
+    y: cardWithoutNote.lines.length - 2,
+    x: leftMargin + 2,
+  });
 };
 
 export const addFrame = (
@@ -409,12 +488,4 @@ export const addFrame = (
 
   // return applyCardColor(renderUtils.joinSections(sections));
   return renderUtils.joinSections(sections);
-};
-
-const applyCardColor = (card: TextWithCursor): TextWithCursor => {
-  return {
-    lines: card.lines.map((line) => chalk.yellowBright(line)),
-    // XXX This will probably get messed up
-    cursorPosition: card.cursorPosition,
-  };
 };

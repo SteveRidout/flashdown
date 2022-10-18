@@ -198,3 +198,50 @@ export const shiftRight = (
       : undefined,
   };
 };
+
+/**
+ * Generates a new TextWithCursor in which @param overlayLines is overlayed on top of
+ * @param textWithCursor at the given @param position.
+ *
+ * The cursor position from @param textWithCursor is maintained.
+ */
+export const overlay = (
+  textWithCursor: TextWithCursor,
+  overlayLines: string[],
+  position: { x: number; y: number }
+): TextWithCursor => {
+  const totalLines = Math.max(
+    textWithCursor.lines.length,
+    position.y + overlayLines.length
+  );
+
+  return {
+    ...textWithCursor,
+    lines: _.range(totalLines).map((lineIndex) => {
+      if (
+        lineIndex < position.y ||
+        lineIndex > position.y + overlayLines.length
+      ) {
+        return textWithCursor.lines[lineIndex];
+      }
+
+      return overlayLine(
+        textWithCursor.lines[lineIndex] ?? "",
+        overlayLines[lineIndex - position.y],
+        position.x
+      );
+    }),
+  };
+};
+
+const overlayLine = (
+  background: string,
+  overlay: string,
+  x: number
+): string => {
+  return (
+    _.padEnd(background.substring(0, x), x, " ") +
+    overlay +
+    background.substring(x + overlay.length)
+  );
+};
