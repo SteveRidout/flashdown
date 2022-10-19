@@ -29,11 +29,7 @@ export const updateView = (appState: AppState) => {
 
     switch (appState.page.name) {
       case "home":
-        return homePage.render(
-          appState.homePageData,
-          // appState.fileName,
-          appState.page
-        );
+        return homePage.render(appState.homePageData, appState.page);
 
       case "session":
         return sessionPage.render(appState.page);

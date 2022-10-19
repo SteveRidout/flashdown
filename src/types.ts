@@ -108,7 +108,6 @@ export interface SessionEndPage {
 }
 
 export interface AppState {
-  // fileName: string;
   homePageData: HomePageData;
 
   page: SessionPage | HomePage | SessionEndPage;

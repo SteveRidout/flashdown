@@ -1,7 +1,6 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import * as debug from "../debug";
 import config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
@@ -73,17 +72,12 @@ export const render = (
    * Font comes from this repo which uses the MIT license
    * https://github.com/patorjk/figlet.js/blob/master/fonts/ANSI%20Regular.flf
    */
-  let title = `
-███████ ██       █████  ███████ ██   ██ ██████   ██████  ██     ██ ███    ██
-██      ██      ██   ██ ██      ██   ██ ██   ██ ██    ██ ██     ██ ████   ██
-█████   ██      ███████ ███████ ███████ ██   ██ ██    ██ ██  █  ██ ██ ██  ██
-██      ██      ██   ██      ██ ██   ██ ██   ██ ██    ██ ██ ███ ██ ██  ██ ██
-██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████`;
-
-  const block78 = "▇"; // 7/8ths
-  const blockFull = "█"; // 7/8ths
-
-  title = title.replace(new RegExp(blockFull, "g"), block78);
+  const title = `
+▇▇▇▇▇▇▇ ▇▇       ▇▇▇▇▇  ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇   ▇▇▇▇▇▇  ▇▇     ▇▇ ▇▇▇    ▇▇
+▇▇      ▇▇      ▇▇   ▇▇ ▇▇      ▇▇   ▇▇ ▇▇   ▇▇ ▇▇    ▇▇ ▇▇     ▇▇ ▇▇▇▇   ▇▇
+▇▇▇▇▇   ▇▇      ▇▇▇▇▇▇▇ ▇▇▇▇▇▇▇ ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇    ▇▇ ▇▇  ▇  ▇▇ ▇▇ ▇▇  ▇▇
+▇▇      ▇▇      ▇▇   ▇▇      ▇▇ ▇▇   ▇▇ ▇▇   ▇▇ ▇▇    ▇▇ ▇▇ ▇▇▇ ▇▇ ▇▇  ▇▇ ▇▇
+▇▇      ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇   ▇▇▇▇▇▇   ▇▇▇ ▇▇▇  ▇▇   ▇▇▇▇`;
 
   for (const line of title.split("\n")) {
     lines.push(chalk.yellow("  " + line));

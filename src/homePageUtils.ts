@@ -30,15 +30,6 @@ export const calcHomePageData = (
     };
   }
 ): HomePageData => {
-  // const cardMap: { [front: string]: { [direction: string]: Card } } = {};
-
-  // for (const card of cards) {
-  //   cardMap[card.front] = {
-  //     ...(cardMap[card.front] ?? {}),
-  //     [card.direction]: card,
-  //   };
-  // }
-
   const currentTime = Math.floor(new Date().getTime() / (60 * 1000));
   const currentWholeDate = utils.wholeDate(currentTime);
 
