@@ -1,8 +1,12 @@
-**Still working on the V0.1 and not really ready to share yet. That said, if this project sounds interesting to you, feel free to star/watch the repo and check back in a couple of weeks.**
-
 # What is Flashdown?
 
 Flashdown is an interactive NodeJS flashcard app with a CLI (command line interface) which uses a custom markup language to specify flashcards in human readable plain text files.
+
+## WARNING: Alpha version
+
+This is new software which hasn't been tested by anyone except for me on my macOS machine. Use at your own risk!
+
+That said, I'd love for you to try it out and please [open an issue on GitHub](https://github.com/SteveRidout/flashdown/issues) if you come across any problems!
 
 ## How to use
 
