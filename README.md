@@ -10,9 +10,9 @@ That said, I'd love for you to try it out and please [open an issue on GitHub](h
 
 ## Screenshots
 
-![Home page screenshot](/docs/images/screenshotHome.png)
+![Home page screenshot](https://github.com/SteveRidout/flashdown/blob/master/docs/images/screenshotHome.png)
 
-![In session screenshot](/docs/images/screenshotSession.png)
+![In session screenshot](https://github.com/SteveRidout/flashdown/blob/master/docs/images/screenshotSession.png)
 
 ## How to use
 
