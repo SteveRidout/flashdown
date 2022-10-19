@@ -1,0 +1,17 @@
+# Celsius/Fahrenheit conversion
+
+0C: 32F
+  The freezing point of water
+5C: 41F
+10C: 50F
+15C: 59F
+20C: 68F
+25C: 77F
+30C: 86F
+35C: 95F
+40C: 104F
+100C: 212F
+  The boiling point of water at 1 atmosphere
+176C: 350F
+204C: 400F
+232C: 450F
