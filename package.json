@@ -33,7 +33,6 @@
   },
   "files": [
     "/dist",
-    "/exampleFlashcards",
-    "/docs"
+    "/exampleFlashcards"
   ]
 }
