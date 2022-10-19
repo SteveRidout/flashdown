@@ -1,6 +1,6 @@
 {
   "name": "flashdown",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A command line flashcard app based on a plain text markup language.",
   "author": "Steve Ridout",
   "license": "MIT",
@@ -33,6 +33,7 @@
   },
   "files": [
     "/dist",
-    "/exampleFlashcards/notes.fd"
+    "/exampleFlashcards/cognitiveBiases.fd",
+    "/exampleFlashcards/hackerLaws.fd"
   ]
 }
