@@ -30,8 +30,6 @@ To run:
 npx flashdown
 ```
 
-## Visual Studio Code language support
-
 ## How to develop
 
 In one terminal, run:
@@ -131,9 +129,9 @@ The file format is SRS algorithm agnostic. Since it stores the entire historical
 
 (That said, I wouldn't rule out creating a web version of this later)
 
-## Key missing features
+## Notable missing features
 
-Here are some features I'd like to see but which don't exist yet:
+Here are some features I'd like to see but which Flashdown doesn't do (yet?):
 
 - Image support, including occlusion (e.g. show a diagram where certain labels are blanked out and you have to guess what they are). (This would be restricted only to terminal apps with the required image support)
 - Multiple choice challenges as alternative to the current self-graded and typing challenges (perhaps only in the early stages of learning a card since it would be easier)
