@@ -1,4 +1,4 @@
-# Hacker terminology
+# Hacker laws
 
 Goodhart's law: When a measure becomes a target, it ceases to be a good measure
 Hofstadter's law: It always takes longer than you expect, even when you take into account Hofstadter's law
@@ -12,7 +12,6 @@ Humphrey's law: The user will never know what they want until after the system i
 Parkinson's law: Work expands so as to fill the time available for its completion
 Moore's law: The number of transistors in an integrated circuit doubles about every two years
 Murphy's law: Anything that can go wrong will go wrong (also called Sod's law)
-Zawinski's law: Every program attempts to expand until it can read mail. Those programs which cannot expand are replaced by ones which can
 Postel's law: (Also called Robustness Principle) Be conservative in what you send, liberal in what you accept (not necessarily a good idea, see Hyrum's law)
 Hyrum's law: With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody
 Peter principle: People in a hierarchy tend to rise to thier level of incompetence

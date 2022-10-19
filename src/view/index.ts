@@ -13,8 +13,8 @@ import * as alertModal from "./alertModal";
 import * as homePage from "./homePage";
 import * as sessionPage from "./sessionPage";
 import * as sessionEndPage from "./sessionEndPage";
+import * as onboardingPage from "./onboardingPage";
 import * as ansiEscapes from "../ansiEscapes";
-import * as debug from "../debug";
 import { sleep } from "../utils";
 import config from "../config";
 
@@ -39,6 +39,9 @@ export const updateView = (appState: AppState) => {
           appState.page.previousStreak,
           appState.page.currentStreak
         );
+
+      case "onboarding":
+        return onboardingPage.render();
 
       default:
         throw Error("Unknown page: " + appState.page);

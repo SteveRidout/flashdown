@@ -1,8 +1,5 @@
 /** This module is the main entry point for the Flashdown app */
 
-import * as fs from "fs";
-import * as os from "os";
-import * as path from "path";
 import * as _ from "lodash";
 import { program } from "commander";
 
@@ -18,6 +15,7 @@ import * as utils from "./utils";
 import * as appState from "./appState";
 import * as gradingUtils from "./gradingUtils";
 import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
+import * as onboardingPageController from "./onboardingPageController";
 
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
@@ -122,19 +120,17 @@ const showHome = async () => {
   await homePageLoop(homePageData, homePageData.topics.length - 1, 0);
 };
 
-flashdownFilesDAL.init(options.file, (fileNames: string[]) => {
-  if (fileNames.length === 0) {
-    // XXX Replace with onboarding instructions, including:
-    // - Option to load one (or all?) of the example flashcard decks
-    // - Something to explain what we just did and how the user can add more
-    console.error(`Error: Couldn't find a suitable Flashdown file`);
-    console.error();
-    console.error(
-      "Tip: Run Flashdown from within a directory containing a notes.fd file or use the " +
-        "--file <filename> option to specify the location of your .fd file."
-    );
+flashdownFilesDAL.init(options.file, async (status) => {
+  if (status === "user-specified-file-not-found") {
+    console.error(`Error: File not found: ${options.file}`);
     console.error();
     process.exit();
+  }
+
+  if (flashdownFilesDAL.getFileNames().length === 0) {
+    await onboardingPageController.run();
+    showHome();
+    return;
   }
 
   if (appState.get() === undefined || appState.get().page.name === "home") {

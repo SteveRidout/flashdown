@@ -110,7 +110,7 @@ export const render = (
 
   for (let fileIndex = 0; fileIndex < homePageData.topics.length; fileIndex++) {
     const file = homePageData.topics[fileIndex];
-    if (file.fileName) {
+    if (homePageData.topics.length > 2 && file.fileName) {
       lines.push(
         chalk.gray(
           tableRow(["  " + _.last(file.fileName.split("/")), ""], columnWidths)

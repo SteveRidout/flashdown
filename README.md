@@ -8,22 +8,16 @@ Flashdown is an interactive NodeJS flashcard app with a CLI (command line interf
 
 You will need NodeJS (only tested on version 16.13.1 for now) installed on your system.
 
-To install:
+To install and run:
 
 ```sh
 npm install flashdown
-```
-
-To use:
-
-Go to a directory containing a notes.fd file
-
-```sh
-# Go to a directory containing your notes.fd file.
-# (See example notes.fd file within this repo at: exampleFlashcards/notes.fd)
-cd directoryWithNotes
 flashdown
 ```
+
+## Visual Studio Code language support
+
+Install language support to enable syntax highlighting in Visual Studio Code, see instructions in this repo: https://github.com/SteveRidout/flashdown-language-support
 
 ## How to develop
 
@@ -55,7 +49,7 @@ One way in which apps can improve upon physical flashcards is in their use of a 
 
 ## Why use a plain text markup language (.fd) for flashcards?
 
-.fd stands for Flash-Down
+.fd stands for Flashdown
 
 Advantages:
 
@@ -70,7 +64,7 @@ Disadvantages:
 
 ## Why use a plain text file format (.fdr) for recording your personal progress?
 
-The .fdr file extension stands for Flash-Down practice Record, and these files contain a chronological record of each card you have practiced along with the time and a score representing how well you remembered the information.
+The .fdr file extension stands for Flashdown practice Record, and these files contain a chronological record of each card you have practiced along with the time and a score representing how well you remembered the information.
 
 Advantages:
 
@@ -97,8 +91,7 @@ That said, if enough interest is shown in this project, I could certainly see it
 
 ## Key missing features
 
-These are all features I'd like to see but which don't exist yet:
+Here are some features I'd like to see but which don't exist yet:
 
-- Image support, including occlusion (e.g. show a diagram where certain labels are blanked out and you have to guess what they are)
-- Multiple choice challenges as alternative to the current self-graded and typing challenges
-- Setting to make
+- Image support, including occlusion (e.g. show a diagram where certain labels are blanked out and you have to guess what they are). (This would be restricted only to terminal apps with the required image support)
+- Multiple choice challenges as alternative to the current self-graded and typing challenges (perhaps only in the early stages of learning a card since it would be easier)

@@ -107,10 +107,14 @@ export interface SessionEndPage {
   currentStreak: number;
 }
 
+export interface OnboardingPage {
+  name: "onboarding";
+}
+
 export interface AppState {
   homePageData: HomePageData;
 
-  page: SessionPage | HomePage | SessionEndPage;
+  page: SessionPage | HomePage | SessionEndPage | OnboardingPage;
 
   modalMessage?: string[];
 }
