@@ -34,23 +34,24 @@ debug.log("--------------");
 
 debug.log("options: " + JSON.stringify(program.opts()));
 
-// XXX Read this from command line args instead
-let fileName = options.file; // ?? "notes.fd";
+let userProvidedFileName = options.file;
 
 let files: string[] = [];
 
-if (fileName && !fs.existsSync(fileName) && !fileName.endsWith(".fd")) {
+if (
+  userProvidedFileName &&
+  !fs.existsSync(userProvidedFileName) &&
+  !userProvidedFileName.endsWith(".fd")
+) {
   // Try adding .fd to see if that works
-  fileName += ".fd";
-  if (fs.existsSync(fileName)) {
-    files = [fileName];
+  userProvidedFileName += ".fd";
+  if (fs.existsSync(userProvidedFileName)) {
+    files = [userProvidedFileName];
   }
 }
 
 if (files.length === 0) {
-  // Look for file in standard location: ~/.flashdown/notes.fd
-  // fileName = path.resolve(os.homedir(), ".flashdown/notes.fd");
-
+  // Read all files in standard location: ~/.flashdown/notes.fd
   const flashdownDirectory = ".flashdown";
   files = fs
     .readdirSync(path.resolve(os.homedir(), flashdownDirectory))
@@ -61,7 +62,9 @@ if (files.length === 0) {
 }
 
 if (files.length === 0) {
-  // XXX Replace with onboarding instructions...
+  // XXX Replace with onboarding instructions, including:
+  // - Option to load one (or all?) of the example flashcard decks
+  // - Something to explain what we just did and how the user can add more
   console.error(`Error: Couldn't find a suitable Flashdown file`);
   console.error();
   console.error(
@@ -441,14 +444,15 @@ const startSession = async (
 
 showHome();
 
-// If user changes the .fd file and we are showing home, update it...
-// XXX Need better global app state to know whether we are on home or session
+// If user changes any of the .fd file and we are showing home, update it...
 // XXX Should move to cardDAL to avoid breaking abstraction layer
-// fs.watch(`${fileName}`, () => {
-//   if (appState.get().page.name === "home") {
-//     showHome();
-//   }
-// });
+for (const fileName of files) {
+  fs.watch(`${fileName}`, () => {
+    if (appState.get().page.name === "home") {
+      showHome();
+    }
+  });
+}
 
 process.stdout.on("resize", () => {
   debug.log(process.stdout.columns + " " + process.stdout.rows);
