@@ -168,7 +168,7 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
       stage: { type: "second-side-typed", input: answer, score },
     });
 
-    await keyboard.readKeypress(["space", "return"]);
+    const key = await keyboard.readKeypress(["space", "return"]);
   } else {
     updateSessionPage({
       upcomingCards,
@@ -318,9 +318,7 @@ const homePageLoop = async (
 
     case "up":
     case "k":
-      debug.log("up " + fileNameIndex + " " + topicIndex);
       if (topicIndex === 0 && fileNameIndex > 0) {
-        debug.log("up prev topic");
         homePageLoop(
           homePageData,
           fileNameIndex - 1,
@@ -335,22 +333,18 @@ const homePageLoop = async (
 
     case "down":
     case "j":
-      debug.log("down " + topicIndex + " " + fileNameIndex);
       if (
         topicIndex === homePageData.topics[fileNameIndex].data.length - 1 &&
         fileNameIndex < homePageData.topics.length - 1
       ) {
         homePageLoop(homePageData, fileNameIndex + 1, 0);
-        debug.log("down next filename");
       } else if (
         topicIndex <
         homePageData.topics[fileNameIndex].data.length - 1
       ) {
         homePageLoop(homePageData, fileNameIndex, topicIndex + 1);
-        debug.log("down next filename topic");
       } else {
         homePageLoop(homePageData, fileNameIndex, topicIndex);
-        debug.log("down noop");
       }
       break;
   }

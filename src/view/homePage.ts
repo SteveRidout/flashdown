@@ -1,8 +1,10 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
+import * as debug from "../debug";
 import config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
+import * as renderUtils from "./renderUtils";
 
 const elideText = (text: string, maxLength: number): string => {
   if (text.length < maxLength) {
@@ -10,9 +12,6 @@ const elideText = (text: string, maxLength: number): string => {
   }
   return text.substring(0, maxLength - 3) + "...";
 };
-
-const addPadding = (text: string, length: number): string =>
-  text + _.repeat(" ", length - text.length);
 
 const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
   const renderedItems: string[] = [];
@@ -24,13 +23,42 @@ const tableRow = (items: (string | number)[], maxLengths: number[]): string => {
   for (let i = 0; i < items.length; i++) {
     const rendered = elideText(items[i].toString(), maxLengths[i]);
 
-    renderedItems[i] =
-      i === 0
-        ? _.padEnd(rendered, maxLengths[i], " ")
-        : _.padStart(rendered, maxLengths[i], " ");
+    renderedItems[i] = _.padEnd(rendered, maxLengths[i], " ");
   }
 
   return renderedItems.join("  ");
+};
+
+const tableDataRow = (
+  topic: string,
+  ready: number,
+  total: number,
+  columnWidths: number[]
+) => {
+  const [topicWidth, barWidth] = columnWidths;
+
+  const text = ` ${_.padStart((total - ready).toString(), 3)} / ${_.padStart(
+    total.toString(),
+    3
+  )}`;
+  const restOfWidth = barWidth - text.length;
+
+  let result = `${_.padEnd(
+    topic,
+    topicWidth,
+    " "
+  )}  ${renderUtils.renderProgressBar(
+    total - ready,
+    total,
+    restOfWidth,
+    false
+  )}${text}`;
+
+  if (ready === 0) {
+    result = chalk.yellowBright(result);
+  }
+
+  return result;
 };
 
 export const render = (
@@ -45,12 +73,17 @@ export const render = (
    * Font comes from this repo which uses the MIT license
    * https://github.com/patorjk/figlet.js/blob/master/fonts/ANSI%20Regular.flf
    */
-  const title = `
+  let title = `
 ███████ ██       █████  ███████ ██   ██ ██████   ██████  ██     ██ ███    ██
 ██      ██      ██   ██ ██      ██   ██ ██   ██ ██    ██ ██     ██ ████   ██
 █████   ██      ███████ ███████ ███████ ██   ██ ██    ██ ██  █  ██ ██ ██  ██
 ██      ██      ██   ██      ██ ██   ██ ██   ██ ██    ██ ██ ███ ██ ██  ██ ██
 ██      ███████ ██   ██ ███████ ██   ██ ██████   ██████   ███ ███  ██   ████`;
+
+  const block78 = "▇"; // 7/8ths
+  const blockFull = "█"; // 7/8ths
+
+  title = title.replace(new RegExp(blockFull, "g"), block78);
 
   for (const line of title.split("\n")) {
     lines.push(chalk.yellow("  " + line));
@@ -60,7 +93,7 @@ export const render = (
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
       ? ", come back tomorrow to avoid losing it!"
-      : "";
+      : `, practice now to make it ${homePageData.streak + 1}!`;
 
     lines.push("");
     lines.push(
@@ -70,27 +103,23 @@ export const render = (
 
   lines.push("");
 
-  const columnWidths = [config.maxColumnWidth - 35 - 2 - 4, 15, 20];
+  const column2Width = 38;
+  const columnWidths = [
+    config.maxColumnWidth - column2Width - 2 - 2,
+    column2Width,
+  ];
 
   lines.push(
-    chalk.bold(
-      "  " +
-        tableRow(["TOPIC", "TOTAL CARDS", "READY TO PRACTICE"], columnWidths)
-    )
+    chalk.bold("  " + tableRow(["TOPIC", "PRACTICE PROGRESS"], columnWidths))
   );
-  lines.push(
-    "  " + tableRow(["-----", "-----------", "-----------------"], columnWidths)
-  );
+  lines.push("  " + tableRow(["-----", "-----------------"], columnWidths));
 
   for (let fileIndex = 0; fileIndex < homePageData.topics.length; fileIndex++) {
     const file = homePageData.topics[fileIndex];
     if (file.fileName) {
       lines.push(
         chalk.gray(
-          tableRow(
-            ["  " + _.last(file.fileName.split("/")), "", ""],
-            columnWidths
-          )
+          tableRow(["  " + _.last(file.fileName.split("/")), ""], columnWidths)
         )
       );
     }
@@ -102,14 +131,12 @@ export const render = (
         topicIndex === selectedTopicIndex
           ? ">"
           : " "
-      } ${tableRow(
-        [
-          "" + topic.name,
-          topic.newCards.length +
-            topic.learningCardsDue.length +
-            topic.learningCardsNotDue.length,
-          topic.newCards.length + topic.learningCardsDue.length,
-        ],
+      } ${tableDataRow(
+        topic.name,
+        topic.newCards.length + topic.learningCardsDue.length,
+        topic.newCards.length +
+          topic.learningCardsDue.length +
+          topic.learningCardsNotDue.length,
         columnWidths
       )}`;
       if (

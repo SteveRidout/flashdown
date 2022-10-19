@@ -32,17 +32,6 @@ const inputText = (input: string, target: string) => {
 
 let previousStageType: CardStage["type"];
 
-const renderProgressBar = (position: number, total: number, width: number) => {
-  const suffix = ` (${Math.floor(position)} / ${total})`;
-  const barWidth = width - suffix.length;
-  const screenPosition = Math.round((barWidth * position) / total);
-
-  return `${_.repeat(
-    chalk.bgWhite(chalk.white("█")),
-    screenPosition
-  )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
-};
-
 let previousCompletedCards = 0;
 
 let previousSessionPage: SessionPage | undefined;
@@ -131,7 +120,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   if (numberCompleted > previousCompletedCards) {
     addLine(
       "  " +
-        renderProgressBar(
+        renderUtils.renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
           totalCards,
           config.maxColumnWidth - 2
@@ -142,17 +131,17 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       type: "frames",
       position: { y: 1, x: 2 },
       frames: [
-        renderProgressBar(
+        renderUtils.renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
           totalCards,
           config.maxColumnWidth - 2
         ),
-        renderProgressBar(
+        renderUtils.renderProgressBar(
           previousCompletedCards * 0.25 + numberCompleted * 0.75,
           totalCards,
           config.maxColumnWidth - 2
         ),
-        renderProgressBar(
+        renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
           config.maxColumnWidth - 2
@@ -165,7 +154,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   } else {
     addLine(
       "  " +
-        renderProgressBar(
+        renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
           config.maxColumnWidth - 2
@@ -220,6 +209,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       }
       break;
     }
+
     case "first-side-type": {
       let cardContent = "";
       let cursorX: number;
@@ -266,6 +256,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       }
       break;
     }
+
     case "second-side-typed":
       lines.push(
         createCard(
@@ -278,18 +269,21 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         )
       );
 
-      addLine("");
       if (stage.score > 2) {
+        addLine("");
         addLine("  Well done!");
       } else if (stage.score === 2) {
+        addLine("");
         addLine("  Close enough!");
       } else if (stage.input.trim() !== "") {
+        addLine("");
         addLine("  Wrong");
       }
       addLine();
       addLine();
       addLine(chalk.cyanBright("  Hit SPACE to continue"));
       break;
+
     case "second-side-revealed":
     case "finished":
       const score = stage.type === "finished" ? stage.score : undefined;
@@ -378,7 +372,7 @@ export const createCard = (
   }
 
   const renderedNote = addFrame(
-    { lines: [`NOTE: ${note}`] },
+    { lines: [`${note}`] },
     config.maxColumnWidth - 2 - leftMargin
   );
 

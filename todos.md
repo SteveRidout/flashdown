@@ -7,6 +7,7 @@
 - If user has no topics to study, point them to where they can download some online and tell them to copy them to their home directory ~/.flashdown
 - Allow formatting within card - use bold text
 - Add command line option to show SRS stats
+- Timer which updates the home page state after an hour (?), also updates the time in the practice record file if too much time has past
 
 ## Nice to have
 
@@ -15,3 +16,4 @@
   - slide cards to reveal
 - Show SRS stats somewhere
 - Allow quitting session with ESCAPE key
+- Allow removing cards (and editing?) - press "x" key after reveal
