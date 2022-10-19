@@ -6,7 +6,12 @@ import { program } from "commander";
 import * as keyboard from "./keyboard";
 import * as cardDAL from "./dal/cardDAL";
 import * as practiceRecordDAL from "./dal/practiceRecordDAL";
-import { CardWithLearningMetrics, HomePageData, SessionPage } from "./types";
+import {
+  CardWithLearningMetrics,
+  FilesStatus,
+  HomePageData,
+  SessionPage,
+} from "./types";
 import * as debug from "./debug";
 import * as ansiEscapes from "./ansiEscapes";
 import * as homePageUtils from "./homePageUtils";
@@ -120,7 +125,7 @@ const showHome = async () => {
   await homePageLoop(homePageData, homePageData.topics.length - 1, 0);
 };
 
-flashdownFilesDAL.init(options.file, async (status) => {
+const handleFilesUpdated = async (status: FilesStatus) => {
   if (status === "user-specified-file-not-found") {
     console.error(`Error: File not found: ${options.file}`);
     console.error();
@@ -129,6 +134,9 @@ flashdownFilesDAL.init(options.file, async (status) => {
 
   if (flashdownFilesDAL.getFileNames().length === 0) {
     await onboardingPageController.run();
+    flashdownFilesDAL.readAndWatchFlashdownFileNamesInHomeDir(
+      handleFilesUpdated
+    );
     showHome();
     return;
   }
@@ -136,7 +144,9 @@ flashdownFilesDAL.init(options.file, async (status) => {
   if (appState.get() === undefined || appState.get().page.name === "home") {
     showHome();
   }
-});
+};
+
+flashdownFilesDAL.init(options.file, handleFilesUpdated);
 
 type NextStep =
   | {

@@ -142,3 +142,5 @@ export interface TerminalViewModel {
   textWithCursor: TextWithCursor;
   animations: Animation[];
 }
+
+export type FilesStatus = "user-specified-file-not-found" | "files-found";

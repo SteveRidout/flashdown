@@ -2,12 +2,12 @@
  * This is responsible for keeping track of the flashdown files currently being used, it isn't
  * responsible for parsing or serializing to those files
  */
-
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
 import * as debug from "../debug";
+import { FilesStatus } from "../types";
 
 let fileNames: string[] = [];
 
@@ -15,18 +15,23 @@ const flashdownDirectory = path.resolve(os.homedir(), ".flashdown");
 
 let watchers: fs.FSWatcher[] = [];
 
-type FilesStatus = "user-specified-file-not-found" | "files-found";
-
-const readAndWatchFlashdownFileNamesInHomeDir = (
+export const readAndWatchFlashdownFileNamesInHomeDir = (
   updateCallback: (filesStatus: FilesStatus) => void
 ) => {
+  if (!fs.existsSync(flashdownDirectory)) {
+    updateCallback("files-found");
+    return;
+  }
+
   // Read all files in standard location: ~/.flashdown/notes.fd
   fileNames = fs
-    .readdirSync(path.resolve(os.homedir(), flashdownDirectory))
+    .readdirSync(flashdownDirectory)
     .filter((fileName) => fileName.endsWith(".fd"))
     .map((fileName) =>
       path.resolve(os.homedir(), flashdownDirectory, fileName)
     );
+
+  debug.log("found files: " + fileNames);
 
   updateCallback("files-found");
 
@@ -93,6 +98,10 @@ export const copyOnboardingExample = () => {
       __dirname,
       `../exampleFlashcards/${baseFileName}.fd`
     );
+
+    if (!fs.existsSync(flashdownDirectory)) {
+      fs.mkdirSync(flashdownDirectory);
+    }
 
     const data = fs.readFileSync(source);
     const result = fs.appendFileSync(target, data);

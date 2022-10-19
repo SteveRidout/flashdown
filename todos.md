@@ -16,3 +16,4 @@
 - Allow removing cards (and editing?) - press "x" key after reveal
 - Allow pointing to directory: SHOW all files in home page list, grouped by filename, maybe with way to practice all from certain file, or all from across all files
 - Allow formatting within card - use bold text
+- Constraint on card shuffling algo to avoid the two sides of the same card appearing consecutively

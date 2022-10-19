@@ -1,6 +1,6 @@
 /**
- * This module is responsible for parsing the Flashdown files (.fd) which specify the contents of the
- * flashcards
+ * This module is responsible for parsing the Flashdown files (.fd) which specify the contents of
+ * the flashcards
  */
 import * as fs from "fs";
 
