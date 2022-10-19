@@ -18,11 +18,16 @@ That said, I'd love for you to try it out and please [open an issue on GitHub](h
 
 You will need NodeJS (only tested on version 16.13.1 for now) installed on your system.
 
-To install and run:
+To install:
 
 ```sh
-npm install flashdown
-flashdown
+npm install -g flashdown
+```
+
+To run:
+
+```sh
+npx flashdown
 ```
 
 ## Visual Studio Code language support
