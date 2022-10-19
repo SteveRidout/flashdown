@@ -1,47 +1,3 @@
-# Definitions
-
-Ontology: Study of the nature of being (metaphysics)
-Epistemology: Study of knowledge acquisition
-
-# Philosophers
-
-Immanuel Kant: German philosopher and one of the foremost thinkers of the Enlightenment. Wrote "Critique of Pure Reason" in 1781
-
-# Celsius/Fahrenheit conversion
-
-0C: 32F
-  The freezing point of water
-5C: 41F
-10C: 50F
-15C: 59F
-20C: 68F
-25C: 77F
-30C: 86F
-35C: 95F
-40C: 104F
-100C: 212F
-  The boiling point of water at 1 atmosphere
-176C: 350F
-204C: 400F
-232C: 450F
-
-# Solar energy terminology
-
-What was the total electricity consumption of Spain in 2018?: 238 TWh
-LCOE (Levelized Cost of Energy or Electricity): the lifetime cost of constructing and running an electricity plant, divided by the amount of electricity it's expected to generate over its lifetime.
-
-# Spanish
-
-Yo tuviera/tuviese: I would have
-Si fuera presidente, eliminaría los impuestos: If I were president, I'd eliminate the taxes
-estallaron tres hurras: three cheers broke out
-babor: port
-estribor: starbord
-grumetes: cabin boys
-surco: groove
-barandilla: railing
-proa: bow
-
 # Cognitive biases
 // From https://www.visualcapitalist.com/50-cognitive-biases-in-the-modern-world/
 
@@ -95,17 +51,3 @@ Clustering Illusion: "We find patterns and ""clusters"" in random data." Example
 Pessimism Bias: We sometimes overestimate the likelihood of bad outcomes. Example: “Nothing will ever get better.”
 Optimism Bias: We sometimes are over-optimistic about good outcomes. Example: “It's going to turn out great!”
 Blind Spot Bias: "We don't think we have bias and we see it on others more than ourselves." Example: “I am not biased!”
-
-# Finance
-
-Call option: The right to purchase a stock at an agreed upon price (the strike price) within a specific time frame
-Put option:  The right to sell a stock for an agreed upon price within a specific time frame. 
-
-# Selfish gene
-
-Allele: one of two or more versions of a DNA sequence where alternative genes compete
-Meiosis: splitting of DNA in half to make sex cells
-Cistron: synonymous with "gene", basic unit of heredity and sequence of nucleotides in DNA
-Nucleotide: basic building block of nucleic acids (RNA and DNA)
-Gene: section of DNA which lasts long enough to be subject to natural selection, needs high copying fidelity
-Kin selection: an evolutionary strategy favoring success of an organism's relatives, even when at a cost to the organism's own survival and reproduction

@@ -17,6 +17,7 @@ import config from "./config";
 import * as utils from "./utils";
 import * as appState from "./appState";
 import * as gradingUtils from "./gradingUtils";
+import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
 
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
@@ -34,30 +35,112 @@ debug.log("--------------");
 
 debug.log("options: " + JSON.stringify(program.opts()));
 
-// XXX Read this from command line args instead
-let fileName = options.file ?? "notes.fd";
+const homePageLoop = async (
+  homePageData: HomePageData,
+  fileNameIndex: number,
+  topicIndex: number
+) => {
+  appState.setState({
+    homePageData,
+    page: {
+      name: "home",
+      selectedFileNameIndex: fileNameIndex,
+      selectedTopicIndex: topicIndex,
+    },
+  });
 
-if (!fs.existsSync(fileName) && !fileName.endsWith(".fd")) {
-  // Try adding .fd to see if that works
-  fileName += ".fd";
-}
+  const keypress = await keyboard.readKeypress([
+    "space",
+    "return",
+    "up",
+    "down",
+    "j",
+    "k",
+  ]);
 
-if (!fs.existsSync(fileName)) {
-  // Look for file in standard location:
-  // ~/.flashdown/notes.fd
-  fileName = path.resolve(os.homedir(), ".flashdown/notes.fd");
-}
+  switch (keypress) {
+    case "space":
+    case "return":
+      startSession(homePageData, fileNameIndex, topicIndex);
+      break;
 
-if (!fs.existsSync(fileName)) {
-  console.error(`Error: The file "${fileName}" doesn't exist`);
-  console.error;
-  console.error(
-    "Tip: Run Flashdown from within a directory containing a notes.fd file or use the " +
-      "--file <filename> option to specify the location of your .fd file."
+    case "up":
+    case "k":
+      if (topicIndex === 0 && fileNameIndex > 0) {
+        homePageLoop(
+          homePageData,
+          fileNameIndex - 1,
+          homePageData.topics[fileNameIndex - 1].data.length - 1
+        );
+      } else if (topicIndex > 0) {
+        homePageLoop(homePageData, fileNameIndex, topicIndex - 1);
+      } else {
+        homePageLoop(homePageData, fileNameIndex, topicIndex);
+      }
+      break;
+
+    case "down":
+    case "j":
+      if (
+        topicIndex === homePageData.topics[fileNameIndex].data.length - 1 &&
+        fileNameIndex < homePageData.topics.length - 1
+      ) {
+        homePageLoop(homePageData, fileNameIndex + 1, 0);
+      } else if (
+        topicIndex <
+        homePageData.topics[fileNameIndex].data.length - 1
+      ) {
+        homePageLoop(homePageData, fileNameIndex, topicIndex + 1);
+      } else {
+        homePageLoop(homePageData, fileNameIndex, topicIndex);
+      }
+      break;
+  }
+};
+
+const showHome = async () => {
+  const fileNames = flashdownFilesDAL.getFileNames();
+
+  // Get home page data
+  const cards = fileNames.map((fileName) => cardDAL.getCards(fileName));
+  const recordsMap = fileNames.reduce(
+    (memo, fileName) => ({
+      ...memo,
+      [fileName]: practiceRecordDAL.getRecords(fileName),
+    }),
+    {}
   );
-  console.error();
-  process.exit();
-}
+  const homePageData = homePageUtils.calcHomePageData(cards, recordsMap);
+  debug.log(
+    JSON.stringify(
+      homePageData.topics.map(
+        (t) => `${t.fileName} - ${t.data.map((d) => d.name)}`
+      )
+    )
+  );
+
+  await homePageLoop(homePageData, homePageData.topics.length - 1, 0);
+};
+
+flashdownFilesDAL.init(options.file, (fileNames: string[]) => {
+  if (fileNames.length === 0) {
+    // XXX Replace with onboarding instructions, including:
+    // - Option to load one (or all?) of the example flashcard decks
+    // - Something to explain what we just did and how the user can add more
+    console.error(`Error: Couldn't find a suitable Flashdown file`);
+    console.error();
+    console.error(
+      "Tip: Run Flashdown from within a directory containing a notes.fd file or use the " +
+        "--file <filename> option to specify the location of your .fd file."
+    );
+    console.error();
+    process.exit();
+  }
+
+  if (appState.get() === undefined || appState.get().page.name === "home") {
+    showHome();
+  }
+});
 
 type NextStep =
   | {
@@ -155,7 +238,7 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
       stage: { type: "second-side-typed", input: answer, score },
     });
 
-    await keyboard.readKeypress(["space", "return"]);
+    const key = await keyboard.readKeypress(["space", "return"]);
   } else {
     updateSessionPage({
       upcomingCards,
@@ -236,7 +319,7 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
   debug.log("score: " + score);
 
   if (!options.test) {
-    practiceRecordDAL.writeRecord(fileName, card, card.direction, score);
+    practiceRecordDAL.writeRecord(card.fileName, card, card.direction, score);
   }
 
   sessionPage = appState.get().page;
@@ -252,55 +335,6 @@ const processNextCard = async (previousScore?: number): Promise<NextStep> => {
   return { type: "next-card", previousScore: score };
 };
 
-const showHome = async () => {
-  // Get home page data
-  const cards = cardDAL.getCards(fileName);
-  const recordsMap = practiceRecordDAL.getRecords(fileName);
-  const homePageData = homePageUtils.calcHomePageData(cards, recordsMap);
-
-  await homePageLoop(homePageData, homePageData.topics.length - 1);
-};
-
-const homePageLoop = async (homePageData: HomePageData, topicIndex: number) => {
-  appState.setState({
-    fileName,
-    homePageData,
-    page: {
-      name: "home",
-      selectedTopicIndex: topicIndex,
-    },
-  });
-
-  const keypress = await keyboard.readKeypress([
-    "space",
-    "return",
-    "up",
-    "down",
-    "j",
-    "k",
-  ]);
-
-  switch (keypress) {
-    case "space":
-    case "return":
-      startSession(homePageData, topicIndex);
-      break;
-
-    case "up":
-    case "k":
-      homePageLoop(homePageData, Math.max(0, topicIndex - 1));
-      break;
-
-    case "down":
-    case "j":
-      homePageLoop(
-        homePageData,
-        Math.min(homePageData.topics.length - 1, topicIndex + 1)
-      );
-      break;
-  }
-};
-
 const showModal = async (message: string[]) => {
   appState.setState({
     ...appState.get(),
@@ -310,8 +344,12 @@ const showModal = async (message: string[]) => {
   await keyboard.readKeypress(["space", "return"]);
 };
 
-const startSession = async (homePageData: HomePageData, topicIndex: number) => {
-  const topic = homePageData.topics[topicIndex];
+const startSession = async (
+  homePageData: HomePageData,
+  fileNameIndex: number,
+  topicIndex: number
+) => {
+  const topic = homePageData.topics[fileNameIndex].data[topicIndex];
 
   let upcomingCards: CardWithLearningMetrics[] = topic.learningCardsDue
     .slice(0, config.targetCardsPerSession)
@@ -343,7 +381,7 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
       "",
       `The next card in this topic is due on ${nextDateString}`,
     ]);
-    homePageLoop(homePageData, topicIndex);
+    homePageLoop(homePageData, fileNameIndex, topicIndex);
     return;
   }
 
@@ -385,17 +423,6 @@ const startSession = async (homePageData: HomePageData, topicIndex: number) => {
 
   showHome();
 };
-
-showHome();
-
-// If user changes the .fd file and we are showing home, update it...
-// XXX Need better global app state to know whether we are on home or session
-// XXX Should move to cardDAL to avoid breaking abstraction layer
-fs.watch(`${fileName}`, () => {
-  if (appState.get().page.name === "home") {
-    showHome();
-  }
-});
 
 process.stdout.on("resize", () => {
   debug.log(process.stdout.columns + " " + process.stdout.rows);

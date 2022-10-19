@@ -1,7 +1,9 @@
 import _ from "lodash";
+import chalk from "chalk";
 
 import { TextWithCursor } from "../types";
 import config from "../config";
+import * as debug from "../debug";
 
 /**
  * Joins the given lines inserting a newline between each one. This will throw an error if more
@@ -244,4 +246,24 @@ const overlayLine = (
     overlay +
     background.substring(x + overlay.length)
   );
+};
+
+export const renderProgressBar = (
+  position: number,
+  total: number,
+  width: number,
+  includeSuffix: boolean = true
+) => {
+  const suffix = includeSuffix ? ` (${Math.round(position)} / ${total})` : "";
+  const barWidth = width - suffix.length;
+  const screenPosition = Math.round((barWidth * position) / total);
+
+  if (position === total) {
+    return chalk.bgYellow(chalk.yellow(_.repeat("█", barWidth)));
+  }
+
+  return `${_.repeat(
+    chalk.bgWhite(chalk.white("█")),
+    screenPosition
+  )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
 };

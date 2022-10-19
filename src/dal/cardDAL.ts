@@ -51,6 +51,7 @@ export const getCards = (fileName: string): Card[] => {
         direction: "front-to-back" as Direction,
         sectionTitle: currentSection,
         note,
+        fileName,
       };
       const backToFront = {
         front,
@@ -58,6 +59,7 @@ export const getCards = (fileName: string): Card[] => {
         direction: "back-to-front" as Direction,
         sectionTitle: currentSection,
         note,
+        fileName,
       };
       cards.push(frontToBack);
       cards.push(backToFront);

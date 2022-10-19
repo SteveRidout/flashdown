@@ -3,6 +3,8 @@ const normalizedCharacterMap: { [nonNormalizedCharacter: string]: string } = {
   á: "a",
   é: "e",
   í: "i",
+  ñ: "n",
+  ú: "u",
   "-": " ",
 };
 

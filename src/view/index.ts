@@ -29,11 +29,7 @@ export const updateView = (appState: AppState) => {
 
     switch (appState.page.name) {
       case "home":
-        return homePage.render(
-          appState.homePageData,
-          appState.fileName,
-          appState.page
-        );
+        return homePage.render(appState.homePageData, appState.page);
 
       case "session":
         return sessionPage.render(appState.page);
@@ -95,7 +91,6 @@ const renderToTerminal = async (model: TerminalViewModel) => {
 
       if (renderCount > 0) {
         // Abort animating if we are on the next render
-        debug.log("abort animation");
         return;
       }
 
@@ -166,8 +161,6 @@ const runAnimation = async (
         // Abort since a new render has been done since this animation started
         return;
       }
-
-      debug.log("render frame: " + frameIndex);
 
       process.stdout.cursorTo(animation.position.x, animation.position.y);
       process.stdout.write(animation.frames[frameIndex]);
