@@ -254,7 +254,6 @@ export const renderProgressBar = (
   width: number,
   includeSuffix: boolean = true
 ) => {
-  debug.log("render progress: " + position + " " + total);
   const suffix = includeSuffix ? ` (${Math.round(position)} / ${total})` : "";
   const barWidth = width - suffix.length;
   const screenPosition = Math.round((barWidth * position) / total);
