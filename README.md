@@ -21,7 +21,7 @@ flashdown
 
 ## Visual Studio Code language support
 
-Install language support to enable syntax highlighting in Visual Studio Code, see instructions in this repo: https://github.com/SteveRidout/flashdown-language-support
+Install language support to enable syntax highlighting of your Flashdown (.fd) files in Visual Studio Code, see instructions in this repo: https://github.com/SteveRidout/flashdown-language-support
 
 ## How to develop
 
