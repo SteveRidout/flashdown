@@ -8,6 +8,12 @@ This is new software which hasn't been tested by anyone except for me on my macO
 
 That said, I'd love for you to try it out and please [open an issue on GitHub](https://github.com/SteveRidout/flashdown/issues) if you come across any problems!
 
+## Screenshots
+
+![Home page screenshot](/docs/images/screenshotHome.png)
+
+![In session screenshot](/docs/images/screenshotSession.png)
+
 ## How to use
 
 You will need NodeJS (only tested on version 16.13.1 for now) installed on your system.

@@ -4,6 +4,7 @@ import chalk from "chalk";
 import config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
+import { version as appVersion } from "../../package.json";
 
 const elideText = (text: string, maxLength: number): string => {
   if (text.length < maxLength) {
@@ -82,7 +83,9 @@ export const render = (
   for (const line of title.split("\n")) {
     lines.push(chalk.yellow("  " + line));
   }
-  lines.push(chalk.yellow(_.padStart("v0.1 alpha", config.maxColumnWidth)));
+  lines.push(
+    chalk.yellow(_.padStart(`v${appVersion} alpha`, config.maxColumnWidth))
+  );
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday

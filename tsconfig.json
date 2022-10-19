@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "lib": ["ES5"],
     "module": "CommonJS",
     "moduleResolution": "node",
