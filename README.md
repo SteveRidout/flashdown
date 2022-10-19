@@ -47,9 +47,25 @@ tail -f debugLog.txt
 
 ## Flashdown is a spaced repetition flashcard app, what is that exactly?
 
-It's a digital version of the physical flashcards you may have used to study a bunch of facts. The idea is to look at one side of the card, which may be a question like "How old is the Earth?" and then try to guess the answer on the back, in this case "4.5 billion years". Another type of card may have a word on one side, for example "Epistemology", and on the back would be the definition "the study of knowledge acquisition". Yet another use is for language learning in which case you might put the same word in different languages on each side of the card: for example "Hola (Spanish)" on one side and "Hello (English)" on the reverse side.
+It's a digital version of the physical flashcards you may have used to study a bunch of facts. The idea is to look at one side of the card, which may be a question like: "How old is the Earth?" and then try to guess the answer on the back, in this case "4.5 billion years". Within a Flashdown (.fd) file you'd represent simply in just a single line:
 
-One way in which apps can improve upon physical flashcards is in their use of a scheduling algorithm. Basically, after being shown the flip side of the card you are asked whether you remembered the answer. If you self-report having remembered the information, then this card will be scheduled for review some time in the future. If you report having not remembered the information, then the card will be repeated within your current practice session, and then will be scheduled for a time in the future, but not so far in the future as if you'd remembered it correctly. Each time you remember a fact correctly, it will be scheduled at progressively longer and longer time intervals into the future. These time intervals may start at a day and could end up being over a year into the future after you've proven that you can remember it a few times. This way, you won't waste too much time studying facts which you find very easy, and you can optimize your time by focussing more on the things which you are struggling with. (See also: forgetting curve)
+```fd
+How old is the Earth?: 4.5 billion years
+```
+
+Another type of card may have a word on one side, for example "Epistemology", and on the back would be the definition "the study of knowledge acquisition", which again in Flashdown would look like this:
+
+```fd
+Epistemology: the study of knowledge acquisition
+```
+
+Yet another use is for language learning in which case you might put the same word in different languages on each side of the card, for example:
+
+```fd
+Hola: Hello
+```
+
+One way in which some apps improve upon physical flashcards is in their use of a scheduling algorithm. Basically, after being shown the flip side of a card you are asked whether you remembered the answer. If you self-report having remembered the information, then this card will be scheduled for review some time X days in the future. If you report having _not remembered_ the information, then the card will be repeated within your current practice session, and then will be scheduled for a time _less than_ X days in the future (i.e. less than the time you'd wait had you remembered it correctly). Each time you remember a fact correctly, it will be scheduled at progressively longer and longer time intervals into the future. These intervals may start at 1 day and can end up being over a year after you've shown that you can remember it accurately a few times. This way, you won't waste too much time studying facts which you find very easy, and you can optimize your time by focussing more on the things which you are struggling with. (See also: [Forgetting curve](https://en.wikipedia.org/wiki/Forgetting_curve))
 
 ## Why use a plain text markup language (.fd) for flashcards?
 
@@ -86,12 +102,13 @@ Disadvantages:
 
 A few reasons:
 
-- Keeps UI complexity low, allowing for a simpler code base, at least for this initial version
-- For now this is intended to appeal to other hackers, people who spend a lot of their time on the command line anyway
-- Flashcard apps work just fine with keyboard only input
-- I liked the idea of working within a different set of constraints compared to what I usually work in, which is full stack web dev
+- Keeps UI code complexity low, allowing for faster development and a simpler code base
+- For now this is intended to appeal to other hackers who spend a lot of their time on the command line anyway
+- Flashcard apps work just fine with keyboard input
+- I liked the idea of working within a different set of constraints (compared to web development)
+- I thought it would be fun to play with an anachronistic retro aesthetic
 
-That said, if enough interest is shown in this project, I could certainly see it breaking free of it's command line origins, both to appeal to more people and to allow extra features like images.
+(That said, I wouldn't rule out creating a web version of this later if there's interest)
 
 ## Key missing features
 
