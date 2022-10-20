@@ -82,6 +82,10 @@ const normalizeLine = (line: string) => {
 const renderToTerminal = async (model: TerminalViewModel) => {
   renderCount++;
 
+  if (renderCount === 0) {
+    process.stdout.write(ansiEscapes.enableAlternativeBuffer);
+  }
+
   const { lines, cursorPosition } = model.textWithCursor;
 
   process.stdin.write(ansiEscapes.hideCursor);

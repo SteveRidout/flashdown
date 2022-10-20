@@ -64,21 +64,27 @@ export const init = (
     return;
   }
 
+  initUserProvidedFile(userProvidedFileName, updateCallback);
+};
+
+const initUserProvidedFile = (
+  userProvidedFileName: string,
+  updateCallback: (status: FilesStatus) => void
+) => {
   // Check for existence of the user provided filename
-  if (
-    !fs.existsSync(userProvidedFileName) &&
-    !userProvidedFileName.endsWith(".fd")
-  ) {
-    // Try adding .fd to see if that works
-    userProvidedFileName += ".fd";
-    if (fs.existsSync(userProvidedFileName)) {
-      fileNames = [userProvidedFileName];
-      updateCallback("files-found");
-      return;
-    }
+  if (fs.existsSync(userProvidedFileName)) {
+    fileNames = [userProvidedFileName];
+    updateCallback("files-found");
+    return;
+  }
+
+  if (userProvidedFileName.endsWith(".fd")) {
     updateCallback("user-specified-file-not-found");
     return;
   }
+
+  // Try again with the .fd extension
+  initUserProvidedFile(`${userProvidedFileName}.fd`, updateCallback);
 };
 
 export const getFileNames = () => fileNames;

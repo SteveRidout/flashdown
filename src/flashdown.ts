@@ -19,8 +19,6 @@ program.parse(process.argv);
 
 config.setOptions(program.opts());
 
-process.stdout.write(ansiEscapes.enableAlternativeBuffer);
-
 debug.log("Start app");
 debug.log("---------");
 
