@@ -22,8 +22,8 @@ export const render = (): TerminalViewModel => {
               "Hit SPACE to install these 2 starter decks to ~/.flashdown"
             ),
             "",
-            chalk.cyanBright(
-              "(or, feel free to add your own .fd file(s) to ~/.flashdown instead)"
+            chalk.gray(
+              "(or, feel free to add .fd files of your own to ~/.flashdown instead)"
             ),
           ],
         },
