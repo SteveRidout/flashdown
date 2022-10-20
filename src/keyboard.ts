@@ -1,11 +1,14 @@
 import * as readline from "readline";
 
 import * as ansiEscapes from "./ansiEscapes";
+import * as debug from "./debug";
+import { KeyPressInfo } from "./types";
 
 readline.emitKeypressEvents(process.stdin);
 
 process.stdin.setRawMode(true);
 process.stdin.on("keypress", (str, key) => {
+  debug.log(JSON.stringify({ key, str }));
   // Allow user to exit with CTRL-C
   if (key.name === "c" && key.ctrl) {
     process.stdout.write(ansiEscapes.showCursor);
@@ -18,8 +21,11 @@ process.stdin.on("keypress", (str, key) => {
       return;
 
     case "await-keypress":
-      if (state.permittedKeys.includes(key.name)) {
-        state.onKeyPress(key.name);
+      if (
+        state.permittedKeys === undefined ||
+        state.permittedKeys.includes(key.name)
+      ) {
+        state.onKeyPress(str, key);
         state = { type: "ignore" };
       }
       return;
@@ -61,8 +67,8 @@ type State =
     }
   | {
       type: "await-keypress";
-      permittedKeys: string[];
-      onKeyPress: (keyName: string) => void;
+      permittedKeys?: string[];
+      onKeyPress: (str: string, key: KeyPressInfo) => void;
     }
   | {
       type: "await-line";
@@ -74,18 +80,18 @@ type State =
 
 let state: State = { type: "ignore" };
 
-export const readKeypress = (permittedKeys: string[]): Promise<string> =>
-  new Promise<string>(
-    (resolve: (value: string) => void, reject: (reason: string) => void) => {
-      state = {
-        type: "await-keypress",
-        permittedKeys,
-        onKeyPress: (keyName: string) => {
-          resolve(keyName);
-        },
-      };
-    }
-  );
+export const readKeypress = (
+  permittedKeys?: string[]
+): Promise<{ str: string; key: KeyPressInfo }> =>
+  new Promise<{ str: string; key: KeyPressInfo }>((resolve, _reject) => {
+    state = {
+      type: "await-keypress",
+      permittedKeys,
+      onKeyPress: (str: string, key: KeyPressInfo) => {
+        resolve({ str, key });
+      },
+    };
+  });
 
 export const readLine = (
   onChange: (input: string, cursorPosition: number) => void

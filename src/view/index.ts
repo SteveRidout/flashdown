@@ -17,11 +17,12 @@ import * as onboardingPage from "./onboardingPage";
 import * as ansiEscapes from "../ansiEscapes";
 import { sleep } from "../utils";
 import config from "../config";
+import * as keyboard from "../keyboard";
 
 // Would be nice to do clever diffing here so that we only need to update what actually changed like
 // React does, but for now it simply re-renders everything.
 
-export const updateView = (appState: AppState) => {
+export const updateView = async (appState: AppState) => {
   const terminalViewModel: TerminalViewModel = (() => {
     if (appState.modalMessage) {
       return alertModal.render(appState.modalMessage);
@@ -49,6 +50,11 @@ export const updateView = (appState: AppState) => {
   })();
 
   renderToTerminal(terminalViewModel);
+
+  if (terminalViewModel.keyPressHandler) {
+    const { str, key } = await keyboard.readKeypress();
+    terminalViewModel.keyPressHandler(str, key);
+  }
 };
 
 /** Counts the number of renders we've done so far */

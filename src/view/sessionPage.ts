@@ -116,6 +116,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       ? 1
       : 0);
   const animations: Animation[] = [];
+
   addLine();
   if (numberCompleted > previousCompletedCards) {
     addLine(

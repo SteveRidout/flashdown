@@ -1,3 +1,11 @@
+import { program } from "commander";
+
+/** These options come from the command line */
+const options: {
+  file?: string;
+  test?: boolean;
+} = program.opts();
+
 export default {
   /** Ideal number of cards per session */
   targetCardsPerSession: 10,
@@ -7,4 +15,6 @@ export default {
 
   /** The maximum number of columns to use when rendering the UI */
   maxColumnWidth: 78,
+
+  ...options,
 };
