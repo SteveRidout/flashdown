@@ -4,7 +4,7 @@ import * as _ from "lodash";
 import { program } from "commander";
 
 import * as keyboard from "./keyboard";
-import * as cardDAL from "./dal/cardDAL";
+import * as flashdownFileDAL from "./dal/flashdownFileDAL";
 import * as practiceRecordDAL from "./dal/practiceRecordDAL";
 import {
   CardWithLearningMetrics,
@@ -105,7 +105,9 @@ const showHome = async () => {
   const fileNames = flashdownFilesDAL.getFileNames();
 
   // Get home page data
-  const cards = fileNames.map((fileName) => cardDAL.getCards(fileName));
+  const cards = fileNames.map((fileName) =>
+    flashdownFileDAL.getCards(fileName)
+  );
   const recordsMap = fileNames.reduce(
     (memo, fileName) => ({
       ...memo,
