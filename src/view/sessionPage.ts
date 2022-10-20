@@ -374,7 +374,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         if (!["space", "return"].includes(key.name)) {
           return;
         }
-        actions.processNextCard(stage.score);
+        actions.progressToNextCard(stage.score);
       };
       break;
 
@@ -433,8 +433,10 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       }
 
       if (stage.type === "finished") {
+        // Not waiting for keypress in this case, instead just move to the next card after a short
+        // delay
         setTimeout(() => {
-          actions.processNextCard(score);
+          actions.progressToNextCard(score);
         }, 800);
       } else {
         keyPressHandler = (_str, key) => {

@@ -5,7 +5,6 @@ import { program } from "commander";
 
 import { FilesStatus } from "./types";
 import * as debug from "./debug";
-import * as ansiEscapes from "./ansiEscapes";
 import * as appState from "./appState";
 import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
 import * as onboardingPageController from "./onboardingPageController";

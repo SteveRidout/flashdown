@@ -59,7 +59,7 @@ export const startSession = async (
     },
   });
 
-  processNextCard();
+  progressToNextCard();
 };
 
 const showModal = async (message: string[]) => {
@@ -90,7 +90,13 @@ const showSessionEnd = () => {
   });
 };
 
-export const processNextCard = async (previousScore?: number) => {
+/**
+ * Move to the next card in the session. The previous card will either be removed from the session
+ * if it was remembered correctly, or re-inserted at the end of the session if it wasn't remembered.
+ *
+ * If there are no cards left in the session, this will trigger session end.
+ */
+export const progressToNextCard = async (previousScore?: number) => {
   let sessionPage = appState.get().page;
 
   if (sessionPage.name !== "session") {
@@ -123,7 +129,6 @@ export const processNextCard = async (previousScore?: number) => {
   }
 
   const card = upcomingCards[0];
-
   if (!card) {
     showSessionEnd();
     return;
