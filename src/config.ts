@@ -1,15 +1,3 @@
-import { program } from "commander";
-
-import * as debug from "./debug";
-
-/** These options come from the command line */
-const options: {
-  file?: string;
-  test?: boolean;
-} = program.opts();
-
-debug.log("config (!) options: " + JSON.stringify(program.opts()));
-
 const coreConfig = {
   /** Ideal number of cards per session */
   targetCardsPerSession: 10,

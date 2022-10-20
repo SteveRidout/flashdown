@@ -11,6 +11,7 @@ import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
 import * as onboardingPageController from "./onboardingPageController";
 import * as actions from "./actions";
 import * as config from "./config";
+import * as view from "./view/index";
 
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
@@ -20,11 +21,8 @@ config.setOptions(program.opts());
 
 process.stdout.write(ansiEscapes.enableAlternativeBuffer);
 
-debug.log("--------------");
-debug.log("Start practice");
-debug.log("--------------");
-
-// debug.log("options: " + JSON.stringify(program.opts()));
+debug.log("Start app");
+debug.log("---------");
 
 const handleFilesUpdated = async (status: FilesStatus) => {
   if (status === "user-specified-file-not-found") {
@@ -50,5 +48,5 @@ const handleFilesUpdated = async (status: FilesStatus) => {
 flashdownFilesDAL.init(config.get().file, handleFilesUpdated);
 
 process.stdout.on("resize", () => {
-  debug.log(process.stdout.columns + " " + process.stdout.rows);
+  view.updateView(appState.get(), true);
 });

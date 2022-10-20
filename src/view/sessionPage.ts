@@ -220,7 +220,6 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           return;
         }
 
-        debug.log("session pressed: " + key.name);
         const state = appState.get();
 
         if (state.page.name !== "session") {

@@ -164,8 +164,6 @@ export const render = (
     textWithCursor: { lines },
     animations: [],
     keyPressHandler: (str, key) => {
-      debug.log("pressed " + str);
-
       const state = appState.get();
       if (state.page.name !== "home") {
         throw Error("Unexpected page");

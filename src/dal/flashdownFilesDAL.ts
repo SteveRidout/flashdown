@@ -31,8 +31,6 @@ export const readAndWatchFlashdownFileNamesInHomeDir = (
       path.resolve(os.homedir(), flashdownDirectory, fileName)
     );
 
-  debug.log("found files: " + fileNames);
-
   updateCallback("files-found");
 
   // Close existing watchers

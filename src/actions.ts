@@ -59,9 +59,7 @@ export const startSession = async (
     },
   });
 
-  console.clear();
-
-  await processNextCard();
+  processNextCard();
 };
 
 const showModal = async (message: string[]) => {
@@ -129,13 +127,6 @@ export const processNextCard = async (previousScore?: number) => {
   if (!card) {
     showSessionEnd();
     return;
-  }
-  debug.log("Next card: " + JSON.stringify(card));
-  if ("previousInterval" in card && card.previousInterval) {
-    debug.log(
-      "Previous interval (days): " + card.previousInterval / (24 * 60) + " days"
-    );
-    debug.log("Scheduled time: " + new Date(card.nextPracticeTime * 60 * 1000));
   }
 
   const missingText =

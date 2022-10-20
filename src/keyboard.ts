@@ -8,7 +8,6 @@ readline.emitKeypressEvents(process.stdin);
 
 process.stdin.setRawMode(true);
 process.stdin.on("keypress", (str, key) => {
-  debug.log(JSON.stringify({ key, str }));
   // Allow user to exit with CTRL-C
   if (key.name === "c" && key.ctrl) {
     process.stdout.write(ansiEscapes.showCursor);

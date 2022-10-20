@@ -22,7 +22,10 @@ import * as keyboard from "../keyboard";
 // Would be nice to do clever diffing here so that we only need to update what actually changed like
 // React does, but for now it simply re-renders everything.
 
-export const updateView = async (appState: AppState) => {
+export const updateView = async (
+  appState: AppState,
+  clearTerminal: boolean = false
+) => {
   const terminalViewModel: TerminalViewModel = (() => {
     if (appState.modalMessage) {
       return alertModal.render(appState.modalMessage);
@@ -49,6 +52,9 @@ export const updateView = async (appState: AppState) => {
     }
   })();
 
+  if (clearTerminal) {
+    console.clear();
+  }
   renderToTerminal(terminalViewModel);
 
   if (terminalViewModel.keyPressHandler) {
