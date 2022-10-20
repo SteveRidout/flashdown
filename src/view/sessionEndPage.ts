@@ -1,6 +1,7 @@
 import chalk from "chalk";
 
 import { TerminalViewModel } from "../types";
+import * as actions from "../actions";
 
 const pluralize = (word: string, amount: number) =>
   `${word}${amount === 1 ? "" : "s"}`;
@@ -14,6 +15,7 @@ export const render = (
   return {
     textWithCursor: {
       lines: [
+        "",
         "  Well done!",
         "",
         `${streakPrefix}${previousStreak}${
@@ -45,5 +47,11 @@ export const render = (
               frameDuration: 1000 / 12,
             },
           ],
+    keyPressHandler: (_str, key) => {
+      if (!["space", "return"].includes(key.name)) {
+        return;
+      }
+      actions.showHome();
+    },
   };
 };

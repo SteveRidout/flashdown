@@ -146,10 +146,12 @@ export interface KeyPressInfo {
   shift: boolean;
 }
 
+export type KeyPressHandler = (str: string, key: KeyPressInfo) => void;
+
 export interface TerminalViewModel {
   textWithCursor: TextWithCursor;
   animations: Animation[];
-  keyPressHandler?: (str: string, key: KeyPressInfo) => void;
+  keyPressHandler?: KeyPressHandler;
 }
 
 export type FilesStatus = "user-specified-file-not-found" | "files-found";
