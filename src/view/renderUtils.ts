@@ -2,7 +2,7 @@ import _ from "lodash";
 import chalk from "chalk";
 
 import { TextWithCursor } from "../types";
-import config from "../config";
+import * as config from "../config";
 import * as debug from "../debug";
 
 /**
@@ -193,7 +193,7 @@ export const shiftRight = (
     lines: lines.map(
       (line) =>
         _.repeat(" ", amount) +
-        line.substring(0, config.maxColumnWidth - amount)
+        line.substring(0, config.get().maxColumnWidth - amount)
     ),
     cursorPosition: cursorPosition
       ? { x: cursorPosition.x + amount, y: cursorPosition.y }

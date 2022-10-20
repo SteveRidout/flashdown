@@ -5,7 +5,7 @@ import * as practiceRecordDAL from "./dal/practiceRecordDAL";
 import { CardWithLearningMetrics, HomePageData, SessionPage } from "./types";
 import * as debug from "./debug";
 import * as homePageUtils from "./homePageUtils";
-import config from "./config";
+import * as config from "./config";
 import * as appState from "./appState";
 import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
 
@@ -17,18 +17,18 @@ export const startSession = async (
   const topic = homePageData.topics[fileNameIndex].data[topicIndex];
 
   let upcomingCards: CardWithLearningMetrics[] = topic.learningCardsDue
-    .slice(0, config.targetCardsPerSession)
+    .slice(0, config.get().targetCardsPerSession)
     .map((card) => ({
       ...card.card,
       new: false,
       ...card.learningMetrics,
     }));
 
-  if (upcomingCards.length < config.targetCardsPerSession) {
+  if (upcomingCards.length < config.get().targetCardsPerSession) {
     upcomingCards = [
       ...upcomingCards,
       ...topic.newCards
-        .slice(0, config.targetCardsPerSession - upcomingCards.length)
+        .slice(0, config.get().targetCardsPerSession - upcomingCards.length)
         .map((card) => ({
           ...card,
           new: true as true,
@@ -141,7 +141,7 @@ export const processNextCard = async (previousScore?: number) => {
   const missingText =
     card.direction === "front-to-back" ? card.back : card.front;
 
-  if (missingText.length <= config.typingThreshold) {
+  if (missingText.length <= config.get().typingThreshold) {
     updateSessionPage({
       upcomingCards,
       completedCards,

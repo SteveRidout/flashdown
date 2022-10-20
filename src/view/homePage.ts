@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import config from "../config";
+import * as config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
 import { version as appVersion } from "../../package.json";
@@ -87,7 +87,9 @@ export const render = (
     lines.push(chalk.yellow("  " + line));
   }
   lines.push(
-    chalk.yellow(_.padStart(`v${appVersion} alpha`, config.maxColumnWidth))
+    chalk.yellow(
+      _.padStart(`v${appVersion} alpha`, config.get().maxColumnWidth)
+    )
   );
 
   if (homePageData.streak > 0) {
@@ -105,7 +107,7 @@ export const render = (
 
   const column2Width = 38;
   const columnWidths = [
-    config.maxColumnWidth - column2Width - 2 - 2,
+    config.get().maxColumnWidth - column2Width - 2 - 2,
     column2Width,
   ];
 

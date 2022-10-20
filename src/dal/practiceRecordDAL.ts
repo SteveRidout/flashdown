@@ -4,7 +4,10 @@
 import * as fs from "fs";
 
 import { Direction, Card, PracticeRecord } from "../types";
-import config from "../config";
+import * as config from "../config";
+import * as debug from "../debug";
+
+debug.log("config options:" + JSON.stringify(config));
 
 const parseDirection = (rawDirection: string): Direction => {
   switch (rawDirection) {
@@ -33,7 +36,9 @@ export const writeRecord = (
   direction: Direction,
   success: number
 ) => {
-  if (config.test) {
+  debug.log("config options:" + JSON.stringify(config));
+  if (config.get().test) {
+    debug.log("NOT writing practice record");
     return;
   }
 

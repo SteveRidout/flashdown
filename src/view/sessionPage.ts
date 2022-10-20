@@ -10,7 +10,7 @@ import {
   Animation,
   KeyPressHandler,
 } from "../types";
-import config from "../config";
+import * as config from "../config";
 import * as debug from "../debug";
 import * as appState from "../appState";
 import * as actions from "../actions";
@@ -130,7 +130,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         )
     );
     // Add animation
@@ -141,17 +141,17 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         ),
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.25 + numberCompleted * 0.75,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         ),
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         ),
       ],
       initialDelay: 20,
@@ -164,7 +164,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         )
     );
   }
@@ -531,7 +531,7 @@ export const createCard = (
 
   const cardWithoutNote = addFrame(
     renderUtils.joinSections(lines),
-    config.maxColumnWidth,
+    config.get().maxColumnWidth,
     leftMargin
   );
 
@@ -541,7 +541,7 @@ export const createCard = (
 
   const renderedNote = addFrame(
     { lines: [`${note}`] },
-    config.maxColumnWidth - 2 - leftMargin
+    config.get().maxColumnWidth - 2 - leftMargin
   );
 
   return renderUtils.overlay(cardWithoutNote, renderedNote.lines, {

@@ -10,11 +10,13 @@ import * as appState from "./appState";
 import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
 import * as onboardingPageController from "./onboardingPageController";
 import * as actions from "./actions";
-import config from "./config";
+import * as config from "./config";
 
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
 program.parse(process.argv);
+
+config.setOptions(program.opts());
 
 process.stdout.write(ansiEscapes.enableAlternativeBuffer);
 
@@ -22,11 +24,11 @@ debug.log("--------------");
 debug.log("Start practice");
 debug.log("--------------");
 
-debug.log("options: " + JSON.stringify(program.opts()));
+// debug.log("options: " + JSON.stringify(program.opts()));
 
 const handleFilesUpdated = async (status: FilesStatus) => {
   if (status === "user-specified-file-not-found") {
-    console.error(`Error: File not found: ${config.file}`);
+    console.error(`Error: File not found: ${config.get().file}`);
     console.error();
     process.exit();
   }
@@ -45,7 +47,7 @@ const handleFilesUpdated = async (status: FilesStatus) => {
   }
 };
 
-flashdownFilesDAL.init(config.file, handleFilesUpdated);
+flashdownFilesDAL.init(config.get().file, handleFilesUpdated);
 
 process.stdout.on("resize", () => {
   debug.log(process.stdout.columns + " " + process.stdout.rows);
