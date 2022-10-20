@@ -1,6 +1,6 @@
 # What is Flashdown?
 
-Flashdown is an interactive NodeJS flashcard app with a CLI (command line interface) which uses a custom markup language to specify flashcards in human readable plain text files.
+Flashdown is an interactive NodeJS flashcard app with a CLI (command line interface) which stores all its data in human readable and editable plain text files.
 
 ## WARNING: Alpha version
 
