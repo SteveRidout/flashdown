@@ -1,4 +1,4 @@
-export default {
+const coreConfig = {
   /** Ideal number of cards per session */
   targetCardsPerSession: 10,
 
@@ -8,3 +8,14 @@ export default {
   /** The maximum number of columns to use when rendering the UI */
   maxColumnWidth: 78,
 };
+
+let config: typeof coreConfig & {
+  file?: string;
+  test?: boolean;
+} = coreConfig;
+
+export const setOptions = (options: { file?: string; test?: boolean }) => {
+  config = { ...config, ...options };
+};
+
+export const get = () => config;

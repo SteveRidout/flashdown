@@ -1,10 +1,13 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import config from "../config";
+import * as config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
 import { version as appVersion } from "../../package.json";
+import * as actions from "../actions";
+import * as debug from "../debug";
+import * as appState from "../appState";
 
 const elideText = (text: string, maxLength: number): string => {
   if (text.length < maxLength) {
@@ -84,7 +87,9 @@ export const render = (
     lines.push(chalk.yellow("  " + line));
   }
   lines.push(
-    chalk.yellow(_.padStart(`v${appVersion} alpha`, config.maxColumnWidth))
+    chalk.yellow(
+      _.padStart(`v${appVersion} alpha`, config.get().maxColumnWidth)
+    )
   );
 
   if (homePageData.streak > 0) {
@@ -102,7 +107,7 @@ export const render = (
 
   const column2Width = 38;
   const columnWidths = [
-    config.maxColumnWidth - column2Width - 2 - 2,
+    config.get().maxColumnWidth - column2Width - 2 - 2,
     column2Width,
   ];
 
@@ -158,5 +163,52 @@ export const render = (
   return {
     textWithCursor: { lines },
     animations: [],
+    keyPressHandler: (str, key) => {
+      const state = appState.get();
+      if (state.page.name !== "home") {
+        throw Error("Unexpected page");
+      }
+
+      const fileNameIndex = state.page.selectedFileNameIndex;
+      const topicIndex = state.page.selectedTopicIndex;
+
+      switch (key.name) {
+        case "space":
+        case "return":
+          actions.startSession(homePageData, fileNameIndex, topicIndex);
+          break;
+
+        case "up":
+        case "k":
+          if (topicIndex === 0 && fileNameIndex > 0) {
+            actions.updateHomePage(
+              fileNameIndex - 1,
+              homePageData.topics[fileNameIndex - 1].data.length - 1
+            );
+          } else if (topicIndex > 0) {
+            actions.updateHomePage(fileNameIndex, topicIndex - 1);
+          } else {
+            actions.updateHomePage(fileNameIndex, topicIndex);
+          }
+          break;
+
+        case "down":
+        case "j":
+          if (
+            topicIndex === homePageData.topics[fileNameIndex].data.length - 1 &&
+            fileNameIndex < homePageData.topics.length - 1
+          ) {
+            actions.updateHomePage(fileNameIndex + 1, 0);
+          } else if (
+            topicIndex <
+            homePageData.topics[fileNameIndex].data.length - 1
+          ) {
+            actions.updateHomePage(fileNameIndex, topicIndex + 1);
+          } else {
+            actions.updateHomePage(fileNameIndex, topicIndex);
+          }
+          break;
+      }
+    },
   };
 };

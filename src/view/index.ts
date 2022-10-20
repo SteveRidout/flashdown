@@ -16,12 +16,16 @@ import * as sessionEndPage from "./sessionEndPage";
 import * as onboardingPage from "./onboardingPage";
 import * as ansiEscapes from "../ansiEscapes";
 import { sleep } from "../utils";
-import config from "../config";
+import * as config from "../config";
+import * as keyboard from "../keyboard";
 
 // Would be nice to do clever diffing here so that we only need to update what actually changed like
 // React does, but for now it simply re-renders everything.
 
-export const updateView = (appState: AppState) => {
+export const updateView = async (
+  appState: AppState,
+  clearTerminal: boolean = false
+) => {
   const terminalViewModel: TerminalViewModel = (() => {
     if (appState.modalMessage) {
       return alertModal.render(appState.modalMessage);
@@ -48,7 +52,15 @@ export const updateView = (appState: AppState) => {
     }
   })();
 
+  if (clearTerminal) {
+    console.clear();
+  }
   renderToTerminal(terminalViewModel);
+
+  if (terminalViewModel.keyPressHandler) {
+    const { str, key } = await keyboard.readKeypress();
+    terminalViewModel.keyPressHandler(str, key);
+  }
 };
 
 /** Counts the number of renders we've done so far */
@@ -64,11 +76,15 @@ const normalizeLine = (line: string) => {
 
   // XXX Would be good to also restrict the length of each line so that it can't exceed
   // config.maxColumnWidth
-  return line + _.repeat(" ", config.maxColumnWidth - onScreenLength);
+  return line + _.repeat(" ", config.get().maxColumnWidth - onScreenLength);
 };
 
 const renderToTerminal = async (model: TerminalViewModel) => {
   renderCount++;
+
+  if (renderCount === 0) {
+    process.stdout.write(ansiEscapes.enableAlternativeBuffer);
+  }
 
   const { lines, cursorPosition } = model.textWithCursor;
 
@@ -86,7 +102,7 @@ const renderToTerminal = async (model: TerminalViewModel) => {
           .split("")
           .map(
             (character) => (character === " " ? " " : chalk.bgBlackBright("#")),
-            config.maxColumnWidth
+            config.get().maxColumnWidth
           )
           .join("")
       );
@@ -175,7 +191,7 @@ const runAnimation = async (
     case "horizontal-pan":
       const xOffsets = [
         0, 1, 1, 2, 3, 5, 7, 16, 25, 40, 55, 64, 73, 75, 77, 78, 79, 79, 80,
-      ].map((x) => Math.round(x * config.maxColumnWidth) / 80);
+      ].map((x) => Math.round(x * config.get().maxColumnWidth) / 80);
 
       if (frameIndex > xOffsets.length) {
         // We're done
@@ -245,11 +261,22 @@ const createComposite = (
   const lines: string[] = [];
 
   for (let y = 0; y < Math.max(aRange.lines.length, bRange.lines.length); y++) {
-    const aLine = _.padEnd(aRange.lines[y] ?? "", config.maxColumnWidth, " ");
-    const bLine = _.padEnd(bRange.lines[y] ?? "", config.maxColumnWidth, " ");
+    const aLine = _.padEnd(
+      aRange.lines[y] ?? "",
+      config.get().maxColumnWidth,
+      " "
+    );
+    const bLine = _.padEnd(
+      bRange.lines[y] ?? "",
+      config.get().maxColumnWidth,
+      " "
+    );
 
     lines.push(
-      (aLine.substring(xOffset) + bLine).substring(0, config.maxColumnWidth)
+      (aLine.substring(xOffset) + bLine).substring(
+        0,
+        config.get().maxColumnWidth
+      )
     );
   }
 

@@ -138,9 +138,20 @@ export type Animation =
       };
     };
 
+export interface KeyPressInfo {
+  sequence: string;
+  name: string;
+  ctrl: boolean;
+  meta: boolean;
+  shift: boolean;
+}
+
+export type KeyPressHandler = (str: string, key: KeyPressInfo) => void;
+
 export interface TerminalViewModel {
   textWithCursor: TextWithCursor;
   animations: Animation[];
+  keyPressHandler?: KeyPressHandler;
 }
 
 export type FilesStatus = "user-specified-file-not-found" | "files-found";

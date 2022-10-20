@@ -1,7 +1,7 @@
 import chalk from "chalk";
 
 import { TerminalViewModel } from "../types";
-import config from "../config";
+import * as config from "../config";
 import * as renderUtils from "./renderUtils";
 
 export const render = (): TerminalViewModel => {
@@ -27,7 +27,7 @@ export const render = (): TerminalViewModel => {
             ),
           ],
         },
-        config.maxColumnWidth - 2
+        config.get().maxColumnWidth - 2
       ),
       2
     ),

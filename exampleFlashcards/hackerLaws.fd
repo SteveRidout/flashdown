@@ -13,8 +13,8 @@ Parkinson's law: Work expands so as to fill the time available for its completio
 Moore's law: The number of transistors in an integrated circuit doubles about every two years
 Murphy's law: Anything that can go wrong will go wrong (also called Sod's law)
 Postel's law: (Also called Robustness Principle) Be conservative in what you send, liberal in what you accept (not necessarily a good idea, see Hyrum's law)
-Hyrum's law: With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody
-Peter principle: People in a hierarchy tend to rise to thier level of incompetence
+Hyrum's law: With a sufficient number of users of an API, it does not matter what you promise in the contract, all observable behaviors of your system will be depended on by somebody
+Peter principle: People in a hierarchy tend to rise to their level of incompetence
 Pareto principle: 80% of the results come from 20% of the effort
 Streisand effect: Any attempt to hide, remove or censor a piece of information has the unintended consequence of publicizing the information more widely
 Eagleson's law: Any code of your own that you haven't looked at for six or more months might as well have been written by someone else

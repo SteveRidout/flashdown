@@ -4,6 +4,8 @@
 import * as fs from "fs";
 
 import { Direction, Card, PracticeRecord } from "../types";
+import * as config from "../config";
+import * as debug from "../debug";
 
 const parseDirection = (rawDirection: string): Direction => {
   switch (rawDirection) {
@@ -32,6 +34,11 @@ export const writeRecord = (
   direction: Direction,
   success: number
 ) => {
+  if (config.get().test) {
+    debug.log("Not writing practice record since we're in test mode");
+    return;
+  }
+
   const fileName = getPracticeRecordFilename(cardsFileName);
 
   if (!fs.existsSync(fileName)) {

@@ -8,8 +8,13 @@ import {
   TextWithCursor,
   TerminalViewModel,
   Animation,
+  KeyPressHandler,
 } from "../types";
-import config from "../config";
+import * as config from "../config";
+import * as debug from "../debug";
+import * as appState from "../appState";
+import * as actions from "../actions";
+import * as gradingUtils from "../gradingUtils";
 
 const blankText = (input: string) =>
   input
@@ -116,6 +121,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       ? 1
       : 0);
   const animations: Animation[] = [];
+  let keyPressHandler: KeyPressHandler | undefined;
+
   addLine();
   if (numberCompleted > previousCompletedCards) {
     addLine(
@@ -123,7 +130,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         )
     );
     // Add animation
@@ -134,17 +141,17 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         ),
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.25 + numberCompleted * 0.75,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         ),
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         ),
       ],
       initialDelay: 20,
@@ -157,7 +164,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.maxColumnWidth - 2
+          config.get().maxColumnWidth - 2
         )
     );
   }
@@ -207,6 +214,27 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           },
         });
       }
+
+      keyPressHandler = (_str, key) => {
+        if (!["space", "return"].includes(key.name)) {
+          return;
+        }
+
+        const state = appState.get();
+
+        if (state.page.name !== "session") {
+          throw Error("Unexpected state");
+        }
+
+        appState.setState({
+          ...state,
+          page: {
+            ...state.page,
+            stage: { type: "second-side-revealed", selectedScore: 2 },
+          },
+        });
+      };
+
       break;
     }
 
@@ -254,6 +282,65 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           },
         });
       }
+
+      keyPressHandler = (str, key) => {
+        let { input, cursorPosition } = stage;
+
+        const state = appState.get();
+
+        if (state.page.name !== "session") {
+          throw Error("Unexpected state");
+        }
+
+        if (key.name === "backspace") {
+          if (input.length > 0) {
+            input =
+              input.substring(0, cursorPosition - 1) +
+              input.substring(cursorPosition);
+            cursorPosition = Math.max(0, cursorPosition - 1);
+          }
+        } else if (key.name === "left") {
+          cursorPosition = Math.max(0, cursorPosition - 1);
+        } else if (key.name === "right") {
+          cursorPosition = Math.min(input.length, cursorPosition + 1);
+        } else if (key.name === "enter" || key.name === "return") {
+          const missingText =
+            card.direction === "front-to-back" ? card.back : card.front;
+          const match = gradingUtils.editDistance(
+            gradingUtils.normalizeAnswer(input),
+            gradingUtils.normalizeAnswer(missingText)
+          );
+
+          const score = match === "exact" ? 4 : match === "almost" ? 2 : 1;
+
+          actions.updateSessionPage({
+            ...state.page,
+            stage: {
+              type: "second-side-typed",
+              input,
+              score,
+            },
+          });
+          return;
+        } else if (str && str.length > 0) {
+          input =
+            input.substring(0, cursorPosition) +
+            str +
+            input.substring(cursorPosition);
+          cursorPosition += str.length;
+        }
+
+        actions.updateSessionPage({
+          ...state.page,
+          stage: {
+            type: "first-side-type",
+            input,
+            cursorPosition,
+          },
+        });
+        return;
+      };
+
       break;
     }
 
@@ -282,6 +369,13 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       addLine();
       addLine();
       addLine(chalk.cyanBright("  Hit SPACE to continue"));
+
+      keyPressHandler = (_str, key) => {
+        if (!["space", "return"].includes(key.name)) {
+          return;
+        }
+        actions.progressToNextCard(stage.score);
+      };
       break;
 
     case "second-side-revealed":
@@ -337,6 +431,80 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           );
         }
       }
+
+      if (stage.type === "finished") {
+        // Not waiting for keypress in this case, instead just move to the next card after a short
+        // delay
+        setTimeout(() => {
+          actions.progressToNextCard(score);
+        }, 800);
+      } else {
+        keyPressHandler = (_str, key) => {
+          const keyName = key.name;
+          const state = appState.get();
+          if (
+            state.page.name !== "session" ||
+            state.page.stage.type !== "second-side-revealed"
+          ) {
+            throw Error("Unexpected state");
+          }
+
+          switch (keyName) {
+            case "up":
+            case "k":
+              // selectedScore = Math.max(1, selectedScore - 1);
+              actions.updateSessionPage({
+                stage: {
+                  type: "second-side-revealed",
+                  selectedScore: Math.max(
+                    1,
+                    state.page.stage.selectedScore - 1
+                  ),
+                },
+              });
+
+              break;
+
+            case "down":
+            case "j":
+              actions.updateSessionPage({
+                stage: {
+                  type: "second-side-revealed",
+                  selectedScore: Math.min(
+                    4,
+                    state.page.stage.selectedScore + 1
+                  ),
+                },
+              });
+              break;
+
+            case "1":
+            case "2":
+            case "3":
+            case "4": {
+              const score = parseInt(keyName, 10);
+              actions.updateSessionPage({
+                stage: { type: "finished", score },
+              });
+              break;
+            }
+
+            case "space":
+            case "return":
+              actions.updateSessionPage({
+                stage: {
+                  type: "finished",
+                  score: state.page.stage.selectedScore,
+                },
+              });
+              break;
+
+            default:
+              return;
+          }
+        };
+      }
+
       break;
   }
 
@@ -345,6 +513,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   return {
     textWithCursor: renderUtils.joinSections(lines),
     animations,
+    keyPressHandler,
   };
 };
 
@@ -363,7 +532,7 @@ export const createCard = (
 
   const cardWithoutNote = addFrame(
     renderUtils.joinSections(lines),
-    config.maxColumnWidth,
+    config.get().maxColumnWidth,
     leftMargin
   );
 
@@ -373,7 +542,7 @@ export const createCard = (
 
   const renderedNote = addFrame(
     { lines: [`${note}`] },
-    config.maxColumnWidth - 2 - leftMargin
+    config.get().maxColumnWidth - 2 - leftMargin
   );
 
   return renderUtils.overlay(cardWithoutNote, renderedNote.lines, {
