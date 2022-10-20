@@ -4,7 +4,7 @@ Flashdown is an interactive Node.js flashcard app with a CLI (command line inter
 
 ## WARNING: Alpha version
 
-This is new software which hasn't been tested by anyone except for me on my macOS machine. Use at your own risk!
+This is new software which hasn't been tested by many people yet. Use at your own risk!
 
 That said, I'd love for you to try it out and please [open an issue on GitHub](https://github.com/SteveRidout/flashdown/issues) if you come across any problems!
 
