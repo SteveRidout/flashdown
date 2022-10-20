@@ -1,18 +1,20 @@
-# What is Flashdown?
+# Flashdown
+
+_Bringing flashcards into the 1980s! (since 2022)_
 
 Flashdown is an interactive Node.js flashcard app with a CLI (command line interface) which stores all its data in human readable and editable plain text files.
-
-## WARNING: Alpha version
-
-This is new software which hasn't been tested by many people yet. Use at your own risk!
-
-That said, I'd love for you to try it out and please [open an issue on GitHub](https://github.com/SteveRidout/flashdown/issues) if you come across any problems!
 
 ## Screenshots
 
 ![Home page screenshot](https://github.com/SteveRidout/flashdown/blob/master/docs/images/screenshotHome.png)
 
 ![In session screenshot](https://github.com/SteveRidout/flashdown/blob/master/docs/images/screenshotSession.png)
+
+## WARNING: Alpha version
+
+This is new software which hasn't been tested by many people yet. Use at your own risk!
+
+That said, I'd love for you to try it out and please [open an issue on GitHub](https://github.com/SteveRidout/flashdown/issues) if you come across any problems!
 
 ## How to use
 
