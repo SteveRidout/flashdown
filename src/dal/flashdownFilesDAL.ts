@@ -108,9 +108,7 @@ export const copyOnboardingExample = () => {
     }
 
     const data = fs.readFileSync(source);
-    const result = fs.appendFileSync(target, data);
+    fs.appendFileSync(target, data);
     fs.appendFileSync(target, "\n");
-
-    debug.log("copied " + baseFileName + "? : " + result);
   }
 };

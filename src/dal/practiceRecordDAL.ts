@@ -75,7 +75,6 @@ export const writeRecord = (
 
     fileNameToLatestLogFileSectionDate[cardsFileName] = date.getTime();
   }
-  debug.log("writing to log file: " + fileName + " " + card.front);
   fs.appendFileSync(
     fileName,
     `\n${card.front}, ${serializeDirection(direction)}: ${success}`

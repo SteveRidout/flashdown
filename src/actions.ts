@@ -197,13 +197,6 @@ export const showHome = async () => {
     {}
   );
   const homePageData = homePageUtils.calcHomePageData(cards, recordsMap);
-  debug.log(
-    JSON.stringify(
-      homePageData.topics.map(
-        (t) => `${t.fileName} - ${t.data.map((d) => d.name)}`
-      )
-    )
-  );
 
   appState.setState({
     homePageData,
