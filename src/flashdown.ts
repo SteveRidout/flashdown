@@ -21,6 +21,12 @@ config.setOptions(program.opts());
 debug.log("Start app");
 debug.log("---------");
 
+const showOrUpdateHomeIfAppropriate = () => {
+  if (appState.get() === undefined || appState.get().page.name === "home") {
+    actions.showHome();
+  }
+};
+
 const handleFilesUpdated = async (status: FilesStatus) => {
   if (status === "user-specified-file-not-found") {
     console.error(`Error: File not found: ${config.get().file}`);
@@ -37,9 +43,7 @@ const handleFilesUpdated = async (status: FilesStatus) => {
     return;
   }
 
-  if (appState.get() === undefined || appState.get().page.name === "home") {
-    actions.showHome();
-  }
+  showOrUpdateHomeIfAppropriate();
 };
 
 flashdownFilesDAL.init(config.get().file, handleFilesUpdated);
@@ -47,3 +51,8 @@ flashdownFilesDAL.init(config.get().file, handleFilesUpdated);
 process.stdout.on("resize", () => {
   view.updateView(appState.get(), true);
 });
+
+// Update homepage every hour for users who leave the app open a long time
+setInterval(() => {
+  showOrUpdateHomeIfAppropriate();
+}, 60 * 60 * 1000);

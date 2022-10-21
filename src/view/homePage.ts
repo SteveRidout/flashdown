@@ -6,7 +6,6 @@ import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
 import { version as appVersion } from "../../package.json";
 import * as actions from "../actions";
-import * as debug from "../debug";
 import * as appState from "../appState";
 
 const elideText = (text: string, maxLength: number): string => {

@@ -37,8 +37,10 @@ export const startSession = async (
   }
 
   if (upcomingCards.length === 0) {
-    const nextTime =
-      topic.learningCardsNotDue[0].learningMetrics.nextPracticeTime;
+    const upcomingPracticeTimes = topic.learningCardsNotDue
+      .map((card) => card.learningMetrics.nextPracticeTime)
+      .sort((a, b) => a - b);
+    const nextTime = upcomingPracticeTimes[0];
     const nextDateString = new Date(nextTime * 1000 * 60).toLocaleString();
     showModal([
       "No cards ready to study in this topic. This is because the spaced repetition " +

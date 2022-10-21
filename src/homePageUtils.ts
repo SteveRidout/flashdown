@@ -9,6 +9,7 @@ import {
 } from "./types";
 import * as spacedRepetition from "./spacedRepetition";
 import * as utils from "./utils";
+import * as debug from "./debug";
 
 interface TopicMap {
   [name: string]: TopicData;
@@ -30,6 +31,7 @@ export const calcHomePageData = (
     };
   }
 ): HomePageData => {
+  debug.log("calc home page data");
   const currentTime = Math.floor(new Date().getTime() / (60 * 1000));
   const currentWholeDate = utils.wholeDate(currentTime);
 

@@ -27,7 +27,16 @@ const serializeDirection = (direction: Direction) => {
   }
 };
 
-let writtenToLogFile = false;
+/** The time since epoch in ms since we last wrote to the log file. */
+const fileNameToLatestLogFileSectionDate: { [cardsFileName: string]: number } =
+  {};
+
+/**
+ * If more time than this has passed since we last wrote a practice record, append a new date
+ * section.
+ */
+const thresholdBeforeWritingNewDate = 30 * 60 * 1000;
+
 export const writeRecord = (
   cardsFileName: string,
   card: Card,
@@ -45,7 +54,14 @@ export const writeRecord = (
     fs.writeFileSync(fileName, "");
   }
 
-  if (!writtenToLogFile) {
+  const latestLogFileSectionDate =
+    fileNameToLatestLogFileSectionDate[cardsFileName];
+
+  if (
+    latestLogFileSectionDate === undefined ||
+    new Date().getTime() - latestLogFileSectionDate >
+      thresholdBeforeWritingNewDate
+  ) {
     let sessionHeader = "";
     if (
       fs.existsSync(fileName) &&
@@ -53,18 +69,20 @@ export const writeRecord = (
     ) {
       sessionHeader += "\n\n";
     }
-    sessionHeader += `# ${currentDateTimeString()}\n`;
+    const date = new Date();
+    sessionHeader += `# ${dateTimeString(date)}\n`;
     fs.appendFileSync(fileName, sessionHeader);
-    writtenToLogFile = true;
+
+    fileNameToLatestLogFileSectionDate[cardsFileName] = date.getTime();
   }
+  debug.log("writing to log file: " + fileName + " " + card.front);
   fs.appendFileSync(
     fileName,
     `\n${card.front}, ${serializeDirection(direction)}: ${success}`
   );
 };
 
-const currentDateTimeString = () => {
-  const date = new Date();
+const dateTimeString = (date: Date) => {
   return `${date.getFullYear()}-${addZeroPadding(
     date.getMonth() + 1,
     2
