@@ -1,8 +1,8 @@
 import { AppState } from "./types";
 import * as view from "./view/index";
 
-// All app state defined here, kinda like Redux
-
+// All app state stored here. Every time this is updated the view is rerendered.
+// (A bit like the architecture used by Elm and Redux)
 let appState: AppState;
 
 export const setState = (newAppState: AppState) => {

@@ -1,7 +1,6 @@
 import * as readline from "readline";
 
 import * as ansiEscapes from "./ansiEscapes";
-import * as debug from "./debug";
 import { KeyPressInfo } from "./types";
 
 readline.emitKeypressEvents(process.stdin);
