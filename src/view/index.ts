@@ -58,8 +58,11 @@ export const updateView = async (
   renderToTerminal(terminalViewModel);
 
   if (terminalViewModel.keyPressHandler) {
-    const { str, key } = await keyboard.readKeypress();
-    terminalViewModel.keyPressHandler(str, key);
+    let handled = false;
+    do {
+      const { str, key } = await keyboard.readKeypress();
+      handled = terminalViewModel.keyPressHandler(str, key);
+    } while (!handled);
   }
 };
 

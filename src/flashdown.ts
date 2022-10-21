@@ -22,7 +22,10 @@ debug.log("Start app");
 debug.log("---------");
 
 const showOrUpdateHomeIfAppropriate = () => {
-  if (appState.get() === undefined || appState.get().page.name === "home") {
+  if (
+    appState.get() === undefined ||
+    ["home", "onboarding"].includes(appState.get().page.name)
+  ) {
     actions.showHome();
   }
 };
@@ -35,11 +38,10 @@ const handleFilesUpdated = async (status: FilesStatus) => {
   }
 
   if (flashdownFilesDAL.getFileNames().length === 0) {
-    await onboardingPageController.run();
-    flashdownFilesDAL.readAndWatchFlashdownFileNamesInHomeDir(
-      handleFilesUpdated
-    );
-    actions.showHome();
+    appState.setState({
+      ...appState.get(),
+      page: { name: "onboarding" },
+    });
     return;
   }
 

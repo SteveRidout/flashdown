@@ -5,6 +5,7 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { isDebuggerStatement } from "typescript";
 
 import * as debug from "../debug";
 import { FilesStatus } from "../types";
@@ -15,15 +16,15 @@ const flashdownDirectory = path.resolve(os.homedir(), ".flashdown");
 
 let watchers: fs.FSWatcher[] = [];
 
-export const readAndWatchFlashdownFileNamesInHomeDir = (
-  updateCallback: (filesStatus: FilesStatus) => void
-) => {
+let updateCallback: (filesStatus: FilesStatus) => void;
+
+export const readAndWatchFlashdownFileNamesInHomeDir = () => {
   if (!fs.existsSync(flashdownDirectory)) {
     updateCallback("files-found");
     return;
   }
 
-  // Read all files in standard location: ~/.flashdown/notes.fd
+  // Read all files in standard location: ~/.flashdown/*.fd
   fileNames = fs
     .readdirSync(flashdownDirectory)
     .filter((fileName) => fileName.endsWith(".fd"))
@@ -42,35 +43,34 @@ export const readAndWatchFlashdownFileNamesInHomeDir = (
   for (const fileName of fileNames) {
     watchers.push(
       fs.watch(`${fileName}`, () => {
-        readAndWatchFlashdownFileNamesInHomeDir(updateCallback);
+        readAndWatchFlashdownFileNamesInHomeDir();
       })
     );
   }
 
   watchers.push(
     fs.watch(flashdownDirectory, () => {
-      readAndWatchFlashdownFileNamesInHomeDir(updateCallback);
+      readAndWatchFlashdownFileNamesInHomeDir();
     })
   );
 };
 
 export const init = (
   userProvidedFileName: string | undefined,
-  updateCallback: (status: FilesStatus) => void
+  providedUpdateCallback: (status: FilesStatus) => void
 ) => {
+  updateCallback = providedUpdateCallback;
+
   if (userProvidedFileName === undefined) {
     // User didn't provide a filename, so look in the home directory
-    readAndWatchFlashdownFileNamesInHomeDir(updateCallback);
+    readAndWatchFlashdownFileNamesInHomeDir();
     return;
   }
 
-  initUserProvidedFile(userProvidedFileName, updateCallback);
+  initUserProvidedFile(userProvidedFileName);
 };
 
-const initUserProvidedFile = (
-  userProvidedFileName: string,
-  updateCallback: (status: FilesStatus) => void
-) => {
+const initUserProvidedFile = (userProvidedFileName: string) => {
   // Check for existence of the user provided filename
   if (fs.existsSync(userProvidedFileName)) {
     fileNames = [userProvidedFileName];
@@ -84,7 +84,7 @@ const initUserProvidedFile = (
   }
 
   // Try again with the .fd extension
-  initUserProvidedFile(`${userProvidedFileName}.fd`, updateCallback);
+  initUserProvidedFile(`${userProvidedFileName}.fd`);
 };
 
 export const getFileNames = () => fileNames;

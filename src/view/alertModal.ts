@@ -29,9 +29,10 @@ export const render = (message: string[]): TerminalViewModel => {
 
     keyPressHandler: (_str, key) => {
       if (!["space", "return"].includes(key.name)) {
-        return;
+        return false;
       }
       appState.setState({ ...appState.get(), modalMessage: undefined });
+      return true;
     },
   };
 };

@@ -217,7 +217,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
       keyPressHandler = (_str, key) => {
         if (!["space", "return"].includes(key.name)) {
-          return;
+          return false;
         }
 
         const state = appState.get();
@@ -233,6 +233,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
             stage: { type: "second-side-revealed", selectedScore: 2 },
           },
         });
+        return true;
       };
 
       break;
@@ -321,7 +322,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
               score,
             },
           });
-          return;
+          return true;
         } else if (str && str.length > 0) {
           input =
             input.substring(0, cursorPosition) +
@@ -338,9 +339,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
             cursorPosition,
           },
         });
-        return;
+        return true;
       };
-
       break;
     }
 
@@ -372,9 +372,10 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
       keyPressHandler = (_str, key) => {
         if (!["space", "return"].includes(key.name)) {
-          return;
+          return false;
         }
         actions.progressToNextCard(stage.score);
+        return true;
       };
       break;
 
@@ -462,8 +463,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
                   ),
                 },
               });
-
-              break;
+              return true;
 
             case "down":
             case "j":
@@ -476,7 +476,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
                   ),
                 },
               });
-              break;
+              return true;
 
             case "1":
             case "2":
@@ -486,7 +486,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
               actions.updateSessionPage({
                 stage: { type: "finished", score },
               });
-              break;
+              return true;
             }
 
             case "space":
@@ -497,10 +497,10 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
                   score: state.page.stage.selectedScore,
                 },
               });
-              break;
+              return true;
 
             default:
-              return;
+              return false;
           }
         };
       }

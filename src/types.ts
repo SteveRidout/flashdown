@@ -146,7 +146,8 @@ export interface KeyPressInfo {
   shift: boolean;
 }
 
-export type KeyPressHandler = (str: string, key: KeyPressInfo) => void;
+/** Returns true if handled, false if not handled and we should continue listening */
+export type KeyPressHandler = (str: string, key: KeyPressInfo) => boolean;
 
 export interface TerminalViewModel {
   textWithCursor: TextWithCursor;

@@ -14,43 +14,16 @@ process.stdin.on("keypress", (str, key) => {
     process.exit();
   }
 
-  switch (state.type) {
-    case "ignore":
-      return;
-
-    case "await-keypress":
-      if (
-        state.permittedKeys === undefined ||
-        state.permittedKeys.includes(key.name)
-      ) {
-        state.onKeyPress(str, key);
-        state = { type: "ignore" };
-      }
-      return;
+  if (onKeyPress?.(str, key)) {
+    onKeyPress = undefined;
   }
 });
 
-type State =
-  | {
-      type: "ignore";
-    }
-  | {
-      type: "await-keypress";
-      permittedKeys?: string[];
-      onKeyPress: (str: string, key: KeyPressInfo) => void;
-    };
+let onKeyPress: ((str: string, key: KeyPressInfo) => void) | undefined;
 
-let state: State = { type: "ignore" };
-
-export const readKeypress = (
-  permittedKeys?: string[]
-): Promise<{ str: string; key: KeyPressInfo }> =>
+export const readKeypress = (): Promise<{ str: string; key: KeyPressInfo }> =>
   new Promise<{ str: string; key: KeyPressInfo }>((resolve, _reject) => {
-    state = {
-      type: "await-keypress",
-      permittedKeys,
-      onKeyPress: (str: string, key: KeyPressInfo) => {
-        resolve({ str, key });
-      },
+    onKeyPress = (str: string, key: KeyPressInfo) => {
+      resolve({ str, key });
     };
   });

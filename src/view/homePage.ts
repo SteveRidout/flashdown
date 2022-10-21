@@ -162,7 +162,7 @@ export const render = (
   return {
     textWithCursor: { lines },
     animations: [],
-    keyPressHandler: (str, key) => {
+    keyPressHandler: (_str, key) => {
       const state = appState.get();
       if (state.page.name !== "home") {
         throw Error("Unexpected page");
@@ -175,7 +175,7 @@ export const render = (
         case "space":
         case "return":
           actions.startSession(homePageData, fileNameIndex, topicIndex);
-          break;
+          return true;
 
         case "up":
         case "k":
@@ -189,7 +189,7 @@ export const render = (
           } else {
             actions.updateHomePage(fileNameIndex, topicIndex);
           }
-          break;
+          return true;
 
         case "down":
         case "j":
@@ -206,7 +206,10 @@ export const render = (
           } else {
             actions.updateHomePage(fileNameIndex, topicIndex);
           }
-          break;
+          return true;
+
+        default:
+          return false;
       }
     },
   };

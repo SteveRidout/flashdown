@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { TerminalViewModel } from "../types";
 import * as config from "../config";
 import * as renderUtils from "./renderUtils";
+import * as flashdownFilesDAL from "../dal/flashdownFilesDAL";
 
 export const render = (): TerminalViewModel => {
   return {
@@ -32,5 +33,14 @@ export const render = (): TerminalViewModel => {
       2
     ),
     animations: [],
+    keyPressHandler: (_str, key) => {
+      if (!["enter", "space"].includes(key.name)) {
+        return false;
+      }
+      // Copy example file to user's home directory
+      flashdownFilesDAL.copyOnboardingExample();
+      flashdownFilesDAL.readAndWatchFlashdownFileNamesInHomeDir();
+      return true;
+    },
   };
 };

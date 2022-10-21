@@ -49,9 +49,10 @@ export const render = (
           ],
     keyPressHandler: (_str, key) => {
       if (!["space", "return"].includes(key.name)) {
-        return;
+        return false;
       }
       actions.showHome();
+      return true;
     },
   };
 };
