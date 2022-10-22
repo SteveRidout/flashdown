@@ -35,7 +35,7 @@ export const render = (
               type: "frames",
               position: {
                 x: streakPrefix.length,
-                y: 2,
+                y: 3,
               },
               frames: [
                 ".",
