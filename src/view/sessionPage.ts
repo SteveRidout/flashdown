@@ -15,6 +15,8 @@ import * as debug from "../debug";
 import * as appState from "../appState";
 import * as actions from "../actions";
 import * as gradingUtils from "../gradingUtils";
+import { last } from "lodash";
+import { getSpacedRepetitionInfo } from "../spacedRepetition";
 
 const blankText = (input: string) =>
   input
@@ -358,13 +360,13 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
       if (stage.score > 2) {
         addLine("");
-        addLine("  Well done!");
+        addLine(chalk.greenBright(chalk.bold("  Well done!")));
       } else if (stage.score === 2) {
         addLine("");
-        addLine("  Close enough!");
+        addLine(chalk.yellowBright(chalk.bold("  Close enough!")));
       } else if (stage.input.trim() !== "") {
         addLine("");
-        addLine("  Wrong");
+        addLine(chalk.redBright(chalk.bold("  Wrong")));
       }
       addLine();
       addLine();
@@ -413,10 +415,11 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           );
         }
       } else {
+        const didYouRemember = chalk.cyanBright(
+          "  Did you remember? Press the appropriate NUMBER KEY:"
+        );
         addLine(
-          chalk.cyanBright(
-            "  Did you remember? Press the appropriate NUMBER KEY:"
-          )
+          stage.type === "finished" ? chalk.dim(didYouRemember) : didYouRemember
         );
         addLine();
         for (const lineScore of [1, 2, 3, 4]) {
@@ -434,11 +437,23 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       }
 
       if (stage.type === "finished") {
-        // Not waiting for keypress in this case, instead just move to the next card after a short
-        // delay
-        setTimeout(() => {
-          actions.progressToNextCard(score);
-        }, 800);
+        if (config.get().stats) {
+          addLine();
+          addLine(chalk.cyanBright("  Hit SPACE to continue"));
+          keyPressHandler = (_str, key) => {
+            if (!["space", "return"].includes(key.name)) {
+              return false;
+            }
+            actions.progressToNextCard(stage.score);
+            return true;
+          };
+        } else {
+          // Not waiting for keypress in this case, instead just move to the next card after a short
+          // delay
+          setTimeout(() => {
+            actions.progressToNextCard(score);
+          }, 800);
+        }
       } else {
         keyPressHandler = (_str, key) => {
           const keyName = key.name;
@@ -509,6 +524,57 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   }
 
   previousSessionPage = sessionPage;
+
+  if (config.get().stats && !card.new && "previousInterval" in card) {
+    addLine();
+    addLine();
+    const lastPracticeRecord = _.last(card.practiceRecords);
+    if (lastPracticeRecord) {
+      addLine(
+        chalk.gray("  " + "Previous practices: " + card.practiceRecords?.length)
+      );
+      addLine(
+        chalk.gray(
+          "  " +
+            "Previous practice date: " +
+            new Date(lastPracticeRecord.practiceTime * 60 * 1000).toDateString()
+        )
+      );
+    } else {
+      addLine(chalk.gray("  " + "Previous practices: " + 0));
+    }
+    addLine(
+      chalk.gray(
+        "  Previous interval: " +
+          (card.previousInterval === undefined
+            ? "undefined"
+            : (card.previousInterval / 60 / 24).toFixed(1) + " days")
+      )
+    );
+    addLine(chalk.gray("  Previous score: " + card.previousScore));
+    addLine(
+      chalk.gray("  Previous easiness: " + card.easinessFactor.toFixed(2))
+    );
+
+    if (stage.type === "finished" || stage.type === "second-side-typed") {
+      const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords);
+      if (nextSRSInfo) {
+        addLine(
+          chalk.gray(
+            "  Next practice time: " +
+              new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString()
+          )
+        );
+        addLine(
+          chalk.gray(
+            "  Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2)
+          )
+        );
+      } else {
+        addLine("  NO SRS INFO, bug?");
+      }
+    }
+  }
 
   return {
     textWithCursor: renderUtils.joinSections(lines),

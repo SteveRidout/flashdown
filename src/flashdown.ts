@@ -7,13 +7,13 @@ import { FilesStatus } from "./types";
 import * as debug from "./debug";
 import * as appState from "./appState";
 import * as flashdownFilesDAL from "./dal/flashdownFilesDAL";
-import * as onboardingPageController from "./onboardingPageController";
 import * as actions from "./actions";
 import * as config from "./config";
 import * as view from "./view/index";
 
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
+program.option("--stats", "Show spaced repetition stats during session");
 program.parse(process.argv);
 
 config.setOptions(program.opts());
