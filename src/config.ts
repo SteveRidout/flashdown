@@ -6,7 +6,7 @@ const coreConfig = {
   typingThreshold: 20,
 
   /** The maximum number of columns to use when rendering the UI */
-  maxColumnWidth: 78,
+  maxColumnWidth: 50,
 };
 
 interface CLIOptions {

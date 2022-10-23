@@ -46,7 +46,7 @@ const tableDataRow = (
   const restOfWidth = barWidth - text.length;
 
   let result = `${_.padEnd(
-    topic,
+    elideText(topic, topicWidth),
     topicWidth,
     " "
   )}  ${renderUtils.renderProgressBar(
@@ -83,7 +83,9 @@ export const render = (
 ▇▇      ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇   ▇▇▇▇▇▇   ▇▇▇ ▇▇▇  ▇▇   ▇▇▇▇`;
 
   for (const line of title.split("\n")) {
-    lines.push(chalk.yellow("  " + line));
+    lines.push(
+      chalk.yellow(elideText("  " + line, config.get().maxColumnWidth))
+    );
   }
   lines.push(
     chalk.yellow(
@@ -97,14 +99,28 @@ export const render = (
       : `, practice now to make it ${homePageData.streak + 1}!`;
 
     lines.push("");
-    lines.push(
-      `  You're on a ${homePageData.streak} day streak${callToAction}`
-    );
+
+    // XXX This system of using lines.push() is getting ugly -- refactor!
+    renderUtils
+      .indent(
+        renderUtils.reflowText(
+          {
+            lines: [
+              `You're on a ${homePageData.streak} day streak${callToAction}`,
+            ],
+          },
+          config.get().maxColumnWidth
+        ),
+        2
+      )
+      .lines.forEach((line) => {
+        lines.push(line);
+      });
   }
 
   lines.push("");
 
-  const column2Width = 38;
+  const column2Width = (38 / 78) * config.get().maxColumnWidth;
   const columnWidths = [
     config.get().maxColumnWidth - column2Width - 2 - 2,
     column2Width,
