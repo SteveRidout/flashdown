@@ -36,19 +36,19 @@ let onKeyPress: ((str: string, key: KeyPressInfo) => void) | undefined;
 
 export const readKeypress = (): Promise<{ str: string; key: KeyPressInfo }> =>
   new Promise<{ str: string; key: KeyPressInfo }>((resolve, _reject) => {
-    onKeyPress = (str: string, key: KeyPressInfo) => {
-      const currentTime = new Date().getTime();
+    const currentTime = new Date().getTime();
 
-      while (queue.length > 0) {
-        const nextQueuedItem = queue[0];
-        queue = queue.slice(1);
-        if (currentTime - nextQueuedItem.time < ttl) {
-          // Handle queued keystroke
-          resolve({ str: nextQueuedItem.str, key: nextQueuedItem.key });
-          return;
-        }
+    while (queue.length > 0) {
+      const nextQueuedItem = queue[0];
+      queue = queue.slice(1);
+      if (currentTime - nextQueuedItem.time < ttl) {
+        // Handle queued keystroke
+        resolve({ str: nextQueuedItem.str, key: nextQueuedItem.key });
+        return;
       }
+    }
 
+    onKeyPress = (str: string, key: KeyPressInfo) => {
       resolve({ str, key });
     };
   });
