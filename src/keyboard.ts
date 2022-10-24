@@ -5,7 +5,7 @@ import { KeyPressInfo } from "./types";
 
 readline.emitKeypressEvents(process.stdin);
 
-/** Time to leave keypresses on the queue before discarding them */
+/** Time to leave keypresses on the queue before discarding them (ms) */
 const ttl = 1000;
 
 /**
