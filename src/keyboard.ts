@@ -42,8 +42,10 @@ export const readKeypress = (): Promise<{ str: string; key: KeyPressInfo }> =>
       const nextQueuedItem = queue[0];
       queue = queue.slice(1);
       if (currentTime - nextQueuedItem.time < ttl) {
-        // Handle queued keystroke
-        resolve({ str: nextQueuedItem.str, key: nextQueuedItem.key });
+        // Handle queued keystroke on next tick
+        setTimeout(() => {
+          resolve({ str: nextQueuedItem.str, key: nextQueuedItem.key });
+        }, 0);
         return;
       }
     }
