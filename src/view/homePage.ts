@@ -7,6 +7,7 @@ import * as renderUtils from "./renderUtils";
 import { version as appVersion } from "../../package.json";
 import * as actions from "../actions";
 import * as appState from "../appState";
+import { getWidth } from "../terminalSize";
 
 const elideText = (text: string, maxLength: number): string => {
   if (text.length < maxLength) {
@@ -75,23 +76,38 @@ export const render = (
    * Font comes from this repo which uses the MIT license
    * https://github.com/patorjk/figlet.js/blob/master/fonts/ANSI%20Regular.flf
    */
-  const title = `
+  let title = `
 ▇▇▇▇▇▇▇ ▇▇       ▇▇▇▇▇  ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇   ▇▇▇▇▇▇  ▇▇     ▇▇ ▇▇▇    ▇▇
 ▇▇      ▇▇      ▇▇   ▇▇ ▇▇      ▇▇   ▇▇ ▇▇   ▇▇ ▇▇    ▇▇ ▇▇     ▇▇ ▇▇▇▇   ▇▇
 ▇▇▇▇▇   ▇▇      ▇▇▇▇▇▇▇ ▇▇▇▇▇▇▇ ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇    ▇▇ ▇▇  ▇  ▇▇ ▇▇ ▇▇  ▇▇
 ▇▇      ▇▇      ▇▇   ▇▇      ▇▇ ▇▇   ▇▇ ▇▇   ▇▇ ▇▇    ▇▇ ▇▇ ▇▇▇ ▇▇ ▇▇  ▇▇ ▇▇
-▇▇      ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇   ▇▇▇▇▇▇   ▇▇▇ ▇▇▇  ▇▇   ▇▇▇▇`;
-
-  for (const line of title.split("\n")) {
-    lines.push(
-      chalk.yellow(elideText("  " + line, config.get().maxColumnWidth))
-    );
-  }
-  lines.push(
-    chalk.yellow(
-      _.padStart(`v${appVersion} alpha`, config.get().maxColumnWidth)
-    )
+▇▇      ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇▇ ▇▇   ▇▇ ▇▇▇▇▇▇   ▇▇▇▇▇▇   ▇▇▇ ▇▇▇  ▇▇   ▇▇▇▇`.split(
+    "\n"
   );
+
+  const versionString = `v${appVersion} alpha`;
+
+  if (title[1].length + 2 > getWidth()) {
+    // Go for simple smaller title instead
+    lines.push("");
+    const flashdownString = "FLASHDOWN";
+    lines.push(
+      chalk.yellow(
+        "  " +
+          chalk.bold(flashdownString) +
+          _.repeat(
+            " ",
+            getWidth() - flashdownString.length - versionString.length - 2
+          ) +
+          versionString
+      )
+    );
+  } else {
+    for (const line of title) {
+      lines.push(chalk.yellow("  " + line));
+    }
+    lines.push(chalk.yellow(_.padStart(versionString, getWidth())));
+  }
 
   if (homePageData.streak > 0) {
     const callToAction = homePageData.practicedToday
@@ -109,7 +125,7 @@ export const render = (
               `You're on a ${homePageData.streak} day streak${callToAction}`,
             ],
           },
-          config.get().maxColumnWidth
+          getWidth() - 2
         ),
         2
       )
@@ -120,11 +136,8 @@ export const render = (
 
   lines.push("");
 
-  const column2Width = (38 / 78) * config.get().maxColumnWidth;
-  const columnWidths = [
-    config.get().maxColumnWidth - column2Width - 2 - 2,
-    column2Width,
-  ];
+  const column2Width = (38 / 78) * getWidth();
+  const columnWidths = [getWidth() - column2Width - 2 - 2, column2Width];
 
   lines.push(
     chalk.bold("  " + tableRow(["TOPIC", "PRACTICE PROGRESS"], columnWidths))
@@ -169,11 +182,21 @@ export const render = (
   }
 
   lines.push("");
-  lines.push(
-    chalk.cyanBright(
-      "  Use the UP and DOWN keys to select the topic and hit ENTER to start"
+  renderUtils
+    .indent(
+      renderUtils.reflowText(
+        {
+          lines: [
+            "Use the UP and DOWN keys to select the topic and hit ENTER to start",
+          ],
+        },
+        getWidth() - 2
+      ),
+      2
     )
-  );
+    .lines.forEach((line) => {
+      lines.push(chalk.cyanBright(line));
+    });
 
   return {
     textWithCursor: { lines },

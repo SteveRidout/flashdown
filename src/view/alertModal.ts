@@ -1,10 +1,10 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import * as config from "../config";
 import * as renderUtils from "./renderUtils";
 import { TerminalViewModel } from "../types";
 import * as appState from "../appState";
+import { getWidth } from "../terminalSize";
 
 export const render = (message: string[]): TerminalViewModel => {
   const indent = 2;
@@ -14,10 +14,7 @@ export const render = (message: string[]): TerminalViewModel => {
       lines: [
         "",
         ...renderUtils.indent(
-          renderUtils.reflowText(
-            { lines: message },
-            config.get().maxColumnWidth - indent
-          ),
+          renderUtils.reflowText({ lines: message }, getWidth() - indent),
           indent
         ).lines,
         "",

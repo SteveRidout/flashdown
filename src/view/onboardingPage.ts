@@ -1,9 +1,9 @@
 import chalk from "chalk";
 
 import { TerminalViewModel } from "../types";
-import * as config from "../config";
 import * as renderUtils from "./renderUtils";
 import * as flashdownFilesDAL from "../dal/flashdownFilesDAL";
+import { getWidth } from "../terminalSize";
 
 export const render = (): TerminalViewModel => {
   return {
@@ -28,7 +28,7 @@ export const render = (): TerminalViewModel => {
             ),
           ],
         },
-        config.get().maxColumnWidth - 2
+        getWidth() - 2
       ),
       2
     ),

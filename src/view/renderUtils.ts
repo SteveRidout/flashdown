@@ -2,8 +2,7 @@ import _ from "lodash";
 import chalk from "chalk";
 
 import { TextWithCursor } from "../types";
-import * as config from "../config";
-import * as debug from "../debug";
+import { getWidth } from "../terminalSize";
 
 /**
  * Joins the given lines inserting a newline between each one. This will throw an error if more
@@ -191,9 +190,7 @@ export const shiftRight = (
 ): TextWithCursor => {
   return {
     lines: lines.map(
-      (line) =>
-        _.repeat(" ", amount) +
-        line.substring(0, config.get().maxColumnWidth - amount)
+      (line) => _.repeat(" ", amount) + line.substring(0, getWidth() - amount)
     ),
     cursorPosition: cursorPosition
       ? { x: cursorPosition.x + amount, y: cursorPosition.y }

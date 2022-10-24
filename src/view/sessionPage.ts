@@ -11,12 +11,11 @@ import {
   KeyPressHandler,
 } from "../types";
 import * as config from "../config";
-import * as debug from "../debug";
 import * as appState from "../appState";
 import * as actions from "../actions";
 import * as gradingUtils from "../gradingUtils";
-import { last } from "lodash";
 import { getSpacedRepetitionInfo } from "../spacedRepetition";
+import { getWidth } from "../terminalSize";
 
 const blankText = (input: string) =>
   input
@@ -132,7 +131,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         )
     );
     // Add animation
@@ -143,17 +142,17 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         ),
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.25 + numberCompleted * 0.75,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         ),
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         ),
       ],
       initialDelay: 20,
@@ -166,7 +165,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         )
     );
   }
@@ -598,7 +597,7 @@ export const createCard = (
 
   const cardWithoutNote = addFrame(
     renderUtils.joinSections(lines),
-    config.get().maxColumnWidth,
+    getWidth(),
     leftMargin
   );
 
@@ -608,7 +607,7 @@ export const createCard = (
 
   const renderedNote = addFrame(
     { lines: [`${note}`] },
-    config.get().maxColumnWidth - 2 - leftMargin
+    getWidth() - 2 - leftMargin
   );
 
   return renderUtils.overlay(cardWithoutNote, renderedNote.lines, {
