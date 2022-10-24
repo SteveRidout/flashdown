@@ -1,7 +1,5 @@
 # Flashdown
 
-_Bringing flashcards into the 1980s! (since 2022)_
-
 Flashdown is an interactive Node.js flashcard app with a CLI (command line interface) which stores all its data in human readable and editable plain text files.
 
 ## Screenshots
