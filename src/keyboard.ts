@@ -8,6 +8,11 @@ readline.emitKeypressEvents(process.stdin);
 /** Time to leave keypresses on the queue before discarding them */
 const ttl = 1000;
 
+/**
+ * Store keystrokes which user made while there was no keypress handler in operation.
+ * This avoid missing keystrokes when typing quickly while running the app over an ssh connection
+ * to a remote machine.
+ */
 let queue: {
   str: string;
   key: KeyPressInfo;

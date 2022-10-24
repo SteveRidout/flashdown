@@ -58,8 +58,6 @@ export const startSession = async (
     return;
   }
 
-  debug.log("upcoming cards: " + JSON.stringify(upcomingCards, null, 2));
-
   appState.setState({
     ...appState.get(),
     page: {

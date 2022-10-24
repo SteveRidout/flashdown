@@ -87,7 +87,7 @@ export const render = (
 
   const versionString = `v${appVersion} alpha`;
 
-  if (title[1].length + 2 > getWidth()) {
+  if (title[1].length > getWidth()) {
     // Go for simple smaller title instead
     lines.push("");
     const flashdownString = "FLASHDOWN";
@@ -125,7 +125,7 @@ export const render = (
               `You're on a ${homePageData.streak} day streak${callToAction}`,
             ],
           },
-          getWidth() - 2
+          getWidth()
         ),
         2
       )
@@ -190,7 +190,7 @@ export const render = (
             "Use the UP and DOWN keys to select the topic and hit ENTER to start",
           ],
         },
-        getWidth() - 2
+        getWidth()
       ),
       2
     )
