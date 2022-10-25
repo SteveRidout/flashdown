@@ -273,18 +273,6 @@ export const reflowAndIndentLines = (
   return indent(reflowText(textWithCursor, getWidth() - 2), 2);
 };
 
-// export const reflowAndIndentLine = (line: string): TextWithCursor => {
-//   return reflowAndIndentLines([line]);
-// };
-
-// export const instructionText = (instruction: string): TextWithCursor => {
-//   return {
-//     lines: reflowAndIndentLine(instruction).lines.map((line) =>
-//       chalk.cyanBright(line)
-//     ),
-//   };
-// };
-
 export const textSection = (
   textWithCursor: TextWithCursor,
   style: TextStyle = "plain"

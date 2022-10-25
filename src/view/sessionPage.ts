@@ -129,13 +129,6 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     );
   };
 
-  // const addSections = (
-  //   newLines: string[],
-  //   cursorPosition?: { x: number; y: number }
-  // ) => {
-  //   sections.push({ lines: newLines, cursorPosition });
-  // };
-
   const totalCards = upcomingCards.length + completedCards.length;
   const numberCompleted =
     completedCards.length +
