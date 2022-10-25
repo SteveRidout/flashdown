@@ -118,16 +118,8 @@ export const render = (
 
     // XXX This system of using lines.push() is getting ugly -- refactor!
     renderUtils
-      .indent(
-        renderUtils.reflowText(
-          {
-            lines: [
-              `You're on a ${homePageData.streak} day streak${callToAction}`,
-            ],
-          },
-          getWidth()
-        ),
-        2
+      .reflowAndIndentLine(
+        `You're on a ${homePageData.streak} day streak${callToAction}`
       )
       .lines.forEach((line) => {
         lines.push(line);
@@ -183,19 +175,11 @@ export const render = (
 
   lines.push("");
   renderUtils
-    .indent(
-      renderUtils.reflowText(
-        {
-          lines: [
-            "Use the UP and DOWN keys to select the topic and hit ENTER to start",
-          ],
-        },
-        getWidth()
-      ),
-      2
+    .instructionText(
+      "Use the UP and DOWN keys to select the topic and hit ENTER to start"
     )
     .lines.forEach((line) => {
-      lines.push(chalk.cyanBright(line));
+      lines.push(line);
     });
 
   return {

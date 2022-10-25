@@ -264,3 +264,27 @@ export const renderProgressBar = (
     screenPosition
   )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
 };
+
+export const reflowAndIndentLines = (lines: string[]): TextWithCursor => {
+  return indent(
+    reflowText(
+      {
+        lines,
+      },
+      getWidth() - 2
+    ),
+    2
+  );
+};
+
+export const reflowAndIndentLine = (line: string): TextWithCursor => {
+  return reflowAndIndentLines([line]);
+};
+
+export const instructionText = (instruction: string): TextWithCursor => {
+  return {
+    lines: reflowAndIndentLine(instruction).lines.map((line) =>
+      chalk.cyanBright(line)
+    ),
+  };
+};

@@ -105,13 +105,20 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     previousStageType = stage.type;
   }
 
-  const lines: TextWithCursor[] = [];
+  const sections: TextWithCursor[] = [];
 
-  const addLine = (
+  const addSection = (
     text: string = "",
     cursorPosition?: { x: number; y: number }
   ) => {
-    lines.push({ lines: [text], cursorPosition });
+    sections.push({ lines: [text], cursorPosition });
+  };
+
+  const addSections = (
+    newLines: string[],
+    cursorPosition?: { x: number; y: number }
+  ) => {
+    sections.push({ lines: newLines, cursorPosition });
   };
 
   const totalCards = upcomingCards.length + completedCards.length;
@@ -124,9 +131,9 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   const animations: Animation[] = [];
   let keyPressHandler: KeyPressHandler | undefined;
 
-  addLine();
+  addSection();
   if (numberCompleted > previousCompletedCards) {
-    addLine(
+    addSection(
       "  " +
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
@@ -160,7 +167,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     });
     previousCompletedCards = numberCompleted;
   } else {
-    addLine(
+    addSection(
       "  " +
         renderUtils.renderProgressBar(
           numberCompleted,
@@ -172,11 +179,11 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
   const card = upcomingCards[0];
 
-  addLine();
-  addLine();
+  addSection();
+  addSection();
 
   if (card.new) {
-    addLine(chalk.yellowBright("  ** NEW CARD **"));
+    addSection(chalk.yellowBright("  ** NEW CARD **"));
   }
 
   switch (stage.type) {
@@ -185,7 +192,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         card.direction === "front-to-back"
           ? `${card.front} : ${blankText(card.back)}`
           : `${blankText(card.front)} : ${card.back}`;
-      lines.push(
+      sections.push(
         createCard(
           card.sectionTitle,
           {
@@ -194,10 +201,10 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           2
         )
       );
-      addLine();
-      addLine();
-      addLine(
-        chalk.cyanBright(
+      addSection();
+      addSection();
+      sections.push(
+        renderUtils.instructionText(
           `  Hit SPACE to reveal ${
             card.direction === "front-to-back" ? "back" : "front"
           } of card`
@@ -208,7 +215,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           type: "horizontal-pan",
           yRange: {
             start: 2,
-            end: lines.reduce(
+            end: sections.reduce(
               (memo, section) => memo + section.lines.length,
               0
             ),
@@ -259,16 +266,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         },
         2
       );
-      lines.push(cardTextWithCursor);
-      addLine();
-      addLine();
-      addLine(chalk.cyanBright("  Type the missing answer and hit ENTER"));
+      sections.push(cardTextWithCursor);
+      addSection();
+      addSection();
+      sections.push(
+        renderUtils.instructionText("Type the missing answer and hit ENTER")
+      );
 
       if (card.new) {
-        addLine();
-        addLine(
-          chalk.cyanBright(
-            "  (If you don't know, just leave it blank and hit ENTER)"
+        addSection();
+        sections.push(
+          renderUtils.instructionText(
+            "If you don't know, just leave it blank and hit ENTER)"
           )
         );
       }
@@ -277,7 +286,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           type: "horizontal-pan",
           yRange: {
             start: 2,
-            end: lines.reduce(
+            end: sections.reduce(
               (memo, section) => memo + section.lines.length,
               0
             ),
@@ -346,7 +355,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     }
 
     case "second-side-typed":
-      lines.push(
+      sections.push(
         createCard(
           card.sectionTitle,
           {
@@ -358,18 +367,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       );
 
       if (stage.score > 2) {
-        addLine("");
-        addLine(chalk.greenBright(chalk.bold("  Well done!")));
+        addSection("");
+        addSection(chalk.greenBright(chalk.bold("  Well done!")));
       } else if (stage.score === 2) {
-        addLine("");
-        addLine(chalk.yellowBright(chalk.bold("  Close enough!")));
+        addSection("");
+        addSection(chalk.yellowBright(chalk.bold("  Close enough!")));
       } else if (stage.input.trim() !== "") {
-        addLine("");
-        addLine(chalk.redBright(chalk.bold("  Wrong")));
+        addSection("");
+        addSection(chalk.redBright(chalk.bold("  Wrong")));
       }
-      addLine();
-      addLine();
-      addLine(chalk.cyanBright("  Hit SPACE to continue"));
+      addSection();
+      addSection();
+      sections.push(renderUtils.instructionText("Hit SPACE to continue"));
 
       keyPressHandler = (_str, key) => {
         if (!["space", "return"].includes(key.name)) {
@@ -388,21 +397,21 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           ? `${card.front} : ${card.back}`
           : `${card.front} : ${card.back}`;
 
-      lines.push(
+      sections.push(
         createCard(card.sectionTitle, { lines: [text] }, 2, card.note)
       );
 
-      addLine();
-      addLine();
+      addSection();
+      addSection();
       if (card.new) {
-        addLine(
-          chalk.cyanBright(
-            "  Did you already know this? Press the appropriate NUMBER KEY:"
+        sections.push(
+          renderUtils.instructionText(
+            "Did you already know this? Press the appropriate NUMBER KEY:"
           )
         );
-        addLine();
+        addSection();
         for (const lineScore of [1, 2, 3, 4]) {
-          addLine(
+          addSection(
             multipleChoiceLine(
               lineScore,
               true,
@@ -414,15 +423,19 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           );
         }
       } else {
-        const didYouRemember = chalk.cyanBright(
-          "  Did you remember? Press the appropriate NUMBER KEY:"
+        const didYouRemember = renderUtils.instructionText(
+          "Did you already know this? Press the appropriate NUMBER KEY:"
         );
-        addLine(
-          stage.type === "finished" ? chalk.dim(didYouRemember) : didYouRemember
-        );
-        addLine();
+
+        if (stage.type === "finished") {
+          didYouRemember.lines = didYouRemember.lines.map((line) =>
+            chalk.dim(line)
+          );
+        }
+        sections.push(didYouRemember);
+        addSection();
         for (const lineScore of [1, 2, 3, 4]) {
-          addLine(
+          addSection(
             multipleChoiceLine(
               lineScore,
               false,
@@ -437,8 +450,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
       if (stage.type === "finished") {
         if (config.get().stats) {
-          addLine();
-          addLine(chalk.cyanBright("  Hit SPACE to continue"));
+          addSection();
+          sections.push(renderUtils.instructionText("Hit SPACE to continue"));
           keyPressHandler = (_str, key) => {
             if (!["space", "return"].includes(key.name)) {
               return false;
@@ -525,14 +538,14 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   previousSessionPage = sessionPage;
 
   if (config.get().stats && !card.new && "previousInterval" in card) {
-    addLine();
-    addLine();
+    addSection();
+    addSection();
     const lastPracticeRecord = _.last(card.practiceRecords);
     if (lastPracticeRecord) {
-      addLine(
+      addSection(
         chalk.gray("  " + "Previous practices: " + card.practiceRecords?.length)
       );
-      addLine(
+      addSection(
         chalk.gray(
           "  " +
             "Previous practice date: " +
@@ -540,9 +553,9 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         )
       );
     } else {
-      addLine(chalk.gray("  " + "Previous practices: " + 0));
+      addSection(chalk.gray("  " + "Previous practices: " + 0));
     }
-    addLine(
+    addSection(
       chalk.gray(
         "  Previous interval: " +
           (card.previousInterval === undefined
@@ -550,33 +563,33 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
             : (card.previousInterval / 60 / 24).toFixed(1) + " days")
       )
     );
-    addLine(chalk.gray("  Previous score: " + card.previousScore));
-    addLine(
+    addSection(chalk.gray("  Previous score: " + card.previousScore));
+    addSection(
       chalk.gray("  Previous easiness: " + card.easinessFactor.toFixed(2))
     );
 
     if (stage.type === "finished" || stage.type === "second-side-typed") {
       const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords);
       if (nextSRSInfo) {
-        addLine(
+        addSection(
           chalk.gray(
             "  Next practice time: " +
               new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString()
           )
         );
-        addLine(
+        addSection(
           chalk.gray(
             "  Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2)
           )
         );
       } else {
-        addLine("  NO SRS INFO, bug?");
+        addSection("  NO SRS INFO, bug?");
       }
     }
   }
 
   return {
-    textWithCursor: renderUtils.joinSections(lines),
+    textWithCursor: renderUtils.joinSections(sections),
     animations,
     keyPressHandler,
   };
