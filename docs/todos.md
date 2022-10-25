@@ -2,6 +2,10 @@
 
 ## Essential
 
+[ ] multiple choice component (multipleChoiceComponent)
+[ ] table component (tableComponent)
+[ ] stats component
+
 - Add command line option to show SRS stats
 - Timer which updates the home page state after an hour (?), also updates the time in the practice record file if too much time has past
 - Better intervals for when you fail to remember a card

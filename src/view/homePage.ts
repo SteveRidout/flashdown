@@ -1,7 +1,6 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import * as config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
 import { version as appVersion } from "../../package.json";
@@ -118,9 +117,9 @@ export const render = (
 
     // XXX This system of using lines.push() is getting ugly -- refactor!
     renderUtils
-      .reflowAndIndentLine(
-        `You're on a ${homePageData.streak} day streak${callToAction}`
-      )
+      .textSection({
+        lines: [`You're on a ${homePageData.streak} day streak${callToAction}`],
+      })
       .lines.forEach((line) => {
         lines.push(line);
       });
@@ -175,8 +174,13 @@ export const render = (
 
   lines.push("");
   renderUtils
-    .instructionText(
-      "Use the UP and DOWN keys to select the topic and hit ENTER to start"
+    .textSection(
+      {
+        lines: [
+          "Use the UP and DOWN keys to select the topic and hit ENTER to start",
+        ],
+      },
+      "instruction"
     )
     .lines.forEach((line) => {
       lines.push(line);

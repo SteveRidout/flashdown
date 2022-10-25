@@ -1,7 +1,7 @@
 import _ from "lodash";
 import chalk from "chalk";
 
-import { TextWithCursor } from "../types";
+import { TextWithCursor, TextStyle } from "../types";
 import { getWidth } from "../terminalSize";
 
 /**
@@ -61,7 +61,8 @@ export const reflowText = (
 
     while (reflowedLines[reflowedLines.length - 1].length > columns) {
       if (reflowedLines[reflowedLines.length - 1][columns] === "_") {
-        // Just split underlines wherever they are
+        // Just split underlines wherever they are, regardless of whether there's a word break in
+        // the text that's being hidden
         reflowedLines = [
           ...reflowedLines.slice(0, reflowedLines.length - 1),
           reflowedLines[reflowedLines.length - 1].substring(0, columns),
@@ -240,7 +241,8 @@ const overlayLine = (
 ): string => {
   return (
     _.padEnd(background.substring(0, x), x, " ") +
-    overlay +
+    // XXX Hackily hard coding color here
+    chalk.yellow(overlay) +
     background.substring(x + overlay.length)
   );
 };
@@ -265,26 +267,57 @@ export const renderProgressBar = (
   )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
 };
 
-export const reflowAndIndentLines = (lines: string[]): TextWithCursor => {
-  return indent(
-    reflowText(
-      {
-        lines,
-      },
-      getWidth() - 2
-    ),
-    2
-  );
+export const reflowAndIndentLines = (
+  textWithCursor: TextWithCursor
+): TextWithCursor => {
+  return indent(reflowText(textWithCursor, getWidth() - 2), 2);
 };
 
-export const reflowAndIndentLine = (line: string): TextWithCursor => {
-  return reflowAndIndentLines([line]);
-};
+// export const reflowAndIndentLine = (line: string): TextWithCursor => {
+//   return reflowAndIndentLines([line]);
+// };
 
-export const instructionText = (instruction: string): TextWithCursor => {
+// export const instructionText = (instruction: string): TextWithCursor => {
+//   return {
+//     lines: reflowAndIndentLine(instruction).lines.map((line) =>
+//       chalk.cyanBright(line)
+//     ),
+//   };
+// };
+
+export const textSection = (
+  textWithCursor: TextWithCursor,
+  style: TextStyle = "plain"
+): TextWithCursor => {
+  const stylingFunction: ((text: string) => string) | undefined = (() => {
+    switch (style) {
+      case "plain":
+        return undefined;
+
+      case "instruction":
+        return chalk.cyanBright;
+
+      case "new-card":
+        return chalk.yellowBright;
+
+      case "feedback-good":
+        return (text: string) => chalk.bold(chalk.greenBright(text));
+
+      case "feedback-medium":
+        return (text: string) => chalk.bold(chalk.yellowBright(text));
+
+      case "feedback-bad":
+        return (text: string) => chalk.bold(chalk.redBright(text));
+
+      default:
+        throw Error("Style not recognized");
+    }
+  })();
+
+  const reflowed = reflowAndIndentLines(textWithCursor);
+
   return {
-    lines: reflowAndIndentLine(instruction).lines.map((line) =>
-      chalk.cyanBright(line)
-    ),
+    lines: reflowed.lines.map((line) => stylingFunction?.(line) ?? line),
+    cursorPosition: reflowed.cursorPosition,
   };
 };
