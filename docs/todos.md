@@ -1,12 +1,14 @@
 # TODOs
 
-## Essential
+## P0
 
+- Fix streak +1 animation for streaks longer than 10 days
 - Add command line option to show SRS stats
 - Timer which updates the home page state after an hour (?), also updates the time in the practice record file if too much time has past
 - Better intervals for when you fail to remember a card
+- Hacker Laws deck: Try putting examples in separate window
 
-## Nice to have
+## P1
 
 - Change view model to something that makes it possible to style text and still be able to easily count the number of on screen characters, enabling styling within the cards, horizontal panning animation, and more
 - Animation flare:

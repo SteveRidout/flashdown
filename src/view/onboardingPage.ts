@@ -3,7 +3,6 @@ import chalk from "chalk";
 import { TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
 import * as flashdownFilesDAL from "../dal/flashdownFilesDAL";
-import { getWidth } from "../terminalSize";
 
 export const render = (): TerminalViewModel => {
   return {

@@ -205,7 +205,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       addSection();
       sections.push(
         renderUtils.instructionText(
-          `  Hit SPACE to reveal ${
+          `Hit SPACE to reveal ${
             card.direction === "front-to-back" ? "back" : "front"
           } of card`
         )
