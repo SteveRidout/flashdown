@@ -9,12 +9,15 @@ const coreConfig = {
   maxColumnWidth: 78,
 };
 
-let config: typeof coreConfig & {
+interface CLIOptions {
   file?: string;
   test?: boolean;
-} = coreConfig;
+  stats?: boolean;
+}
 
-export const setOptions = (options: { file?: string; test?: boolean }) => {
+let config: typeof coreConfig & CLIOptions = coreConfig;
+
+export const setOptions = (options: CLIOptions) => {
   config = { ...config, ...options };
 };
 

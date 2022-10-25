@@ -11,10 +11,11 @@ import {
   KeyPressHandler,
 } from "../types";
 import * as config from "../config";
-import * as debug from "../debug";
 import * as appState from "../appState";
 import * as actions from "../actions";
 import * as gradingUtils from "../gradingUtils";
+import { getSpacedRepetitionInfo } from "../spacedRepetition";
+import { getWidth } from "../terminalSize";
 
 const blankText = (input: string) =>
   input
@@ -104,13 +105,20 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     previousStageType = stage.type;
   }
 
-  const lines: TextWithCursor[] = [];
+  const sections: TextWithCursor[] = [];
 
-  const addLine = (
+  const addSection = (
     text: string = "",
     cursorPosition?: { x: number; y: number }
   ) => {
-    lines.push({ lines: [text], cursorPosition });
+    sections.push({ lines: [text], cursorPosition });
+  };
+
+  const addSections = (
+    newLines: string[],
+    cursorPosition?: { x: number; y: number }
+  ) => {
+    sections.push({ lines: newLines, cursorPosition });
   };
 
   const totalCards = upcomingCards.length + completedCards.length;
@@ -123,14 +131,14 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   const animations: Animation[] = [];
   let keyPressHandler: KeyPressHandler | undefined;
 
-  addLine();
+  addSection();
   if (numberCompleted > previousCompletedCards) {
-    addLine(
+    addSection(
       "  " +
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.75 + numberCompleted * 0.25,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         )
     );
     // Add animation
@@ -141,17 +149,17 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.5 + numberCompleted * 0.5,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         ),
         renderUtils.renderProgressBar(
           previousCompletedCards * 0.25 + numberCompleted * 0.75,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         ),
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         ),
       ],
       initialDelay: 20,
@@ -159,23 +167,23 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     });
     previousCompletedCards = numberCompleted;
   } else {
-    addLine(
+    addSection(
       "  " +
         renderUtils.renderProgressBar(
           numberCompleted,
           totalCards,
-          config.get().maxColumnWidth - 2
+          getWidth() - 2
         )
     );
   }
 
   const card = upcomingCards[0];
 
-  addLine();
-  addLine();
+  addSection();
+  addSection();
 
   if (card.new) {
-    addLine(chalk.yellowBright("  ** NEW CARD **"));
+    addSection(chalk.yellowBright("  ** NEW CARD **"));
   }
 
   switch (stage.type) {
@@ -184,7 +192,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         card.direction === "front-to-back"
           ? `${card.front} : ${blankText(card.back)}`
           : `${blankText(card.front)} : ${card.back}`;
-      lines.push(
+      sections.push(
         createCard(
           card.sectionTitle,
           {
@@ -193,10 +201,10 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           2
         )
       );
-      addLine();
-      addLine();
-      addLine(
-        chalk.cyanBright(
+      addSection();
+      addSection();
+      sections.push(
+        renderUtils.instructionText(
           `  Hit SPACE to reveal ${
             card.direction === "front-to-back" ? "back" : "front"
           } of card`
@@ -207,7 +215,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           type: "horizontal-pan",
           yRange: {
             start: 2,
-            end: lines.reduce(
+            end: sections.reduce(
               (memo, section) => memo + section.lines.length,
               0
             ),
@@ -258,16 +266,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         },
         2
       );
-      lines.push(cardTextWithCursor);
-      addLine();
-      addLine();
-      addLine(chalk.cyanBright("  Type the missing answer and hit ENTER"));
+      sections.push(cardTextWithCursor);
+      addSection();
+      addSection();
+      sections.push(
+        renderUtils.instructionText("Type the missing answer and hit ENTER")
+      );
 
       if (card.new) {
-        addLine();
-        addLine(
-          chalk.cyanBright(
-            "  (If you don't know, just leave it blank and hit ENTER)"
+        addSection();
+        sections.push(
+          renderUtils.instructionText(
+            "If you don't know, just leave it blank and hit ENTER)"
           )
         );
       }
@@ -276,7 +286,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           type: "horizontal-pan",
           yRange: {
             start: 2,
-            end: lines.reduce(
+            end: sections.reduce(
               (memo, section) => memo + section.lines.length,
               0
             ),
@@ -345,7 +355,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     }
 
     case "second-side-typed":
-      lines.push(
+      sections.push(
         createCard(
           card.sectionTitle,
           {
@@ -357,18 +367,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       );
 
       if (stage.score > 2) {
-        addLine("");
-        addLine("  Well done!");
+        addSection("");
+        addSection(chalk.greenBright(chalk.bold("  Well done!")));
       } else if (stage.score === 2) {
-        addLine("");
-        addLine("  Close enough!");
+        addSection("");
+        addSection(chalk.yellowBright(chalk.bold("  Close enough!")));
       } else if (stage.input.trim() !== "") {
-        addLine("");
-        addLine("  Wrong");
+        addSection("");
+        addSection(chalk.redBright(chalk.bold("  Wrong")));
       }
-      addLine();
-      addLine();
-      addLine(chalk.cyanBright("  Hit SPACE to continue"));
+      addSection();
+      addSection();
+      sections.push(renderUtils.instructionText("Hit SPACE to continue"));
 
       keyPressHandler = (_str, key) => {
         if (!["space", "return"].includes(key.name)) {
@@ -387,21 +397,21 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           ? `${card.front} : ${card.back}`
           : `${card.front} : ${card.back}`;
 
-      lines.push(
+      sections.push(
         createCard(card.sectionTitle, { lines: [text] }, 2, card.note)
       );
 
-      addLine();
-      addLine();
+      addSection();
+      addSection();
       if (card.new) {
-        addLine(
-          chalk.cyanBright(
-            "  Did you already know this? Press the appropriate NUMBER KEY:"
+        sections.push(
+          renderUtils.instructionText(
+            "Did you already know this? Press the appropriate NUMBER KEY:"
           )
         );
-        addLine();
+        addSection();
         for (const lineScore of [1, 2, 3, 4]) {
-          addLine(
+          addSection(
             multipleChoiceLine(
               lineScore,
               true,
@@ -413,14 +423,19 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           );
         }
       } else {
-        addLine(
-          chalk.cyanBright(
-            "  Did you remember? Press the appropriate NUMBER KEY:"
-          )
+        const didYouRemember = renderUtils.instructionText(
+          "Did you already know this? Press the appropriate NUMBER KEY:"
         );
-        addLine();
+
+        if (stage.type === "finished") {
+          didYouRemember.lines = didYouRemember.lines.map((line) =>
+            chalk.dim(line)
+          );
+        }
+        sections.push(didYouRemember);
+        addSection();
         for (const lineScore of [1, 2, 3, 4]) {
-          addLine(
+          addSection(
             multipleChoiceLine(
               lineScore,
               false,
@@ -434,11 +449,23 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       }
 
       if (stage.type === "finished") {
-        // Not waiting for keypress in this case, instead just move to the next card after a short
-        // delay
-        setTimeout(() => {
-          actions.progressToNextCard(score);
-        }, 800);
+        if (config.get().stats) {
+          addSection();
+          sections.push(renderUtils.instructionText("Hit SPACE to continue"));
+          keyPressHandler = (_str, key) => {
+            if (!["space", "return"].includes(key.name)) {
+              return false;
+            }
+            actions.progressToNextCard(stage.score);
+            return true;
+          };
+        } else {
+          // Not waiting for keypress in this case, instead just move to the next card after a short
+          // delay
+          setTimeout(() => {
+            actions.progressToNextCard(score);
+          }, 800);
+        }
       } else {
         keyPressHandler = (_str, key) => {
           const keyName = key.name;
@@ -510,8 +537,59 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
   previousSessionPage = sessionPage;
 
+  if (config.get().stats && !card.new && "previousInterval" in card) {
+    addSection();
+    addSection();
+    const lastPracticeRecord = _.last(card.practiceRecords);
+    if (lastPracticeRecord) {
+      addSection(
+        chalk.gray("  " + "Previous practices: " + card.practiceRecords?.length)
+      );
+      addSection(
+        chalk.gray(
+          "  " +
+            "Previous practice date: " +
+            new Date(lastPracticeRecord.practiceTime * 60 * 1000).toDateString()
+        )
+      );
+    } else {
+      addSection(chalk.gray("  " + "Previous practices: " + 0));
+    }
+    addSection(
+      chalk.gray(
+        "  Previous interval: " +
+          (card.previousInterval === undefined
+            ? "undefined"
+            : (card.previousInterval / 60 / 24).toFixed(1) + " days")
+      )
+    );
+    addSection(chalk.gray("  Previous score: " + card.previousScore));
+    addSection(
+      chalk.gray("  Previous easiness: " + card.easinessFactor.toFixed(2))
+    );
+
+    if (stage.type === "finished" || stage.type === "second-side-typed") {
+      const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords);
+      if (nextSRSInfo) {
+        addSection(
+          chalk.gray(
+            "  Next practice time: " +
+              new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString()
+          )
+        );
+        addSection(
+          chalk.gray(
+            "  Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2)
+          )
+        );
+      } else {
+        addSection("  NO SRS INFO, bug?");
+      }
+    }
+  }
+
   return {
-    textWithCursor: renderUtils.joinSections(lines),
+    textWithCursor: renderUtils.joinSections(sections),
     animations,
     keyPressHandler,
   };
@@ -532,7 +610,7 @@ export const createCard = (
 
   const cardWithoutNote = addFrame(
     renderUtils.joinSections(lines),
-    config.get().maxColumnWidth,
+    getWidth(),
     leftMargin
   );
 
@@ -542,7 +620,7 @@ export const createCard = (
 
   const renderedNote = addFrame(
     { lines: [`${note}`] },
-    config.get().maxColumnWidth - 2 - leftMargin
+    getWidth() - 2 - leftMargin
   );
 
   return renderUtils.overlay(cardWithoutNote, renderedNote.lines, {

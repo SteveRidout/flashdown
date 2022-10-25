@@ -41,25 +41,40 @@ export const writeRecord = (
   cardsFileName: string,
   card: Card,
   direction: Direction,
-  success: number
-) => {
-  if (config.get().test) {
-    debug.log("Not writing practice record since we're in test mode");
-    return;
-  }
+  score: number
+): PracticeRecord => {
+  const currentDate = new Date();
 
   const fileName = getPracticeRecordFilename(cardsFileName);
+
+  const latestLogFileSectionDate =
+    fileNameToLatestLogFileSectionDate[cardsFileName];
+
+  if (config.get().test) {
+    if (
+      latestLogFileSectionDate === undefined ||
+      currentDate.getTime() - latestLogFileSectionDate >
+        thresholdBeforeWritingNewDate
+    ) {
+      fileNameToLatestLogFileSectionDate[cardsFileName] = currentDate.getTime();
+    }
+    debug.log("Not writing practice record since we're in test mode");
+
+    return {
+      score,
+      practiceTime: Math.round(
+        fileNameToLatestLogFileSectionDate[cardsFileName] / 1000 / 60
+      ),
+    };
+  }
 
   if (!fs.existsSync(fileName)) {
     fs.writeFileSync(fileName, "");
   }
 
-  const latestLogFileSectionDate =
-    fileNameToLatestLogFileSectionDate[cardsFileName];
-
   if (
     latestLogFileSectionDate === undefined ||
-    new Date().getTime() - latestLogFileSectionDate >
+    currentDate.getTime() - latestLogFileSectionDate >
       thresholdBeforeWritingNewDate
   ) {
     let sessionHeader = "";
@@ -69,16 +84,22 @@ export const writeRecord = (
     ) {
       sessionHeader += "\n\n";
     }
-    const date = new Date();
-    sessionHeader += `# ${dateTimeString(date)}\n`;
+    sessionHeader += `# ${dateTimeString(currentDate)}\n`;
     fs.appendFileSync(fileName, sessionHeader);
 
-    fileNameToLatestLogFileSectionDate[cardsFileName] = date.getTime();
+    fileNameToLatestLogFileSectionDate[cardsFileName] = currentDate.getTime();
   }
   fs.appendFileSync(
     fileName,
-    `\n${card.front}, ${serializeDirection(direction)}: ${success}`
+    `\n${card.front}, ${serializeDirection(direction)}: ${score}`
   );
+
+  return {
+    score,
+    practiceTime: Math.round(
+      fileNameToLatestLogFileSectionDate[cardsFileName] / 1000 / 60
+    ),
+  };
 };
 
 const dateTimeString = (date: Date) => {

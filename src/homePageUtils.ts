@@ -56,10 +56,10 @@ export const calcHomePageData = (
     const fileName = cards[0].fileName;
     topicMap[fileName] = {};
     for (const card of cards) {
-      const learningMetrics: CardLearningDerivedMetrics | undefined = (() => {
-        const practiceRecords =
-          recordMap[card.fileName][card.front]?.[card.direction];
+      const practiceRecords =
+        recordMap[card.fileName][card.front]?.[card.direction];
 
+      const learningMetrics: CardLearningDerivedMetrics | undefined = (() => {
         if (practiceRecords === undefined) {
           return undefined;
         }
@@ -85,19 +85,26 @@ export const calcHomePageData = (
         allTopics.newCards.push(card);
         topicMap[fileName][topicName].newCards.push(card);
       } else if (learningMetrics.nextPracticeTime < currentTime) {
-        allTopics.learningCardsDue.push({ card, learningMetrics });
+        allTopics.learningCardsDue.push({
+          card,
+          learningMetrics,
+          practiceRecords,
+        });
         topicMap[fileName][topicName].learningCardsDue.push({
           card,
           learningMetrics,
+          practiceRecords,
         });
       } else {
         allTopics.learningCardsNotDue.push({
           card,
           learningMetrics,
+          practiceRecords,
         });
         topicMap[fileName][topicName].learningCardsNotDue.push({
           card,
           learningMetrics,
+          practiceRecords,
         });
       }
     }

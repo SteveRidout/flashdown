@@ -77,8 +77,6 @@ export const getSpacedRepetitionInfo = (
 
     easinessFactor = Math.max(1.3, easinessFactor + easinessDelta);
 
-    debug.log("previous interval: " + previousInterval);
-
     const nextInterval = (() => {
       switch (record.score) {
         case 1:

@@ -1,6 +1,6 @@
 export interface PracticeRecord {
   practiceTime: number; // In minutes from epoch
-  score: number; // from 0 (bad) to 3 (good)
+  score: number; // from 1 (bad) to 4 (good)
 }
 
 export interface Card {
@@ -52,10 +52,12 @@ export interface TopicData {
   learningCardsNotDue: {
     card: Card;
     learningMetrics: CardLearningDerivedMetrics;
+    practiceRecords: PracticeRecord[];
   }[];
   learningCardsDue: {
     card: Card;
     learningMetrics: CardLearningDerivedMetrics;
+    practiceRecords: PracticeRecord[];
   }[];
   masteryScore: number; // percentage of cards with >99% chance of remembering
 }
@@ -76,10 +78,11 @@ export interface WholeDate {
   day: number;
 }
 
-export type CardWithLearningMetrics = Card & { new: boolean } & (
-    | {}
-    | CardLearningDerivedMetrics
-  );
+export type CardWithLearningMetrics =
+  | (Card & { new: boolean } & { practiceRecords: PracticeRecord[] })
+  | (Card & { new: boolean } & {
+      practiceRecords: PracticeRecord[];
+    } & CardLearningDerivedMetrics);
 
 export type CardStage =
   | { type: "first-side-reveal" }

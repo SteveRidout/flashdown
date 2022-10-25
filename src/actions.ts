@@ -2,7 +2,12 @@ import * as _ from "lodash";
 
 import * as flashdownFileDAL from "./dal/flashdownFileDAL";
 import * as practiceRecordDAL from "./dal/practiceRecordDAL";
-import { CardWithLearningMetrics, HomePageData, SessionPage } from "./types";
+import {
+  CardWithLearningMetrics,
+  HomePageData,
+  PracticeRecord,
+  SessionPage,
+} from "./types";
 import * as debug from "./debug";
 import * as homePageUtils from "./homePageUtils";
 import * as config from "./config";
@@ -22,6 +27,7 @@ export const startSession = async (
       ...card.card,
       new: false,
       ...card.learningMetrics,
+      practiceRecords: card.practiceRecords,
     }));
 
   if (upcomingCards.length < config.get().targetCardsPerSession) {
@@ -32,6 +38,7 @@ export const startSession = async (
         .map((card) => ({
           ...card,
           new: true as true,
+          practiceRecords: [],
         })),
     ];
   }
@@ -162,10 +169,12 @@ export const updateSessionPage = (updateSessionPage: Partial<SessionPage>) => {
 
   const card = oldState.page.upcomingCards[0];
 
+  let newPracticeRecord: PracticeRecord | undefined;
+
   switch (updateSessionPage.stage?.type) {
     case "second-side-typed":
     case "finished":
-      practiceRecordDAL.writeRecord(
+      newPracticeRecord = practiceRecordDAL.writeRecord(
         card.fileName,
         card,
         card.direction,
@@ -173,12 +182,30 @@ export const updateSessionPage = (updateSessionPage: Partial<SessionPage>) => {
       );
   }
 
+  let newPage = {
+    ...oldState.page,
+    ...updateSessionPage,
+  };
+
+  if (newPracticeRecord) {
+    newPage = {
+      ...newPage,
+      upcomingCards: [
+        {
+          ...newPage.upcomingCards[0],
+          practiceRecords: [
+            ...newPage.upcomingCards[0].practiceRecords,
+            newPracticeRecord,
+          ],
+        },
+        ...newPage.upcomingCards.slice(1),
+      ],
+    };
+  }
+
   appState.setState({
     ...oldState,
-    page: {
-      ...oldState.page,
-      ...updateSessionPage,
-    },
+    page: newPage,
   });
 };
 

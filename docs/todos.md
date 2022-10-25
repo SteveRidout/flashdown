@@ -2,7 +2,6 @@
 
 ## Essential
 
-- If user has no topics to study, point them to where they can download some online and tell them to copy them to their home directory ~/.flashdown
 - Add command line option to show SRS stats
 - Timer which updates the home page state after an hour (?), also updates the time in the practice record file if too much time has past
 - Better intervals for when you fail to remember a card
