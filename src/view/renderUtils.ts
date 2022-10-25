@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { join } from "lodash";
 import chalk from "chalk";
 
 import { TextWithCursor, TextStyle } from "../types";
@@ -309,3 +309,37 @@ export const textSection = (
     cursorPosition: reflowed.cursorPosition,
   };
 };
+
+export class TextWithCursorBuilder {
+  sections: TextWithCursor[] = [];
+
+  addText(
+    text: string = "",
+    textStyle: TextStyle = "plain",
+    cursorPosition?: { x: number; y: number }
+  ) {
+    this.sections.push(
+      textSection({ lines: [text], cursorPosition }, textStyle)
+    );
+  }
+
+  textWithCursor(): TextWithCursor {
+    return joinSections(this.sections);
+  }
+
+  // XXX How is this different to addText???
+  addFormattedText(text: string) {
+    this.sections.push(
+      indent(
+        {
+          lines: [text],
+        },
+        2
+      )
+    );
+  }
+
+  addSection(section: TextWithCursor) {
+    this.sections.push(section);
+  }
+}
