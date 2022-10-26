@@ -120,11 +120,12 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
   builder.addText();
   if (numberCompleted > previousCompletedCards) {
     builder.addFormattedText(
-      renderUtils.renderProgressBar(
-        previousCompletedCards * 0.75 + numberCompleted * 0.25,
-        totalCards,
-        getWidth() - 2
-      )
+      "  " +
+        renderUtils.renderProgressBar(
+          previousCompletedCards * 0.75 + numberCompleted * 0.25,
+          totalCards,
+          getWidth() - 2
+        )
     );
     // Add animation
     animations.push({
@@ -153,7 +154,12 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     previousCompletedCards = numberCompleted;
   } else {
     builder.addFormattedText(
-      renderUtils.renderProgressBar(numberCompleted, totalCards, getWidth() - 2)
+      "  " +
+        renderUtils.renderProgressBar(
+          numberCompleted,
+          totalCards,
+          getWidth() - 2
+        )
     );
   }
 
@@ -386,16 +392,18 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         );
         builder.addText();
         for (const lineScore of [1, 2, 3, 4]) {
-          builder.addText(
-            multipleChoiceLine(
-              lineScore,
-              true,
-              stage.type === "second-side-revealed"
-                ? stage.selectedScore
-                : undefined,
-              score
-            )
-          );
+          builder.addSection({
+            lines: [
+              multipleChoiceLine(
+                lineScore,
+                true,
+                stage.type === "second-side-revealed"
+                  ? stage.selectedScore
+                  : undefined,
+                score
+              ),
+            ],
+          });
         }
       } else {
         const didYouRemember = renderUtils.textSection(

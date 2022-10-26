@@ -168,4 +168,7 @@ export type TextStyle =
   | "feedback-medium"
   | "feedback-bad"
   | "stats"
-  | "subtle";
+  | "subtle"
+  | "title"
+  | "table-header"
+  | "table-filename";

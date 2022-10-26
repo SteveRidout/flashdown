@@ -277,30 +277,52 @@ export const textSection = (
   textWithCursor: TextWithCursor,
   style: TextStyle = "plain"
 ): TextWithCursor => {
-  const stylingFunction: ((text: string) => string) | undefined = (() => {
-    switch (style) {
-      case "plain":
-        return undefined;
+  let stylingFunction: ((text: string) => string) | undefined;
+  switch (style) {
+    case "plain":
+      // No style
+      break;
 
-      case "instruction":
-        return chalk.cyanBright;
+    case "instruction":
+      stylingFunction = chalk.cyanBright;
+      break;
 
-      case "new-card":
-        return chalk.yellowBright;
+    case "new-card":
+      stylingFunction = chalk.yellowBright;
+      break;
 
-      case "feedback-good":
-        return (text: string) => chalk.bold(chalk.greenBright(text));
+    case "feedback-good":
+      stylingFunction = (text: string) => chalk.bold(chalk.greenBright(text));
+      break;
 
-      case "feedback-medium":
-        return (text: string) => chalk.bold(chalk.yellowBright(text));
+    case "feedback-medium":
+      stylingFunction = (text: string) => chalk.bold(chalk.yellowBright(text));
+      break;
 
-      case "feedback-bad":
-        return (text: string) => chalk.bold(chalk.redBright(text));
+    case "feedback-bad":
+      stylingFunction = (text: string) => chalk.bold(chalk.redBright(text));
+      break;
 
-      default:
-        throw Error("Style not recognized");
-    }
-  })();
+    case "stats":
+    case "subtle":
+      stylingFunction = chalk.gray;
+      break;
+
+    case "title":
+      stylingFunction = chalk.yellow;
+      break;
+
+    case "table-header":
+      stylingFunction = chalk.bold;
+      break;
+
+    case "table-filename":
+      stylingFunction = chalk.gray;
+      break;
+
+    default:
+      throw Error("Style not recognized");
+  }
 
   const reflowed = reflowAndIndentLines(textWithCursor);
 
@@ -313,13 +335,19 @@ export const textSection = (
 export class TextWithCursorBuilder {
   sections: TextWithCursor[] = [];
 
+  /**
+   * Adds a single line of text, which will be wrapped if appropriate to fit within the maximum
+   * column limit and a left margin indent is added. The provided @param plainText is not permitted to
+   * contain ANSI escape codes, formatting will be applied by this function based on the provided
+   * @param textStyle.
+   */
   addText(
-    text: string = "",
+    plainText: string = "",
     textStyle: TextStyle = "plain",
     cursorPosition?: { x: number; y: number }
   ) {
     this.sections.push(
-      textSection({ lines: [text], cursorPosition }, textStyle)
+      textSection({ lines: [plainText], cursorPosition }, textStyle)
     );
   }
 
@@ -327,16 +355,15 @@ export class TextWithCursorBuilder {
     return joinSections(this.sections);
   }
 
-  // XXX How is this different to addText???
-  addFormattedText(text: string) {
-    this.sections.push(
-      indent(
-        {
-          lines: [text],
-        },
-        2
-      )
-    );
+  /**
+   * This is different from addText in that @param formattedText is permitted to contain ANSI escape
+   * codes and it won't be reflowed, so the caller needs to make sure that @param formattedText
+   * doesn't exceed the maximum column limit.
+   */
+  addFormattedText(formattedText: string) {
+    this.sections.push({
+      lines: [formattedText],
+    });
   }
 
   addSection(section: TextWithCursor) {
