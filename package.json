@@ -17,7 +17,6 @@
     "webpack-cli": "4.10.0"
   },
   "dependencies": {
-    "ansi-regex": "6.0.1",
     "chalk": "^4",
     "commander": "9.4.1",
     "lodash": "4.17.21",
