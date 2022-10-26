@@ -90,27 +90,24 @@ export const render = (
     // Go for simple smaller title instead
     builder.addText();
     const flashdownString = "FLASHDOWN";
-    builder.addSection({
-      lines: [
-        chalk.yellow(
-          "  " +
-            chalk.bold(flashdownString) +
-            _.repeat(
-              " ",
-              getWidth() - flashdownString.length - versionString.length - 2
-            ) +
-            versionString
-        ),
-      ],
-    });
+    builder.addFormattedText(
+      chalk.yellow(
+        "  " +
+          chalk.bold(flashdownString) +
+          _.repeat(
+            " ",
+            getWidth() - flashdownString.length - versionString.length - 2
+          ) +
+          versionString
+      )
+    );
   } else {
     for (const line of title) {
-      // lines.push(chalk.yellow("  " + line));
       builder.addText(line, "title");
     }
-    builder.addSection({
-      lines: [chalk.yellow(_.padStart(versionString, getWidth()))],
-    });
+    builder.addFormattedText(
+      chalk.yellow(_.padStart(versionString, getWidth()))
+    );
   }
 
   if (homePageData.streak > 0) {
@@ -165,7 +162,7 @@ export const render = (
       ) {
         lineText = chalk.bold(lineText);
       }
-      builder.addSection({ lines: [lineText] });
+      builder.addFormattedText(lineText);
       topicIndex++;
     }
     builder.addText();

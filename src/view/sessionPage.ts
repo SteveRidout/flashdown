@@ -391,18 +391,16 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         );
         builder.addText();
         for (const lineScore of [1, 2, 3, 4]) {
-          builder.addSection({
-            lines: [
-              multipleChoiceLine(
-                lineScore,
-                true,
-                stage.type === "second-side-revealed"
-                  ? stage.selectedScore
-                  : undefined,
-                score
-              ),
-            ],
-          });
+          builder.addFormattedText(
+            multipleChoiceLine(
+              lineScore,
+              true,
+              stage.type === "second-side-revealed"
+                ? stage.selectedScore
+                : undefined,
+              score
+            )
+          );
         }
       } else {
         const didYouRemember = renderUtils.textSection(
