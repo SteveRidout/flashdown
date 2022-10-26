@@ -18,6 +18,8 @@ program.parse(process.argv);
 
 config.setOptions(program.opts());
 
+appState.setUpdateViewFunction(view.updateView);
+
 debug.log("Start app");
 debug.log("---------");
 

@@ -98,7 +98,8 @@ describe("getSpacedRepetitionInfo", () => {
         },
       ])
     ).toStrictEqual({
-      nextPracticeTime: minutesSinceEpoch(new Date(2022, 10, 16)) + 6 * 60,
+      nextPracticeTime:
+        minutesSinceEpoch(new Date(2022, 10, 16)) + (6 * DAY) / 4,
       previousInterval: 6 * DAY,
       previousScore: 1,
       easinessFactor: 1.8,
@@ -121,13 +122,16 @@ describe("getSpacedRepetitionInfo", () => {
           score: 1,
         },
         {
+          // This practice is earlier than the scheduled time of 1.5 (=6/4) days later
           practiceTime: minutesSinceEpoch(new Date(2022, 10, 16)) + 0.5 * DAY,
           score: 3,
         },
       ])
     ).toStrictEqual({
       nextPracticeTime:
-        minutesSinceEpoch(new Date(2022, 10, 16)) + 0.5 * DAY + 1.8 * 0.5 * DAY,
+        // Not allowed to *reduce* the interval compared to the previous one, which was 1.5 days, so
+        // this needs to be 1.5 days too
+        minutesSinceEpoch(new Date(2022, 10, 16)) + 0.5 * DAY + 1.5 * DAY,
       previousInterval: 0.5 * DAY,
       previousScore: 3,
       easinessFactor: 1.8,

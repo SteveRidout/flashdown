@@ -50,3 +50,6 @@ export const wholeDateAddDays = (
     day: date.getUTCDate(),
   };
 };
+
+/** Returns true if we are running from within a unit test */
+export const inUnitTest = () => process.env.JEST_WORKER_ID !== undefined;

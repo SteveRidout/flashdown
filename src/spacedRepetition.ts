@@ -96,7 +96,8 @@ export const getSpacedRepetitionInfo = (
 
           // Since the user got this right, let's ensure that the next interval can't decrease
           // compared to the previous one. This is only for the case where the user happened to
-          // practice before the scheduled time, e.g. perhaps they are cramming before an exam.
+          // force a practice before the scheduled time, e.g. perhaps they are cramming before an
+          // exam.
           interval = Math.max(previous.nextInterval, interval);
 
           // Enforce the minimum interval duration for correct answers
@@ -108,7 +109,7 @@ export const getSpacedRepetitionInfo = (
       }
     })();
 
-    nextPracticeTime = record.practiceTime + nextInterval / 2;
+    nextPracticeTime = record.practiceTime + nextInterval;
 
     previous = {
       time: record.practiceTime,

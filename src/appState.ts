@@ -5,11 +5,19 @@ import * as view from "./view/index";
 // (A bit like the architecture used by Elm and Redux)
 let appState: AppState;
 
+let updateView: (appState: AppState) => void;
+
+export const setUpdateViewFunction = (
+  newUpdateViewFunction: typeof updateView
+) => {
+  updateView = newUpdateViewFunction;
+};
+
 export const setState = (newAppState: AppState) => {
   appState = newAppState;
 
   // Trigger view update
-  view.updateView(appState);
+  updateView?.(appState);
 };
 
 export const get = () => appState;
