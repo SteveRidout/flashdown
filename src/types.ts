@@ -159,3 +159,16 @@ export interface TerminalViewModel {
 }
 
 export type FilesStatus = "user-specified-file-not-found" | "files-found";
+
+export type TextStyle =
+  | "plain"
+  | "instruction"
+  | "new-card"
+  | "feedback-good"
+  | "feedback-medium"
+  | "feedback-bad"
+  | "stats"
+  | "subtle"
+  | "title"
+  | "table-header"
+  | "table-filename";

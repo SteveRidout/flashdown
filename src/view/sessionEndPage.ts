@@ -2,6 +2,7 @@ import chalk from "chalk";
 
 import { TerminalViewModel } from "../types";
 import * as actions from "../actions";
+import _ from "lodash";
 
 const pluralize = (word: string, amount: number) =>
   `${word}${amount === 1 ? "" : "s"}`;
@@ -38,9 +39,7 @@ export const render = (
                 y: 3,
               },
               frames: [
-                ".",
-                "-",
-                "'",
+                ...animationFrames(previousStreak, currentStreak),
                 `${currentStreak} (+${currentStreak - previousStreak})`,
               ],
               initialDelay: 500,
@@ -55,4 +54,23 @@ export const render = (
       return true;
     },
   };
+};
+
+const animationFrames = (oldStreak: number, newStreak: number): string[] => {
+  const oldString = oldStreak.toString();
+  const newString = newStreak.toString();
+
+  const updateFrames = [".", "-", "'"];
+
+  return _.range(updateFrames.length).map((frameIndex) => {
+    return newString
+      .split("")
+      .map((newCharacter, characterIndex) => {
+        if (newCharacter === oldString[characterIndex]) {
+          return newCharacter;
+        }
+        return updateFrames[frameIndex];
+      })
+      .join("");
+  });
 };

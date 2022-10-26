@@ -1,7 +1,6 @@
 import * as _ from "lodash";
 import chalk from "chalk";
 
-import * as config from "../config";
 import { HomePage, HomePageData, TerminalViewModel } from "../types";
 import * as renderUtils from "./renderUtils";
 import { version as appVersion } from "../../package.json";
@@ -70,7 +69,7 @@ export const render = (
 ): TerminalViewModel => {
   const selectedTopicIndex = homePage.selectedTopicIndex;
 
-  const lines: string[] = [];
+  const builder = new renderUtils.TextWithCursorBuilder();
 
   /**
    * Font comes from this repo which uses the MIT license
@@ -89,9 +88,9 @@ export const render = (
 
   if (title[1].length > getWidth()) {
     // Go for simple smaller title instead
-    lines.push("");
+    builder.addText();
     const flashdownString = "FLASHDOWN";
-    lines.push(
+    builder.addFormattedText(
       chalk.yellow(
         "  " +
           chalk.bold(flashdownString) +
@@ -104,9 +103,11 @@ export const render = (
     );
   } else {
     for (const line of title) {
-      lines.push(chalk.yellow("  " + line));
+      builder.addText(line, "title");
     }
-    lines.push(chalk.yellow(_.padStart(versionString, getWidth())));
+    builder.addFormattedText(
+      chalk.yellow(_.padStart(versionString, getWidth()))
+    );
   }
 
   if (homePageData.streak > 0) {
@@ -114,35 +115,29 @@ export const render = (
       ? ", come back tomorrow to avoid losing it!"
       : `, practice now to make it ${homePageData.streak + 1}!`;
 
-    lines.push("");
-
-    // XXX This system of using lines.push() is getting ugly -- refactor!
-    renderUtils
-      .reflowAndIndentLine(
-        `You're on a ${homePageData.streak} day streak${callToAction}`
-      )
-      .lines.forEach((line) => {
-        lines.push(line);
-      });
+    builder.addText();
+    builder.addText(
+      `You're on a ${homePageData.streak} day streak${callToAction}`
+    );
   }
 
-  lines.push("");
+  builder.addText();
 
   const column2Width = (38 / 78) * getWidth();
   const columnWidths = [getWidth() - column2Width - 2 - 2, column2Width];
 
-  lines.push(
-    chalk.bold("  " + tableRow(["TOPIC", "PRACTICE PROGRESS"], columnWidths))
+  builder.addText(
+    tableRow(["TOPIC", "PRACTICE PROGRESS"], columnWidths),
+    "table-header"
   );
-  lines.push("  " + tableRow(["-----", "-----------------"], columnWidths));
+  builder.addText(tableRow(["-----", "-----------------"], columnWidths));
 
   for (let fileIndex = 0; fileIndex < homePageData.topics.length; fileIndex++) {
     const file = homePageData.topics[fileIndex];
     if (homePageData.topics.length > 2 && file.fileName) {
-      lines.push(
-        chalk.gray(
-          tableRow(["  " + _.last(file.fileName.split("/")), ""], columnWidths)
-        )
+      builder.addText(
+        tableRow([_.last(file.fileName.split("/")) ?? "", ""], columnWidths),
+        "table-filename"
       );
     }
 
@@ -167,23 +162,20 @@ export const render = (
       ) {
         lineText = chalk.bold(lineText);
       }
-      lines.push(lineText);
+      builder.addFormattedText(lineText);
       topicIndex++;
     }
-    lines.push("");
+    builder.addText();
   }
 
-  lines.push("");
-  renderUtils
-    .instructionText(
-      "Use the UP and DOWN keys to select the topic and hit ENTER to start"
-    )
-    .lines.forEach((line) => {
-      lines.push(line);
-    });
+  builder.addText();
+  builder.addText(
+    "Use the UP and DOWN keys to select the topic and hit ENTER to start",
+    "instruction"
+  );
 
   return {
-    textWithCursor: { lines },
+    textWithCursor: builder.textWithCursor(),
     animations: [],
     keyPressHandler: (_str, key) => {
       const state = appState.get();

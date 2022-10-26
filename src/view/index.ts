@@ -1,8 +1,8 @@
 import * as _ from "lodash";
 import * as readline from "readline";
 import chalk from "chalk";
-import ansiRegex from "ansi-regex";
 
+import ansiRegex from "../ansiRegex";
 import {
   Animation,
   AppState,

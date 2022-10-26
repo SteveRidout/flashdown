@@ -1,7 +1,7 @@
-import _ from "lodash";
+import _, { join } from "lodash";
 import chalk from "chalk";
 
-import { TextWithCursor } from "../types";
+import { TextWithCursor, TextStyle } from "../types";
 import { getWidth } from "../terminalSize";
 
 /**
@@ -61,7 +61,8 @@ export const reflowText = (
 
     while (reflowedLines[reflowedLines.length - 1].length > columns) {
       if (reflowedLines[reflowedLines.length - 1][columns] === "_") {
-        // Just split underlines wherever they are
+        // Just split underlines wherever they are, regardless of whether there's a word break in
+        // the text that's being hidden
         reflowedLines = [
           ...reflowedLines.slice(0, reflowedLines.length - 1),
           reflowedLines[reflowedLines.length - 1].substring(0, columns),
@@ -240,7 +241,8 @@ const overlayLine = (
 ): string => {
   return (
     _.padEnd(background.substring(0, x), x, " ") +
-    overlay +
+    // XXX Hackily hard coding color here
+    chalk.yellow(overlay) +
     background.substring(x + overlay.length)
   );
 };
@@ -265,26 +267,112 @@ export const renderProgressBar = (
   )}${_.repeat(chalk.grey("░"), barWidth - screenPosition)}${suffix}`;
 };
 
-export const reflowAndIndentLines = (lines: string[]): TextWithCursor => {
-  return indent(
-    reflowText(
-      {
-        lines,
-      },
-      getWidth() - 2
-    ),
-    2
-  );
+export const reflowAndIndentLines = (
+  textWithCursor: TextWithCursor
+): TextWithCursor => {
+  return indent(reflowText(textWithCursor, getWidth() - 2), 2);
 };
 
-export const reflowAndIndentLine = (line: string): TextWithCursor => {
-  return reflowAndIndentLines([line]);
-};
+export const textSection = (
+  textWithCursor: TextWithCursor,
+  style: TextStyle = "plain"
+): TextWithCursor => {
+  let stylingFunction: ((text: string) => string) | undefined;
+  switch (style) {
+    case "plain":
+      // No style
+      break;
 
-export const instructionText = (instruction: string): TextWithCursor => {
+    case "instruction":
+      stylingFunction = chalk.cyanBright;
+      break;
+
+    case "new-card":
+      stylingFunction = chalk.yellowBright;
+      break;
+
+    case "feedback-good":
+      stylingFunction = (text: string) => chalk.bold(chalk.greenBright(text));
+      break;
+
+    case "feedback-medium":
+      stylingFunction = (text: string) => chalk.bold(chalk.yellowBright(text));
+      break;
+
+    case "feedback-bad":
+      stylingFunction = (text: string) => chalk.bold(chalk.redBright(text));
+      break;
+
+    case "stats":
+    case "subtle":
+      stylingFunction = chalk.gray;
+      break;
+
+    case "title":
+      stylingFunction = chalk.yellow;
+      break;
+
+    case "table-header":
+      stylingFunction = chalk.bold;
+      break;
+
+    case "table-filename":
+      stylingFunction = chalk.gray;
+      break;
+
+    default:
+      throw Error("Style not recognized");
+  }
+
+  const reflowed = reflowAndIndentLines(textWithCursor);
+
   return {
-    lines: reflowAndIndentLine(instruction).lines.map((line) =>
-      chalk.cyanBright(line)
-    ),
+    lines: reflowed.lines.map((line) => stylingFunction?.(line) ?? line),
+    cursorPosition: reflowed.cursorPosition,
   };
 };
+
+export class TextWithCursorBuilder {
+  sections: TextWithCursor[] = [];
+
+  /**
+   * Adds either a single line of text or a list of lines, which will be wrapped if appropriate to
+   * fit within the maximum column limit and a left margin indent is added. The provided
+   * @param plainText is not permitted to contain ANSI escape codes, formatting will be applied by
+   * this function based on the provided @param textStyle.
+   */
+  addText(
+    plainText: string | string[] = "",
+    textStyle: TextStyle = "plain",
+    cursorPosition?: { x: number; y: number }
+  ) {
+    this.sections.push(
+      textSection(
+        {
+          lines: _.isString(plainText) ? [plainText] : plainText,
+          cursorPosition,
+        },
+        textStyle
+      )
+    );
+  }
+
+  textWithCursor(): TextWithCursor {
+    return joinSections(this.sections);
+  }
+
+  /**
+   * This is different from addText in that @param formattedText is permitted to contain ANSI escape
+   * codes and it won't be reflowed, so the caller needs to make sure that @param formattedText
+   * doesn't exceed the maximum column limit.
+   */
+  addFormattedText(formattedText: string) {
+    this.sections.push({
+      lines: [formattedText],
+    });
+  }
+
+  addSection(section: TextWithCursor) {
+    this.sections.push(section);
+  }
+}
