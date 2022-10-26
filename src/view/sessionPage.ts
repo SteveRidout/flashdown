@@ -383,8 +383,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         createCard(card.sectionTitle, { lines: [text] }, 2, card.note)
       );
 
-      builder.addText();
-      builder.addText();
+      builder.addText(["", ""]);
       if (card.new) {
         builder.addText(
           "Did you already know this? Press the appropriate NUMBER KEY:",
@@ -527,32 +526,31 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
   // XXX Extract to separate component
   if (config.get().stats && !card.new && "previousInterval" in card) {
-    builder.addText();
-    builder.addText();
+    builder.addText(["", ""]);
     const lastPracticeRecord = _.last(card.practiceRecords);
     if (lastPracticeRecord) {
       builder.addText(
-        "Previous practices: " + card.practiceRecords?.length,
-        "stats"
-      );
-      builder.addText(
-        "Previous practice date: " +
-          new Date(lastPracticeRecord.practiceTime * 60 * 1000).toDateString(),
+        [
+          "Previous practices: " + card.practiceRecords?.length,
+          "Previous practice date: " +
+            new Date(
+              lastPracticeRecord.practiceTime * 60 * 1000
+            ).toDateString(),
+        ],
         "stats"
       );
     } else {
       builder.addText("Previous practices: " + 0, "stats");
     }
     builder.addText(
-      "Previous interval: " +
-        (card.previousInterval === undefined
-          ? "undefined"
-          : (card.previousInterval / 60 / 24).toFixed(1) + " days"),
-      "stats"
-    );
-    builder.addText("Previous score: " + card.previousScore, "stats");
-    builder.addText(
-      "Previous easiness: " + card.easinessFactor.toFixed(2),
+      [
+        "Previous interval: " +
+          (card.previousInterval === undefined
+            ? "undefined"
+            : (card.previousInterval / 60 / 24).toFixed(1) + " days"),
+        "Previous score: " + card.previousScore,
+        "Previous easiness: " + card.easinessFactor.toFixed(2),
+      ],
       "stats"
     );
 
@@ -560,12 +558,11 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords);
       if (nextSRSInfo) {
         builder.addText(
-          "Next practice time: " +
-            new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString(),
-          "stats"
-        );
-        builder.addText(
-          "Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2),
+          [
+            "Next practice time: " +
+              new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString(),
+            "Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2),
+          ],
           "stats"
         );
       } else {
@@ -587,15 +584,14 @@ export const createCard = (
   leftMargin: number = 0,
   note?: string
 ) => {
-  const lines: TextWithCursor[] = [];
-
-  lines.push({ lines: [`Topic: ${topic}`] });
-  lines.push({ lines: [""] });
-  lines.push(body);
-  lines.push({ lines: [""] });
+  const cardContent: TextWithCursor[] = [
+    { lines: [`Topic: ${topic}`, ""] },
+    body,
+    { lines: [""] },
+  ];
 
   const cardWithoutNote = addFrame(
-    renderUtils.joinSections(lines),
+    renderUtils.joinSections(cardContent),
     getWidth(),
     leftMargin
   );

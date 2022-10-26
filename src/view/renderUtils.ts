@@ -336,18 +336,24 @@ export class TextWithCursorBuilder {
   sections: TextWithCursor[] = [];
 
   /**
-   * Adds a single line of text, which will be wrapped if appropriate to fit within the maximum
-   * column limit and a left margin indent is added. The provided @param plainText is not permitted to
-   * contain ANSI escape codes, formatting will be applied by this function based on the provided
-   * @param textStyle.
+   * Adds either a single line of text or a list of lines, which will be wrapped if appropriate to
+   * fit within the maximum column limit and a left margin indent is added. The provided
+   * @param plainText is not permitted to contain ANSI escape codes, formatting will be applied by
+   * this function based on the provided @param textStyle.
    */
   addText(
-    plainText: string = "",
+    plainText: string | string[] = "",
     textStyle: TextStyle = "plain",
     cursorPosition?: { x: number; y: number }
   ) {
     this.sections.push(
-      textSection({ lines: [plainText], cursorPosition }, textStyle)
+      textSection(
+        {
+          lines: _.isString(plainText) ? [plainText] : plainText,
+          cursorPosition,
+        },
+        textStyle
+      )
     );
   }
 
