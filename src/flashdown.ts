@@ -14,6 +14,12 @@ import * as view from "./view/index";
 program.option("--file <filename>");
 program.option("--test", "Don't write practice records");
 program.option("--stats", "Show spaced repetition stats during session");
+program.option(
+  "--cram <multiplier>",
+  "Enable cram mode multiplier, use any number greater than 1 to decrease the card scheduling " +
+    "intervals and therefore increase your rate of study",
+  "1"
+);
 program.parse(process.argv);
 
 config.setOptions(program.opts());

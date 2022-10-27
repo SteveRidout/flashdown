@@ -1,6 +1,5 @@
 import { CardLearningDerivedMetrics, PracticeRecord } from "./types";
-
-import * as debug from "./debug";
+import * as config from "./config";
 
 // The spaced repetition algorithm is inspired by SM2, originally used in SuperMemo and a variant of
 // which is used in the popular flashcard app Anki.
@@ -32,9 +31,9 @@ const defaultConfig: SpacedRepetitionConfig = {
 
 export const getSpacedRepetitionInfo = (
   records: PracticeRecord[],
-  config: SpacedRepetitionConfig = defaultConfig
+  srsConfig: SpacedRepetitionConfig = defaultConfig
 ): CardLearningDerivedMetrics | undefined => {
-  let easinessFactor = config.initialEasinessFactor;
+  let easinessFactor = srsConfig.initialEasinessFactor;
   let previous:
     | {
         time: number;
@@ -44,6 +43,12 @@ export const getSpacedRepetitionInfo = (
       }
     | undefined;
   let nextPracticeTime: number | undefined;
+
+  /**
+   * A factor which the scheduling interval is divided by. If it's greater than 1 the intervals will
+   * decrease, thereby increasing the rate of study.
+   */
+  const cramFactor = config.get().cram ?? 1;
 
   for (const record of records) {
     if (previous !== undefined && record.practiceTime < previous.time) {
@@ -83,16 +88,19 @@ export const getSpacedRepetitionInfo = (
           // Schedule for 1/4 of the previous interval, or in 1 minute's time if there is no
           // previous interval, allowing the user to re-practice this immediately after this
           // session if they want to.
-          return previousInterval === undefined ? 1 : previousInterval / 4;
+          return (
+            (previousInterval === undefined ? 1 : previousInterval / 4) /
+            cramFactor
+          );
         case 2:
         case 3:
         case 4:
           if (previousInterval === undefined || previous === undefined) {
             // Schedule the first interval multiplied by a factor based on the score
-            return config.firstInterval * Math.pow(2, record.score - 3);
+            return srsConfig.firstInterval * Math.pow(2, record.score - 3);
           }
 
-          let interval = previousInterval * easinessFactor;
+          let interval = (previousInterval * easinessFactor) / cramFactor;
 
           // Since the user got this right, let's ensure that the next interval can't decrease
           // compared to the previous one. This is only for the case where the user happened to
@@ -101,7 +109,7 @@ export const getSpacedRepetitionInfo = (
           interval = Math.max(previous.nextInterval, interval);
 
           // Enforce the minimum interval duration for correct answers
-          interval = Math.max(config.minimumCorrectInterval, interval);
+          interval = Math.max(srsConfig.minimumCorrectInterval, interval);
 
           return interval;
         default:

@@ -13,9 +13,17 @@ interface CLIOptions {
   file?: string;
   test?: boolean;
   stats?: boolean;
+  cram?: number;
 }
 
 let config: typeof coreConfig & CLIOptions = coreConfig;
+
+const parseCLIOptions = (rawOptions: any): CLIOptions => ({
+  file: rawOptions.file,
+  test: rawOptions.test,
+  stats: rawOptions.stats,
+  cram: parseInt(rawOptions.cram, 10),
+});
 
 export const setOptions = (options: CLIOptions) => {
   config = { ...config, ...options };
