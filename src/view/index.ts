@@ -1,5 +1,4 @@
 import * as _ from "lodash";
-import * as readline from "readline";
 import chalk from "chalk";
 
 import ansiRegex from "../ansiRegex";
@@ -18,10 +17,14 @@ import * as ansiEscapes from "../ansiEscapes";
 import { sleep } from "../utils";
 import * as keyboard from "../keyboard";
 import { getWidth } from "../terminalSize";
+import * as debug from "../debug";
 
-// Would be nice to do clever diffing here so that we only need to update what actually changed like
-// React does, but for now it simply re-renders everything.
-
+/**
+ * Update the view based on the new app state.
+ *
+ * XXX It might be nice to do clever diffing so that we only need to update what actually changed
+ * like React does, but for now it simply re-renders everything.
+ */
 export const updateView = async (
   appState: AppState,
   clearTerminal: boolean = false
@@ -66,38 +69,42 @@ export const updateView = async (
   }
 };
 
-/** Counts the number of renders we've done so far */
-let renderCount = -1;
+/** Counts the number of renders we've started so far */
+let startedRenderingCount = 0;
 
 /** Animations running */
 let animationsRunning = 0;
 let previousCursorPosition: { x: number; y: number } | undefined;
 let previousTextWithCursor: TextWithCursor = { lines: [] };
 
+/**
+ * Adds padding so that the line takes up the full width and therefore will overwrite the entire
+ * line from the previous render
+ */
 const normalizeLine = (line: string) => {
   const onScreenLength = line.replace(ansiRegex(), "").length;
-
-  // XXX Would be good to also restrict the length of each line so that it can't exceed
-  // config.maxColumnWidth
   return line + _.repeat(" ", getWidth() - onScreenLength);
 };
 
+/**
+ * Render the view model to the terminal, ensuring that no unintended artifacts remain from the
+ * previous render
+ */
 const renderToTerminal = async (model: TerminalViewModel) => {
-  renderCount++;
+  startedRenderingCount++;
 
-  if (renderCount === 0) {
+  if (startedRenderingCount === 1) {
     process.stdout.write(ansiEscapes.enableAlternativeBuffer);
   }
 
   const { lines, cursorPosition } = model.textWithCursor;
 
   process.stdin.write(ansiEscapes.hideCursor);
-  // console.clear();
   process.stdout.cursorTo(0, 0);
 
-  if (renderCount === 0) {
+  if (startedRenderingCount === 1) {
     process.stdin.write(ansiEscapes.hideCursor);
-    // The first time, present the lines one by one:
+    // For the very first render, animate the lines appearing one by one from top to bottom:
     for (const line of lines) {
       process.stdout.write(
         line
@@ -111,7 +118,7 @@ const renderToTerminal = async (model: TerminalViewModel) => {
       );
       await sleep(50);
 
-      if (renderCount > 0) {
+      if (startedRenderingCount > 1) {
         // Abort animating if we are on the next render
         return;
       }
@@ -127,7 +134,7 @@ const renderToTerminal = async (model: TerminalViewModel) => {
   process.stdout.clearScreenDown();
 
   if (cursorPosition) {
-    readline.cursorTo(process.stdout, cursorPosition.x, cursorPosition.y);
+    process.stdout.cursorTo(cursorPosition.x, cursorPosition.y);
     process.stdin.write(ansiEscapes.showCursor);
   } else {
     process.stdin.write(ansiEscapes.hideCursor);
@@ -162,8 +169,7 @@ const runAnimation = async (
         animationsRunning--;
         // Check whether we need to update the cursor position
         if (animationsRunning === 0 && previousCursorPosition) {
-          readline.cursorTo(
-            process.stdout,
+          process.stdout.cursorTo(
             previousCursorPosition.x,
             previousCursorPosition.y
           );
@@ -172,14 +178,14 @@ const runAnimation = async (
         return;
       }
 
-      const currentRenderCount = renderCount;
+      const currentRenderCount = startedRenderingCount;
 
       const delay =
         frameIndex === 0 ? animation.initialDelay : animation.frameDuration;
 
       await sleep(delay);
 
-      if (renderCount > currentRenderCount) {
+      if (startedRenderingCount > currentRenderCount) {
         // Abort since a new render has been done since this animation started
         return;
       }
@@ -215,8 +221,7 @@ const runAnimation = async (
             .join("\n")
         );
         if (current.cursorPosition) {
-          readline.cursorTo(
-            process.stdout,
+          process.stdout.cursorTo(
             current.cursorPosition.x,
             current.cursorPosition.y
           );

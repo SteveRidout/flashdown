@@ -465,7 +465,6 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
           switch (keyName) {
             case "up":
             case "k":
-              // selectedScore = Math.max(1, selectedScore - 1);
               actions.updateSessionPage({
                 stage: {
                   type: "second-side-revealed",
@@ -656,6 +655,5 @@ export const addFrame = (
     ],
   });
 
-  // return applyCardColor(renderUtils.joinSections(sections));
   return renderUtils.joinSections(sections);
 };

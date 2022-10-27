@@ -24,6 +24,7 @@ program.parse(process.argv);
 
 config.setOptions(program.opts());
 
+// Link app state to the view
 appState.setUpdateViewFunction(view.updateView);
 
 debug.log("Start app");
