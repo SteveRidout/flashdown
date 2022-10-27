@@ -21,9 +21,9 @@ const testTextWithoutCursor: TextWithCursor = {
   ],
 };
 
-describe("reflowText", () => {
+describe("wrapText", () => {
   test("width 30", () => {
-    expect(renderUtils.reflowText(testTextWithoutCursor, 30)).toStrictEqual({
+    expect(renderUtils.wrapText(testTextWithoutCursor, 30)).toStrictEqual({
       cursorPosition: undefined,
       lines: [
         "Heading",
@@ -35,7 +35,7 @@ describe("reflowText", () => {
   });
 
   test("width 20", () => {
-    expect(renderUtils.reflowText(testTextWithoutCursor, 20)).toStrictEqual({
+    expect(renderUtils.wrapText(testTextWithoutCursor, 20)).toStrictEqual({
       cursorPosition: undefined,
       lines: [
         "Heading",
@@ -48,7 +48,7 @@ describe("reflowText", () => {
   });
 
   test("width 30 with cursor position", () => {
-    expect(renderUtils.reflowText(testTextWithCursor, 30)).toStrictEqual({
+    expect(renderUtils.wrapText(testTextWithCursor, 30)).toStrictEqual({
       cursorPosition: { x: 10, y: 3 },
       lines: [
         "Heading",
@@ -61,7 +61,7 @@ describe("reflowText", () => {
   });
 
   test("width 15 with cursor position", () => {
-    expect(renderUtils.reflowText(testTextWithCursor, 15)).toStrictEqual({
+    expect(renderUtils.wrapText(testTextWithCursor, 15)).toStrictEqual({
       cursorPosition: { x: 12, y: 4 },
       lines: [
         "Heading",
@@ -77,7 +77,7 @@ describe("reflowText", () => {
 
   test("width 15 with cursor position", () => {
     expect(
-      renderUtils.reflowText(
+      renderUtils.wrapText(
         {
           lines: [
             "What was the total electricity consumption of Spain in 2018? : _______",

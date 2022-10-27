@@ -36,12 +36,19 @@ export const joinSections = (sections: TextWithCursor[]): TextWithCursor => {
   };
 };
 
-export const reflowText = (
+/**
+ * Wrap text to fit within maximum number of columns
+ *
+ * @param textWithCursor The input text to be wrapped
+ * @param maxColumns The maximum number of columns permitted in the output text
+ * @returns The input text but with each line wrapped to fit within the given number of columns
+ */
+export const wrapText = (
   textWithCursor: TextWithCursor,
-  columns: number
+  maxColumns: number
 ): TextWithCursor => {
-  // XXX Is it worth creating this intermediate list or better just to create the final one from the
-  // outset??
+  // XXX Is it worth creating this intermediate list or would it be neater start building the final
+  // TextWithCursor object from the outset??
   const intermediateSections: TextWithCursor[] = [];
 
   for (
@@ -59,31 +66,31 @@ export const reflowText = (
         : undefined;
     let newLineCursorPosition: { x: number; y: number } | undefined;
 
-    while (reflowedLines[reflowedLines.length - 1].length > columns) {
-      if (reflowedLines[reflowedLines.length - 1][columns] === "_") {
+    while (reflowedLines[reflowedLines.length - 1].length > maxColumns) {
+      if (reflowedLines[reflowedLines.length - 1][maxColumns] === "_") {
         // Just split underlines wherever they are, regardless of whether there's a word break in
         // the text that's being hidden
         reflowedLines = [
           ...reflowedLines.slice(0, reflowedLines.length - 1),
-          reflowedLines[reflowedLines.length - 1].substring(0, columns),
-          reflowedLines[reflowedLines.length - 1].substring(columns),
+          reflowedLines[reflowedLines.length - 1].substring(0, maxColumns),
+          reflowedLines[reflowedLines.length - 1].substring(maxColumns),
         ];
 
         if (cursorPositionX !== undefined) {
-          if (cursorPositionX < columns) {
+          if (cursorPositionX < maxColumns) {
             newLineCursorPosition = {
               y: currentY,
               x: cursorPositionX,
             };
             cursorPositionX = undefined;
           } else {
-            cursorPositionX -= columns;
+            cursorPositionX -= maxColumns;
           }
         }
 
         currentY += 1;
       } else {
-        let reflowX = columns;
+        let reflowX = maxColumns;
         while (
           reflowedLines[reflowedLines.length - 1][reflowX] !== " " &&
           reflowX > 0
@@ -92,7 +99,7 @@ export const reflowText = (
         }
 
         if (reflowX === 0) {
-          reflowX = columns - 1;
+          reflowX = maxColumns - 1;
 
           // Uh-oh, we couldn't reflow since there was no space character, so split the word with a
           // hyphen
@@ -200,49 +207,60 @@ export const shiftRight = (
 };
 
 /**
- * Generates a new TextWithCursor in which @param overlayLines is overlayed on top of
- * @param textWithCursor at the given @param position.
+ * Overlay one block of text over the top of another block of text at a given position
  *
- * The cursor position from @param textWithCursor is maintained.
+ * @param backgroundLines The text to appear underneath
+ * @param overlayLines The text to appear on top
+ * @param position The coordinates at which to start drawing the overlay over the background
+ * @returns combined text in which overlayLines is overlayed on top of backgroundLines
  */
 export const overlay = (
-  textWithCursor: TextWithCursor,
+  backgroundLines: TextWithCursor,
   overlayLines: string[],
   position: { x: number; y: number }
 ): TextWithCursor => {
   const totalLines = Math.max(
-    textWithCursor.lines.length,
+    backgroundLines.lines.length,
     position.y + overlayLines.length
   );
 
   return {
-    ...textWithCursor,
+    ...backgroundLines,
     lines: _.range(totalLines).map((lineIndex) => {
       if (
         lineIndex < position.y ||
         lineIndex > position.y + overlayLines.length
       ) {
-        return textWithCursor.lines[lineIndex];
+        return backgroundLines.lines[lineIndex];
       }
 
       return overlayLine(
-        textWithCursor.lines[lineIndex] ?? "",
+        backgroundLines.lines[lineIndex] ?? "",
         overlayLines[lineIndex - position.y],
-        position.x
+        position.x,
+        chalk.yellow
       );
     }),
   };
 };
 
+/**
+ * Overlays a single line of text on top of another single line of text
+ *
+ * @param background The text "underneath", which will be partially obscured
+ * @param overlay The text which will appear "on top"
+ * @param x The character index within background where the overlay will start
+ * @returns The combined line of text
+ */
 const overlayLine = (
   background: string,
   overlay: string,
-  x: number
+  x: number,
+  styleFunction?: (plainText: string) => string
 ): string => {
   return (
     _.padEnd(background.substring(0, x), x, " ") +
-    // XXX Hackily hard coding color here
-    chalk.yellow(overlay) +
+    (styleFunction?.(overlay) ?? overlay) +
     background.substring(x + overlay.length)
   );
 };
@@ -270,7 +288,7 @@ export const renderProgressBar = (
 export const reflowAndIndentLines = (
   textWithCursor: TextWithCursor
 ): TextWithCursor => {
-  return indent(reflowText(textWithCursor, getWidth() - 2), 2);
+  return indent(wrapText(textWithCursor, getWidth() - 2), 2);
 };
 
 export const textSection = (

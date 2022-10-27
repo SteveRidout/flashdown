@@ -16,15 +16,15 @@ That said, I'd love for you to try it out and please [open an issue on GitHub](h
 
 ## How to use
 
-You will need Node.js (only tested on version 16.13.1 for now) installed on your system.
+You will need Node.js installed on your system (mainly tested on 16.13.1 but any recent version should work).
 
-To install Flashdown:
+To install:
 
 ```sh
 npm install -g flashdown
 ```
 
-To run Flashdown:
+To run:
 
 ```sh
 npx flashdown

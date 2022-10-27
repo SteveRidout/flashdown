@@ -14,7 +14,7 @@ export const render = (message: string[]): TerminalViewModel => {
       lines: [
         "",
         ...renderUtils.indent(
-          renderUtils.reflowText({ lines: message }, getWidth() - indent),
+          renderUtils.wrapText({ lines: message }, getWidth() - indent),
           indent
         ).lines,
         "",

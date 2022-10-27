@@ -625,10 +625,7 @@ export const addFrame = (
     ],
   });
 
-  let bodyLines = renderUtils.reflowText(
-    textWithCursor,
-    width - 4 - leftMargin
-  );
+  let bodyLines = renderUtils.wrapText(textWithCursor, width - 4 - leftMargin);
 
   for (let lineIndex = 0; lineIndex < bodyLines.lines.length; lineIndex++) {
     const line = bodyLines.lines[lineIndex];
