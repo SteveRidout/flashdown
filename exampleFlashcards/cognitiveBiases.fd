@@ -1,53 +1,103 @@
 # Cognitive biases
-// Adapted from https://www.titlemax.com/discovery-center/lifestyle/50-cognitive-biases-to-be-aware-of-so-you-can-be-the-very-best-version-of-you/
+  From https://www.visualcapitalist.com/50-cognitive-biases-in-the-modern-world/
 
-Fundamental Attribution Error: We judge others on their personality or fundamental character, but we judge ourselves on the situation. Example: “Sally is late to class; she's lazy. You're late to class; it was a bad morning.”
-Self-Serving Bias: Our failures are situational but our successes are our responsibility. Example: “You won that award due to hard work rather than help or luck. Meanwhile, you failed a test because you hadn't gotten enough sleep.”
-In-Group Favoritism: We favor people who are in our in-group as opposed to an out-group. Example: “Francis is in your church, so you like Francis more than Sally.”
-Bandwagon Effect: Ideas, fads, and beliefs grow as more people adopt them. Example: “Sally believes fidget spinners help her children. Francis does too.”
-Groupthink: Due to a desire for conformity and harmony in the group, we make irrational decisions often to minimize conflict. Example: “Sally wants to go get ice cream. Francis wants to shop for t-shirts. You suggest getting t-shirts with pictures of ice cream on them.”
-Halo Effect: If you see a person as having a positive trait, that positive impression will spill over into their other traits. (This also works for negative traits.) Example: “Taylor could never be mean; she's so cute!”
-Moral Luck: Better moral standing happens due to a positive outcome; worse moral standing happens due to a negative outcome. Example: “X culture won X war because they were morally superior to the losers.”
-False Consensus: We believe more people agree with us than is actually the case. Example: “Everybody thinks that!”
-Curse of Knowledge: Once we know something, we assume everyone else knows it, too. Example: “Alice is a teacher and struggles to understand the perspective of her new students.”
-Spotlight Effect: We overestimate how much people are paying attention to our behavior and appearance. Example: “Sally is worried everyone is going to notice how lame her ice cream t-shirt is.”
-Availability Heuristic (or bias): We rely on immediate examples that come to mind while making judgments. Example: “When trying to decide on which store to visit, you choose the one you most recently saw an ad for.”
-Defensive Attribution: As a witness who secretly fears being vulnerable to a serious mishap, we will blame the victim less and attacker more if we relate to the victim. Example: “Sally sat at a green light playing with her phone and got rear-ended. Greg, who texts and drives, got out and yelled at the person who smacked into her.”
-Just-World Hypothesis: We tend to believe the world is just; therefore, we assume acts of injustice are deserved. Example: “Sally's purse was stolen because she was mean to Francis about her T-shirt and had bad karma.”
-Naïve Realism: We believe that we observe objective reality and that other people are irrational, uninformed, or biased. Example: “I see the world as it really is — other people are dumb.”
-Naïve Cynicism: We believe that we observe objective reality and that other people have a higher egocentric bias than they actually do in their intentions/actions. Example: “The only reason this person is doing something nice is to get something out of me.”
-Forer Effect (aka Barnum Effect): We easily attribute our personalities to vague statements, even if they can apply to a wide range of people. Example: “This horoscope is so accurate!”
-Dunning-Kruger Effect: The less you know, the more confident you are. The more you know, the less confident you are. Example: “Francis confidently assures the group that there's no kelp in ice cream. They do not work in the dairy industry.”
-Anchoring: We rely heavily on the first piece of information introduced when making decisions. Example: “That's 50% off? It must be a great deal.”
-Automation Bias: We rely on automated systems, sometimes trusting too much in the automated correction of actually correct decisions. Example: “Your phone auto-corrects ""its"" to ""it's"", so you assume it is right.”
-Google Effect (aka Digital Amnesia): "We tend to forget information that's easily looked up in search engines." Example: “What was the name of that actor in that funny movie? I've looked it up about eight times…”
-Reactance: "We do the opposite of what we're told, especially when we perceive threats to personal freedoms." Example: “One of Alice's students refuses to do his homework even though both she and his parents tell him to.”
-Confirmation Bias: We tend to find and remember information that confirms our perceptions. Example: “You can confirm a conspiracy theory based on scant evidence while ignoring contrary evidence.”
-Backfire Effect: Disproving evidence sometimes has the unwarranted effect of confirming our beliefs. Example: “The evidence that disproves your conspiracy theory was probably faked by the government.”
-Third-Person Effect: We believe that others are more affected by mass-media consumption than we ourselves are. Example: “You've clearly been brainwashed by the media.”
-Belief Bias: "We judge an argument's strength not by how strongly it supports the conclusion but how plausible the conclusion is in our own minds." Example: “Sally mentions facts supporting your conspiracy theory, which you accept wholeheartedly despite her having little evidence.”
-Availability Cascade: Tied to our need for social acceptance, collective beliefs gain more plausibility through public repetition. Example: “A story about razor blades appearing in candy eventually led to many people no longer offering homemade treats on Halloween in America.”
-Declinism: We tend to romanticize the past and view the future negatively, believing that societies/institutions are by and large in decline. Example: “In my day, kids had more respect!”
-Status Quo Bias: We tend to prefer things to stay the same; changes from the baseline are considered to be a loss. Example: “Even though an app's terms of service invade Sally's privacy, she'd rather not switch to another app.”
-Sunk Cost Fallacy (aka Escalation of Commitment): We invest more in things that have cost us something rather than altering our investments even if we face negative outcomes. Example: “In for a penny, in for a pound!”
-"Gambler's Fallacy": We think future possibilities are affected by past events. Example: “Alice has lost nine coin tosses in a row so she's sure to win the next one!”
-Zero Risk Bias: We prefer to reduce small risks to zero, even if we can reduce more risk overall with another option. Example: “You should probably buy the warranty.”
-Framing Effect: "We often draw different conclusions from the same information depending on how it's presented." Example: “Alice hears her favorite candidate is "killing it" with 45% approval. Sally hears the candidate is "disappointing" with a 45% rating. They have wildly different interpretations of the statistic.”
-Stereotyping: We adopt generalized beliefs that members of a group will have certain characteristics despite not having information about the individual. Example: “That guy with the fancy mustache is a hipster. He probably has a vinyl collection.”
-Outgroup Homogeneity Bias: We perceive out-group members as homogeneous and our own in-groups as more diverse. Example: “Alice is not a gamer but she believes all gamers are the same.”
-Authority Bias: We trust and are more often influenced by the opinions of authority figures. Example: “My teacher told me this was fine.”
-Placebo Effect: If we believe a treatment will work, it often will have a small physiological effect. Example: “Alice was given a placebo for per pain and her pain decreased.”
-Survivorship Bias: We tend to focus on those things that survived a process and overlook the ones that failed. Example: “Greg tells Alice her purse business is going to be great because a successful fashion company had the same strategy. (But 10 other failed companies also had the same strategy.)”
-Tachypsychia: Our perceptions of time shift depending on trauma, drug use, and physical exertion. Example: “When the car almost hit me, time slowed down…”
-Law of Triviality (aka "Bike-Shedding"): We give disproportionate weight to the trivial issues, often while avoiding more complex issues. Example: “Rather than figuring out how to help the homeless, a local city government spends a lot of time discussing putting in a bike path and bike sheds.”
-Zeigarnik Effect: We remember incomplete tasks more than completed ones. Example: “Greg feels guilty for never getting anything done, until he sees all of the tasks he's checked off on his task list.”
-IKEA Effect: We place higher value on things we partially created ourselves. Example: “Don't you love this pot I spent $20 on? I painted it myself!”
-Ben Franklin Effect: "We like doing favors; we are more likely to do another favor for someone if we've already done a favor for them than if we had received a favor from that person." Example: “Greg loaned Francis a pen. When Francis asked to borrow $5, Greg did it readily.”
-Bystander Effect: The more other people are around, the less likely we are to help a victim. Example: “In a crowd of students, no one called 911 when someone got hurt in a fight.”
-Suggestibility: We, especially children, sometimes mistake ideas suggested by a questioner for memories. Example: “So did you fall off the couch before or after your mom hit you?”
-False Memory: We mistake imagination for real memories. Example: “Greg is certain Sally told a really funny joke about pineapples, but that joke actually came from a TV show.”
-Cryptomnesia: We mistake real memories for imagination Example: “Greg thinks he visited a graveyard, but he's pretty sure he just had a spooky dream.”
-Clustering Illusion: "We find patterns and ""clusters"" in random data." Example: “That cloud looks like your cat!”
-Pessimism Bias: We sometimes overestimate the likelihood of bad outcomes. Example: “Nothing will ever get better.”
-Optimism Bias: We sometimes are over-optimistic about good outcomes. Example: “It's going to turn out great!”
-Blind Spot Bias: "We don't think we have bias and we see it on others more than ourselves." Example: “I am not biased!”
+Fundamental Attribution Error: We judge others on their personality or fundamental character, but we judge ourselves on the situation.
+  Example: “Sally is late to class; she's lazy. You're late to class; it was a bad morning.”
+Self-Serving Bias: Our failures are situational but our successes are our responsibility.
+  Example: “You won that award due to hard work rather than help or luck. Meanwhile, you failed a test because you hadn't gotten enough sleep.”
+In-Group Favoritism: We favor people who are in our in-group as opposed to an out-group.
+  Example: “Francis is in your church, so you like Francis more than Sally.”
+Bandwagon Effect: Ideas, fads, and beliefs grow as more people adopt them.
+  Example: “Sally believes fidget spinners help her children. Francis does too.”
+Groupthink: Due to a desire for conformity and harmony in the group, we make irrational decisions often to minimize conflict.
+  Example: “Sally wants to go get ice cream. Francis wants to shop for t-shirts. You suggest getting t-shirts with pictures of ice cream on them.”
+Halo Effect: If you see a person as having a positive trait, that positive impression will spill over into their other traits. (This also works for negative traits.
+  Example: “Taylor could never be mean; she's so cute!”
+Moral Luck: Better moral standing happens due to a positive outcome; worse moral standing happens due to a negative outcome.
+  Example: “X culture won X war because they were morally superior to the losers.”
+False Consensus: We believe more people agree with us than is actually the case.
+  Example: “Everybody thinks that!”
+Curse of Knowledge: Once we know something, we assume everyone else knows it, too.
+  Example: “Alice is a teacher and struggles to understand the perspective of her new students.”
+Spotlight Effect: We overestimate how much people are paying attention to our behavior and appearance.
+  Example: “Sally is worried everyone is going to notice how lame her ice cream t-shirt is.”
+Availability Heuristic (or bias): We rely on immediate examples that come to mind while making judgments.
+  Example: “When trying to decide on which store to visit, you choose the one you most recently saw an ad for.”
+Defensive Attribution: As a witness who secretly fears being vulnerable to a serious mishap, we will blame the victim less and attacker more if we relate to the victim.
+  Example: “Sally sat at a green light playing with her phone and got rear-ended. Greg, who texts and drives, got out and yelled at the person who smacked into her.”
+Just-World Hypothesis: We tend to believe the world is just; therefore, we assume acts of injustice are deserved.
+  Example: “Sally's purse was stolen because she was mean to Francis about her T-shirt and had bad karma.”
+Naïve Realism: We believe that we observe objective reality and that other people are irrational, uninformed, or biased.
+  Example: “I see the world as it really is — other people are dumb.”
+Naïve Cynicism: We believe that we observe objective reality and that other people have a higher egocentric bias than they actually do in their intentions/actions.
+  Example: “The only reason this person is doing something nice is to get something out of me.”
+Forer Effect (aka Barnum Effect): We easily attribute our personalities to vague statements, even if they can apply to a wide range of people.
+  Example: “This horoscope is so accurate!”
+Dunning-Kruger Effect: The less you know, the more confident you are. The more you know, the less confident you are.
+  Example: “Francis confidently assures the group that there's no kelp in ice cream. They do not work in the dairy industry.”
+Anchoring: We rely heavily on the first piece of information introduced when making decisions.
+  Example: “That's 50% off? It must be a great deal.”
+Automation Bias: We rely on automated systems, sometimes trusting too much in the automated correction of actually correct decisions.
+  Example: “Your phone auto-corrects "its" to "it's", so you assume it is right.”
+Google Effect (aka Digital Amnesia): We tend to forget information that's easily looked up in search engines.
+  Example: “What was the name of that actor in that funny movie? I've looked it up about eight times…”
+Reactance: We do the opposite of what we're told, especially when we perceive threats to personal freedoms.
+  Example: “One of Alice's students refuses to do his homework even though both she and his parents tell him to.”
+Confirmation Bias: We tend to find and remember information that confirms our perceptions.
+  Example: “You can confirm a conspiracy theory based on scant evidence while ignoring contrary evidence.”
+Backfire Effect: Disproving evidence sometimes has the unwarranted effect of confirming our beliefs.
+  Example: “The evidence that disproves your conspiracy theory was probably faked by the government.”
+Third-Person Effect: We believe that others are more affected by mass-media consumption than we ourselves are.
+  Example: “You've clearly been brainwashed by the media.”
+Belief Bias: We judge an argument's strength not by how strongly it supports the conclusion but how plausible the conclusion is in our own minds.
+  Example: “Sally mentions facts supporting your conspiracy theory, which you accept wholeheartedly despite her having little evidence.”
+Availability Cascade: Tied to our need for social acceptance, collective beliefs gain more plausibility through public repetition.
+  Example: “A story about razor blades appearing in candy eventually led to many people no longer offering homemade treats on Halloween in America.”
+Declinism: We tend to romanticize the past and view the future negatively, believing that societies/institutions are by and large in decline.
+  Example: “In my day, kids had more respect!”
+Status Quo Bias: We tend to prefer things to stay the same; changes from the baseline are considered to be a loss.
+  Example: “Even though an app's terms of service invade Sally's privacy, she'd rather not switch to another app.”
+Sunk Cost Fallacy (aka Escalation of Commitment): We invest more in things that have cost us something rather than altering our investments even if we face negative outcomes.
+  Example: “In for a penny, in for a pound!”
+"Gambler's Fallacy": We think future possibilities are affected by past events.
+  Example: “Alice has lost nine coin tosses in a row so she's sure to win the next one!”
+Zero Risk Bias: We prefer to reduce small risks to zero, even if we can reduce more risk overall with another option.
+  Example: “You should probably buy the warranty.”
+Framing Effect: We often draw different conclusions from the same information depending on how it's presented.
+  Example: “Alice hears her favorite candidate is "killing it" with 45% approval. Sally hears the candidate is "disappointing" with a 45% rating. They have wildly different interpretations of the statistic.”
+Stereotyping: We adopt generalized beliefs that members of a group will have certain characteristics despite not having information about the individual.
+  Example: “That guy with the fancy mustache is a hipster. He probably has a vinyl collection.”
+Outgroup Homogeneity Bias: We perceive out-group members as homogeneous and our own in-groups as more diverse.
+  Example: “Alice is not a gamer but she believes all gamers are the same.”
+Authority Bias: We trust and are more often influenced by the opinions of authority figures.
+  Example: “My teacher told me this was fine.”
+Placebo Effect: If we believe a treatment will work, it often will have a small physiological effect.
+  Example: “Alice was given a pill for per pain and her pain decreased.”
+Survivorship Bias: We tend to focus on those things that survived a process and overlook the ones that failed.
+  Example: “Greg tells Alice her purse business is going to be great because a successful fashion company had the same strategy. (But 10 other failed companies also had the same strategy.)”
+Tachypsychia: Our perceptions of time shift depending on trauma, drug use, and physical exertion.
+  Example: “When the car almost hit me, time slowed down…”
+Law of Triviality (aka "Bike-Shedding"): We give disproportionate weight to the trivial issues, often while avoiding more complex issues.
+  Example: “Rather than figuring out how to help the homeless, a local city government spends a lot of time discussing putting in a bike path and bike sheds.”
+Zeigarnik Effect: We remember incomplete tasks more than completed ones.
+  Example: “Greg feels guilty for never getting anything done, until he sees all of the tasks he's checked off on his task list.”
+IKEA Effect: We place higher value on things we partially created ourselves.
+  Example: “Don't you love this pot I spent $20 on? I painted it myself!”
+Ben Franklin Effect: We like doing favors; we are more likely to do another favor for someone if we've already done a favor for them than if we had received a favor from that person.
+  Example: “Greg loaned Francis a pen. When Francis asked to borrow $5, Greg did it readily.”
+Bystander Effect: The more other people are around, the less likely we are to help a victim.
+  Example: “In a crowd of students, no one called 911 when someone got hurt in a fight.”
+Suggestibility: We, especially children, sometimes mistake ideas suggested by a questioner for memories.
+  Example: “So did you fall of the couch before or after your mom hit you?”
+False Memory: We mistake imagination for real memories.
+  Example: “Greg is certain Sally told a really funny joke about pineapples, but that joke actually came from a TV show.”
+Cryptomnesia: We mistake real memories for imagination.
+  Example: “Greg actually visited a graveyard, but he's pretty sure he just had a spooky dream.”
+Clustering Illusion: We find patterns and "clusters" in random data.
+  Example: “That cloud looks like your cat!”
+Pessimism Bias: We sometimes overestimate the likelihood of bad outcomes.
+  Example: “Nothing will ever get better.”
+Optimism Bias: We sometimes overestimate the likelihood of good outcomes.
+  Example: “It's going to turn out great!”
+Blind Spot Bias: We don't think we have bias and we see it on others more than ourselves.
+  Example: “I am not biased!”
