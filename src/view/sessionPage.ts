@@ -14,8 +14,8 @@ import * as config from "../config";
 import * as appState from "../appState";
 import * as actions from "../actions";
 import * as gradingUtils from "../gradingUtils";
-import { getSpacedRepetitionInfo } from "../spacedRepetition";
 import { getWidth } from "../terminalSize";
+import * as spacedRepetitionStatsView from "./spacedRepetitionStatsView";
 
 const blankText = (input: string) =>
   input
@@ -33,7 +33,7 @@ const underlines = (length: number) => {
 
 const inputText = (input: string, target: string) => {
   // Adding a space at the end in case the user types one character more
-  return `${input}${underlines(target.length - input.length)} `;
+  return `${input}${underlines(target.length - input.length)}`;
 };
 
 let previousStageType: CardStage["type"];
@@ -176,8 +176,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
     case "first-side-reveal": {
       const cardBodyText =
         card.direction === "front-to-back"
-          ? `${card.front} : ${blankText(card.back)}`
-          : `${blankText(card.front)} : ${card.back}`;
+          ? `${card.front}: ${blankText(card.back)}`
+          : `${blankText(card.front)}: ${card.back}`;
       builder.addSection(
         createCard(
           card.sectionTitle,
@@ -236,7 +236,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       let cardContent = "";
       let cursorX: number;
       if (card.direction === "front-to-back") {
-        cardContent = `${card.front} : `;
+        cardContent = `${card.front}: `;
         cursorX = cardContent.length + stage.cursorPosition;
         cardContent += `${inputText(stage.input, card.back)}`;
       } else {
@@ -341,7 +341,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
         createCard(
           card.sectionTitle,
           {
-            lines: [`${card.front} : ${card.back}`],
+            lines: [`${card.front}: ${card.back}`],
           },
           2,
           card.note
@@ -376,8 +376,8 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
       const score = stage.type === "finished" ? stage.score : undefined;
       const text =
         card.direction === "front-to-back"
-          ? `${card.front} : ${card.back}`
-          : `${card.front} : ${card.back}`;
+          ? `${card.front}: ${card.back}`
+          : `${card.front}: ${card.back}`;
 
       builder.addSection(
         createCard(card.sectionTitle, { lines: [text] }, 2, card.note)
@@ -523,49 +523,7 @@ export const render = (sessionPage: SessionPage): TerminalViewModel => {
 
   // XXX Extract to separate component
   if (config.get().stats && !card.new && "previousInterval" in card) {
-    builder.addText(["", ""]);
-    const lastPracticeRecord = _.last(card.practiceRecords);
-    if (lastPracticeRecord) {
-      builder.addText(
-        [
-          "Previous practices: " + card.practiceRecords?.length,
-          "Previous practice date: " +
-            new Date(
-              lastPracticeRecord.practiceTime * 60 * 1000
-            ).toDateString(),
-        ],
-        "stats"
-      );
-    } else {
-      builder.addText("Previous practices: " + 0, "stats");
-    }
-    builder.addText(
-      [
-        "Previous interval: " +
-          (card.previousInterval === undefined
-            ? "undefined"
-            : (card.previousInterval / 60 / 24).toFixed(1) + " days"),
-        "Previous score: " + card.previousScore,
-        "Previous easiness: " + card.easinessFactor.toFixed(2),
-      ],
-      "stats"
-    );
-
-    if (stage.type === "finished" || stage.type === "second-side-typed") {
-      const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords);
-      if (nextSRSInfo) {
-        builder.addText(
-          [
-            "Next practice time: " +
-              new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString(),
-            "Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2),
-          ],
-          "stats"
-        );
-      } else {
-        builder.addText("NO SRS INFO, bug?", "stats");
-      }
-    }
+    builder.addSection(spacedRepetitionStatsView.render(card, stage));
   }
 
   return {

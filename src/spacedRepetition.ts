@@ -4,12 +4,6 @@ import * as config from "./config";
 // The spaced repetition algorithm is inspired by SM2, originally used in SuperMemo and a variant of
 // which is used in the popular flashcard app Anki.
 
-// This variant changes SM2 in the following ways:
-// - Only 4 answer states, like Anki (1 - 4, mapping to the keys which are used)
-// - Easiness factor calculation is simplified for better readability
-// - After failing a card, it is scheduled for immediate review and will be shown to the user within
-//   the current session (but with other cards in between if they exist)
-
 interface SpacedRepetitionConfig {
   initialEasinessFactor: number;
 
