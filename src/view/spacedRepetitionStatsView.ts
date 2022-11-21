@@ -42,11 +42,21 @@ export const render = (
     );
 
     if (stage.type === "finished" || stage.type === "second-side-typed") {
-      const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords);
-      if (nextSRSInfo) {
+      const nextSRSInfo = getSpacedRepetitionInfo(card.practiceRecords, {
+        jitter: config.get().jitter,
+        jitterRandomSeed: [card.front, card.direction].join("-"),
+      });
+      const nextSRSInfoWithoutJitter = getSpacedRepetitionInfo(
+        card.practiceRecords
+      );
+      if (nextSRSInfo && nextSRSInfoWithoutJitter) {
         builder.addText(
           [
-            "Next practice time: " +
+            "Next practice time (without jitter): " +
+              new Date(
+                nextSRSInfoWithoutJitter.nextPracticeTime * 60 * 1000
+              ).toDateString(),
+            "Next practice time (with jitter): " +
               new Date(nextSRSInfo.nextPracticeTime * 60 * 1000).toDateString(),
             "Next easiness factor: " + nextSRSInfo.easinessFactor.toFixed(2),
           ],

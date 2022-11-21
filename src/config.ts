@@ -7,6 +7,9 @@ const coreConfig = {
 
   /** The maximum number of columns to use when rendering the UI */
   maxColumnWidth: 78,
+
+  /** The amount of jitter (+/- fraction) to apply to the next interval */
+  jitter: 0.1,
 };
 
 interface CLIOptions {
