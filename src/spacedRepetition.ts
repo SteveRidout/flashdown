@@ -1,3 +1,5 @@
+import * as randomSeed from "random-seed";
+
 import { CardLearningDerivedMetrics, PracticeRecord } from "./types";
 import * as config from "./config";
 
@@ -15,18 +17,35 @@ interface SpacedRepetitionConfig {
 
   /** The minimum time we can wait until showing the user a card again after they got it correct */
   minimumCorrectInterval: number;
+
+  /** The maximum fraction +/- of the next interval to use for the random jitter */
+  jitter: number;
+
+  /**
+   * The random seed which contributes to generate different random jitter values for cards which
+   * otherwise have the exact same SRS practice history
+   */
+  jitterRandomSeed: string;
 }
 
 const defaultConfig: SpacedRepetitionConfig = {
   initialEasinessFactor: 2.5,
   firstInterval: 60 * 24,
   minimumCorrectInterval: 60,
+  jitter: 0,
+  jitterRandomSeed: "",
 };
 
 export const getSpacedRepetitionInfo = (
   records: PracticeRecord[],
-  srsConfig: SpacedRepetitionConfig = defaultConfig
+  partialSrsConfig: Partial<SpacedRepetitionConfig> = {}
 ): CardLearningDerivedMetrics | undefined => {
+  /** Use the default config values for fields which aren't specified in srsConfig */
+  const srsConfig = {
+    ...defaultConfig,
+    ...partialSrsConfig,
+  };
+
   let easinessFactor = srsConfig.initialEasinessFactor;
   let previous:
     | {
@@ -54,7 +73,7 @@ export const getSpacedRepetitionInfo = (
 
     // If previous interval is very short, indicating a practice within the timescale of a single
     // session, don't do anything, the future scheduling will be based only on the user's
-    // performance on the first time they saw it within a session
+    // performance on the first time they saw it within a session.
     if (previousInterval !== undefined && previousInterval < 5) {
       continue;
     }
@@ -111,7 +130,22 @@ export const getSpacedRepetitionInfo = (
       }
     })();
 
-    nextPracticeTime = record.practiceTime + nextInterval;
+    const jitter = (() => {
+      if (srsConfig.jitter === 0) {
+        return 0;
+      }
+
+      // Apply jitter using a linear distribution between -srsConfig.jitter and +srsConfig.jitter
+      const randomGenerator = randomSeed.create(
+        [srsConfig.jitterRandomSeed, previousInterval, records.length].join("-")
+      );
+
+      return srsConfig.jitter * (-1 + 2 * randomGenerator.random());
+    })();
+
+    nextPracticeTime = Math.round(
+      record.practiceTime + nextInterval * (1 + jitter)
+    );
 
     previous = {
       time: record.practiceTime,

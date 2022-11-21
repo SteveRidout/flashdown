@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 
+import * as config from "./config";
 import {
   Card,
   CardLearningDerivedMetrics,
@@ -10,6 +11,7 @@ import {
 import * as spacedRepetition from "./spacedRepetition";
 import * as utils from "./utils";
 import * as debug from "./debug";
+import { getConfigFileParsingDiagnostics } from "typescript";
 
 interface TopicMap {
   [name: string]: TopicData;
@@ -73,7 +75,10 @@ export const calcHomePageData = (
           }
         }
 
-        return spacedRepetition.getSpacedRepetitionInfo(practiceRecords);
+        return spacedRepetition.getSpacedRepetitionInfo(practiceRecords, {
+          jitter: config.get().jitter,
+          jitterRandomSeed: [card.front, card.direction].join("-"),
+        });
       })();
 
       // Add card to home page data:
